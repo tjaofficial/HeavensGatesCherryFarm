@@ -3,6 +3,7 @@ import paho.mqtt.client as mqtt # type: ignore
 import ssl
 import json
 import time
+from django.conf import settings # type: ignore
 
 alphabetKey = {'a': '1', 'b': '2', 'c': '3', 'd': '4', 'e': '5', 'f': '6', 'g': '7', 'h': '8', 'i': '9', 'j': '10', 'k': '11', 'l': '12', 'm': '13', 'n': '14', 'o': '15', 'p': '16', 'q': '17', 'r': '18', 's': '19', 't': '20', 'u': '21', 'v': '22', 'w': '23', 'x': '24', 'y': '25', 'z': '26', 'A': '27', 'B': '28', 'C': '29', 'D': '30', 'E': '31', 'F': '32', 'G': '33', 'H': '34', 'I': '35', 'J': '36', 'K': '37', 'L': '38', 'M': '39', 'N': '40', 'O': '41', 'P': '42', 'Q': '43', 'R': '44', 'S': '45', 'T': '46', 'U': '47', 'V': '48', 'W': '49', 'X': '50', 'Y': '51', 'Z': '52'}
 
@@ -71,11 +72,6 @@ def weatherDict(city):
         }
     return weather
 
-MQTT_BROKER = "9a39b7a6a28349a0849650ac1624b36e.s2.eu.hivemq.cloud"
-MQTT_PORT = 8883
-MQTT_USERNAME = "tjaofficial"
-MQTT_PASSWORD = "Tmattar1992!"
-
 def publish_valve_command(device_id: str, turn_on: bool):
     topic = f"shellyplus1-{device_id}/rpc"
     payload = {
@@ -91,9 +87,9 @@ def publish_valve_command(device_id: str, turn_on: bool):
     print(f"Publishing to {topic}: {json.dumps(payload)}")
 
     client = mqtt.Client()
-    client.username_pw_set(MQTT_USERNAME, MQTT_PASSWORD)
+    client.username_pw_set(settings.MQTT_USERNAME, settings.MQTT_PASSWORD)
     client.tls_set(cert_reqs=ssl.CERT_REQUIRED)
-    client.connect(MQTT_BROKER, MQTT_PORT, 60)
+    client.connect(settings.MQTT_BROKER, settings.MQTT_PORT, 60)
     client.loop_start()
 
     client.publish(topic, json.dumps(payload))
