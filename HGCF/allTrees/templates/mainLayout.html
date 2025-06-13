@@ -13,7 +13,7 @@
         {% if sideBar %}{% include "components/sideBar.html" %}{% endif %}
         {% comment %} <div class="bigHeaderSpacer"></div>  {% endcomment %}
         <div class="insideBody">
-            <div id="layoutDataContainer">
+            <div id="layoutDataContainer" style="{% if sideBar %}margin-top: 88px;{% endif %}">
                 {% block list %}
                 
                 {% endblock %}

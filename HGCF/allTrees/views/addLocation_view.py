@@ -1,10 +1,10 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect # type: ignore
 from ..forms import locationTree_form
 from ..models import locationTree_model
 from..utils import selectNextID
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required # type: ignore
 
-lock = login_required(login_url='Login')
+lock = login_required(login_url='login')
 
 @lock
 def addLocation_view(request):
@@ -22,7 +22,7 @@ def addLocation_view(request):
             formData.save()
             return redirect('addLocation')
         
-    return render(request, 'addLocation.html', {
+    return render(request, 'add_items/addLocation.html', {
         'addForm': addForm, 
         'locationsData': locationsData, 
         'newID': newID, 

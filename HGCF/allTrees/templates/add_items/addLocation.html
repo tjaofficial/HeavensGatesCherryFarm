@@ -1,0 +1,122 @@
+{% extends "mainLayout.html" %}{% block list %}{% load static %}
+<link href="{% static 'style/pageSetup.css' %}" rel="stylesheet" />
+<link href="{% static 'style/addCards.css' %}" rel="stylesheet" />
+<link href="{% static 'style/backArrow.css' %}" rel="stylesheet" />
+<script defer src="{% static 'script/hideAddContainer.js' %}"></script>
+{% include "components/spacer.html" with headerSpace='small' %}
+{% comment %} {% include "components/secondarySideBars/secondarySideBar.html" with selector="location" %} {% endcomment %}
+<style>
+  .grid-container {
+    display: grid;
+    grid-template-columns: repeat({{ area.widthByTree }}, 1fr);
+    gap: 5px;
+    padding: 10px;
+  }
+
+  .tree-cell {
+    background-color: #e0f7e9;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 1rem;
+    text-align: center;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  .tree-cell:hover {
+    background-color: #b9f0ce;
+  }
+
+  .tree-popup {
+    position: fixed;
+    top: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 1rem;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    display: none;
+    max-width: 90%;
+  }
+
+  .tree-popup h3 {
+    margin-bottom: 0.5rem;
+  }
+
+  .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    z-index: 999;
+  }
+</style>
+<div id='mainCont' class="secondarySideBarGap">
+    <a id="addLink" href=# onclick="showAddElem(locationForm)">
+        <h3>Add Location</h3>
+    </a>
+    <form id="locationForm" class="addCont" action='' method="POST" style="display:none;">
+        {% csrf_token %}
+        {{addForm.locationID.label}}<br>
+        <input type="text" readonly style="background: gray;" name="locationID" value="{{newID}}"/> <br>
+        {{addForm.name.label}}<br>
+        {{addForm.name}}<br>
+        {{addForm.address.label}}<br>
+        {{addForm.address}}<br>
+        {{addForm.city.label}}<br>
+        {{addForm.city}}<br>
+        {{addForm.state.label}}<br>
+        {{addForm.state}}<br>
+        Date Established<br>
+        {{addForm.dateEst}}<br>
+        <input type='submit' value='Save' />
+    </form>
+</div>
+<div>
+    <h2>Tree Layout for Area: {{ area.name }} ({{ area.areaID }})</h2>
+    <div class="grid-container">
+        {% for row in range_area %}
+            {% for col in range_width %}
+                {% with row|stringformat:"s" as row_str %}
+                    {% with col|stringformat:"s" as col_str %}
+                        {% with row_str|add:"x"|add:col_str as tid %}
+                        <div class="tree-cell" onclick="showTreePopup('{{ tid }}')">
+                            {{ tid }}
+                        </div>
+                        {% endwith %}
+                    {% endwith %}
+                {% endwith %}
+            {% endfor %}
+        {% endfor %}
+    </div>
+</div>
+
+<div class="overlay" onclick="hidePopup()"></div>
+<div class="tree-popup" id="treePopup">
+    <h3 id="treeTitle"></h3>
+    <p><strong>Tree ID:</strong> <span id="treeId"></span></p>
+    <p><strong>Status:</strong> TBD</p>
+    <button onclick="hidePopup()">Close</button>
+</div>
+
+<script>
+    function showTreePopup(treeId) {
+        document.getElementById("treeTitle").textContent = "Tree Details";
+        document.getElementById("treeId").textContent = treeId;
+        document.querySelector(".tree-popup").style.display = "block";
+        document.querySelector(".overlay").style.display = "block";
+    }
+
+    function hidePopup() {
+        document.querySelector(".tree-popup").style.display = "none";
+        document.querySelector(".overlay").style.display = "none";
+    }
+</script>
+{% endblock %}

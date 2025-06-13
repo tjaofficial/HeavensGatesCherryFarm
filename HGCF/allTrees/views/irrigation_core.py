@@ -2,12 +2,15 @@ import requests # type: ignore
 from django.shortcuts import render, redirect # type: ignore
 from django.http import JsonResponse # type: ignore
 from ..models import valve_registration, valve_schedule
-from ..forms import valve_schedule_form
+from ..forms import valve_schedule_form, ValveRegistrationForm
 from django.utils.timezone import now # type: ignore
+from django.contrib.auth.decorators import login_required # type: ignore
 import json
 from django.views.decorators.csrf import csrf_exempt # type: ignore
 from ..utils import publish_valve_command
 from .mqtt_pub import get_valve_statuses
+
+lock = login_required(login_url='login')
 
 #SHELLY_IP = "192.168.2.84"  # Replace with static IP of your Shelly
 
@@ -36,8 +39,11 @@ def get_all_valve_statuses(request):
             valves[device_id] = {
                 "name": valve.name or f"Valve {chr(65 + i)}",
                 "status": status,
-                "ip": device_id  # Required by frontend
+                "ip": device_id,  # Required by frontend
+                "area_name": valve.areaID.name
             }
+
+        print(valves)
 
         return JsonResponse({"status": "success", "valves": valves})
     except Exception as e:
@@ -114,5 +120,26 @@ def toggle_valve(request):
             return JsonResponse({"status": "error", "message": str(e)})
 
     return JsonResponse({"status": "error", "message": "Invalid request"})
+
+@lock
+def add_valve(request):
+    noFooter = True
+    smallHeader = True
+    sideBar = True
+
+    if request.method == 'POST':
+        form = ValveRegistrationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('irrigation_dashboard')
+    else:
+        form = ValveRegistrationForm()
+    return render(request, 'irrigation/add_valve.html', {
+        'noFooter': noFooter, 
+        'smallHeader': smallHeader,
+        'sideBar': sideBar,
+        'form': form
+    })
+
 
 

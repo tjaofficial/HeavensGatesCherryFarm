@@ -1,0 +1,129 @@
+{% extends 'mainLayout.html' %}
+{% block list %}{% load static %}{% load grid_tags %}
+<style>
+  .grid-container {
+    display: grid;
+    grid-template-columns: repeat({{ area.widthByTree }}, 200px);
+    gap: 10px;
+    padding: 10px;
+    justify-content: center;
+  }
+
+  .tree-cell {
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 1rem;
+    text-align: center;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    color: white;
+  }
+
+  .tree-cell.healthy {
+    background-color: #4caf50;
+  }
+
+  .tree-cell.dead {
+    background-color: #f44336;
+  }
+
+  .tree-cell.missing {
+    background-color: #9e9e9e;
+  }
+
+  .tree-popup {
+    position: fixed;
+    top: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 1rem;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    display: none;
+    width: 280px;
+  }
+
+  .tree-popup h3 {
+    margin-bottom: 0.5rem;
+  }
+
+  .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    z-index: 999;
+  }
+</style>
+
+<h2>Tree Layout for Area: {{ area.name }} ({{ area.areaID }})</h2>
+<script>
+    const areaID = "{{ area.areaID}}";
+    const locationID = "{{ area.locationID.locationID }}";
+</script>
+<div class="grid-container">
+    {% for row in range_area %}
+        {% for col in range_width %}
+            {% with row|stringformat:"s" as row_str %}
+                {% with col|stringformat:"s" as col_str %}
+                    {% with col_str|add:"-"|add:row_str as tid %}
+                        {% if tree_map.tid %}
+                            <div class="tree-cell {{ tree_map.tid..status }}" onclick="showTreePopup('{{ tid }}')">
+                                {{ tid }}
+                            </div>
+                        {% else %}
+                            <div class="tree-cell missing" onclick="showTreePopup('{{ tid }}')">
+                                {{ tid }}
+                            </div>
+                        {% endif %}
+                    {% endwith %}
+                {% endwith %}
+            {% endwith %}
+        {% endfor %}
+  {% endfor %}
+</div>
+
+<div class="overlay" onclick="hidePopup()"></div>
+<div class="tree-popup" id="treePopup">
+    <h3 id="treeTitle"></h3>
+    <p><strong>Tree ID:</strong> <span id="treeId"></span></p>
+    <p><strong>Root Stock:</strong> <span id="rootStock"></span></p>
+    <p><strong>Zion Type:</strong> <span id="zionType"></span></p>
+    <p><strong>Date Planted:</strong> <span id="datePlanted"></span></p>
+    <p><strong>Status:</strong> <span id="status"></span></p>
+    <div>
+        <button onclick="hidePopup()">Close</button>
+        <a id="tree_link" href="">see more</a>
+    </div>
+
+</div>
+
+<script>
+  const treeData = {{ tree_map|safe }};
+
+  function showTreePopup(treeId) {
+    const tree = treeData[treeId];
+    document.getElementById("treeId").textContent = `${locationID}-${areaID}-${treeId}`;
+    document.getElementById("treeTitle").textContent = "Tree Details";
+    document.getElementById("rootStock").textContent = tree?.rootStock || 'N/A';
+    document.getElementById("zionType").textContent = tree?.zionType || 'N/A';
+    document.getElementById("datePlanted").textContent = tree?.datePlanted || 'N/A';
+    document.getElementById("status").textContent = tree?.status || 'Missing';
+    document.querySelector(".tree-popup").style.display = "block";
+    document.querySelector(".overlay").style.display = "block";
+    document.getElementById('tree_link').href += `../../tree-data/${locationID}/${areaID}/${treeId}`
+  }
+
+  function hidePopup() {
+    document.querySelector(".tree-popup").style.display = "none";
+    document.querySelector(".overlay").style.display = "none";
+  }
+</script>
+{% endblock %}

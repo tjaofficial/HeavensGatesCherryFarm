@@ -58,6 +58,7 @@
     {% include "components/spacer.html" with headerSpace='small' %}
     <div class="tileCont main" style="padding-top: 150px;">
         <div class="form-container">
+            {% include "components/backArrow.html" with destination="irrigation_dash" %}
             <h2>Set Irrigation Schedule</h2>
             <form method="post">
                 {% csrf_token %}

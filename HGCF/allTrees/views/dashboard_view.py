@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required # type: ignore
 import paho.mqtt.client as paho # type: ignore
 from paho import mqtt # type: ignore
 
-lock = login_required(login_url='Login')
+lock = login_required(login_url='login')
 
 @lock
 def dashboard_view(request):

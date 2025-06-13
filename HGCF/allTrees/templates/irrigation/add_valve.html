@@ -1,0 +1,87 @@
+{% extends "mainLayout.html" %}
+{% block list %}{% load static %}
+<style>
+  .valve-form-container {
+    max-width: 500px;
+    margin: 2rem auto;
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+  }
+
+  .valve-form-container h2 {
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+
+  .form-group {
+    margin-bottom: 1.25rem;
+  }
+
+  label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  input.form-control {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1rem;
+  }
+
+  .submit-btn {
+    background: #4caf50;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+    width: 100%;
+  }
+
+  .submit-btn:hover {
+    background: #43a047;
+  }
+</style>
+
+<div class="valve-form-container">
+  <h2>Register a New Valve</h2>
+  <form id="valveForm" method="POST" action="">
+    {% csrf_token %}
+    <div class="form-group">
+      <label for="id_name">Valve Name</label>
+      {{ form.name }}
+    </div>
+    <div class="form-group">
+      <label for="id_valveIP">Valve IP</label>
+      {{ form.valveIP }}
+    </div>
+    <div class="form-group">
+      <label for="id_areaID">Valve IP</label>
+      {{ form.areaID }}
+    </div>
+    <div class="form-group">
+      <label for="id_sub_area">Valve IP</label>
+      {{ form.sub_area }}
+    </div>
+    <button type="submit" class="submit-btn">Submit</button>
+  </form>
+</div>
+
+<script>
+  document.getElementById('valveForm').addEventListener('submit', function(event) {
+    const nameInput = document.getElementById('id_name');
+
+    if (!nameInput.value.trim()) {
+      alert("Please enter a valve name.");
+      event.preventDefault();
+      return;
+    }
+  });
+</script>
+{% endblock %}

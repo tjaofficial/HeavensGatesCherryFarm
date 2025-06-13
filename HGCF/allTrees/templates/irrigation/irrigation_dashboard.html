@@ -149,140 +149,40 @@
       }
     }
   </style>
-<div style="padding-top: 89px;">
+
+<div style="padding: 35px;">
     <h1>Irrigation Control Dashboard</h1>
-    <div class="valve-grid" id="valve-container"></div>
-    <h2 style="color:#ff8800;">Today’s Schedule</h2>
-    <ul id="schedule-list" style="margin-bottom: 30px;"></ul>
-    <button onclick="shutOffAll()" style="background-color:red; color:white; font-weight:bold; width:100%; padding:15px; margin-bottom:20px; border:none; border-radius:6px;">🚨 Emergency: Shut Off All Valves</button>
-
-    <script>
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== "") {
-                const cookies = document.cookie.split(";");
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    // Does this cookie string begin with the name we want?
-                    if (cookie.substring(0, name.length + 1) === (name + "=")) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
-        }
-
-        function shutOffAll() {
-            if (confirm("Are you sure you want to shut off all valves?")) {
-                fetch('/dashboard/emergency-shutoff/')
-                .then(() => fetchValveStatuses());
-            }
-        }
-        function fetchSchedule() {
-            fetch('/dashboard/schedules/')
-                .then(res => res.json())
-                .then(data => {
-                const list = document.getElementById("schedule-list");
-                list.innerHTML = "";
-                data.schedules.forEach(s => {
-                    const li = document.createElement("li");
-                    li.innerText = `${s.valve}: ${s.start} – ${s.end} (${s.days.toUpperCase()})`;
-                    list.appendChild(li);
-                });
-                });
-        }
-
-        fetchSchedule();
-
-        function fetchValveStatuses() {
-            fetch('/dashboard/irrigation/valve-statuses/')
-                .then(res => res.json())
-                .then(data => {
-                    const container = document.getElementById("valve-container");
-                    container.innerHTML = "";
-
-                    Object.entries(data.valves).forEach(([name, valve], index) => {
-                        console.log("Valve data:", name, valve);
-                        const card = document.createElement("div");
-                        card.classList.add("valve-card");
-
-                        const statusClass = valve.status === true ? "on" : (valve.status === false ? "off" : "error");
-                        const statusText = valve.status === true ? "ON" : (valve.status === false ? "OFF" : "ERROR");
-
-                        card.innerHTML = `
-                            <h2>${valve.name}</h2>
-                            <div class="status ${statusClass}">${statusText}</div>
-                            <button class="toggle-btn" onclick="toggleValve('${valve.ip}', ${valve.status === true ? false : true})">
-                                Turn ${valve.status === true ? 'OFF' : 'ON'}
-                            </button>
-                        `;
-
-                        container.appendChild(card);
-                    });
-                });
-        }
-
-
-        function toggleValve(deviceId, turnOn) {
-            console.log(deviceId, turnOn)
-            fetch("/toggle-valve/", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRFToken": getCookie("csrftoken")
-                },
-                body: JSON.stringify({
-                    device_id: deviceId,
-                    turn: turnOn ? "on" : "off"
-                })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === "success") {
-                    console.log("Toggled Valve!");
-                } else {
-                    console.error(data.message);
-                }
-            });
-        }
-
-
-        // Initial load + refresh every 5 seconds
-        fetchValveStatuses();
-        setInterval(fetchValveStatuses, 2000);
-    </script>
-</div>
-<div>
     <button class="emergency-btn" title="Emergency Shutoff" onclick="emergencyShutdown()"></button>
 
-  <div class="dashboard">
+    <div class="dashboard">
+        <div class="card schedule-card">
+          <h2>Today's Schedule</h2>
+          <p>No scheduled runs yet.</p>
+          <a href="{% url 'irrigation_timer' %}">+ Add Schedule</a>
+        </div>
 
-    <div class="card schedule-card">
-      <h2>Today's Schedule</h2>
-      <p>No scheduled runs yet.</p>
-      <a href="/dashboard/irrigation/add-schedule">+ Add Schedule</a>
-    </div>
-
-    <div class="card valve-manual">
-      <h2>Manual Valve Control</h2>
-      <div>
-        <button onclick="toggleValve('A', true)">Valve A ON</button>
-        <button class="off" onclick="toggleValve('A', false)">OFF</button>
-      </div>
-      <div>
-        <button onclick="toggleValve('B', true)">Valve B ON</button>
-        <button class="off" onclick="toggleValve('B', false)">OFF</button>
-      </div>
-      <div>
-        <button onclick="toggleValve('C', true)">Valve C ON</button>
-        <button class="off" onclick="toggleValve('C', false)">OFF</button>
-      </div>
-      <div>
-        <button onclick="toggleValve('D', true)">Valve D ON</button>
-        <button class="off" onclick="toggleValve('D', false)">OFF</button>
-      </div>
-    </div>
+        <div id="valve-container" class="card valve-manual">
+            <h2>Manual Valve Control</h2>
+            {% comment %} {% for key, x in valves.items %}
+                <div>
+                    <button onclick="toggleValve('A', true)">Valve A ON</button>
+                    <button class="off" onclick="toggleValve('A', false)">OFF</button>
+                </div>
+            {% endfor %} {% endcomment %}
+            {% comment %} <div>
+                <button onclick="toggleValve('B', true)">Valve B ON</button>
+                <button class="off" onclick="toggleValve('B', false)">OFF</button>
+            </div>
+            <div>
+                <button onclick="toggleValve('C', true)">Valve C ON</button>
+                <button class="off" onclick="toggleValve('C', false)">OFF</button>
+            </div>
+            <div>
+                <button onclick="toggleValve('D', true)">Valve D ON</button>
+                <button class="off" onclick="toggleValve('D', false)">OFF</button>
+            </div> {% endcomment %}
+            <a href="{% url 'add_valve' %}">add valve</a>
+        </div>
 
     <div class="card">
       <h2>Valve Zone Status</h2>
@@ -333,10 +233,66 @@
       });
     }
 
-    function toggleValve(valve, state) {
-      alert(`Valve ${valve} turned ${state ? 'ON' : 'OFF'}`);
-      // Add actual AJAX/MQTT logic here
+    function toggleValve(deviceId, turnOn) {
+      console.log(deviceId, turnOn)
+      fetch("/toggle-valve/", {
+          method: "POST",
+          headers: {
+              "Content-Type": "application/json",
+              "X-CSRFToken": getCookie("csrftoken")
+          },
+          body: JSON.stringify({
+              device_id: deviceId,
+              turn: turnOn ? "on" : "off"
+          })
+      })
+      .then(res => res.json())
+      .then(data => {
+          if (data.status === "success") {
+              console.log("Toggled Valve!");
+          } else {
+              console.error(data.message);
+          }
+      });
     }
+
+    function fetchValveStatuses() {
+      fetch('/dashboard/irrigation/valve-statuses/')
+        .then(res => res.json())
+        .then(data => {
+            const container = document.getElementById("valve-container");
+            //container.innerHTML = "";
+
+            Object.entries(data.valves).forEach(([name, valve], index) => {
+                console.log("Valve data:", name, valve);
+                const card = document.createElement("div");
+                //card.classList.add("valve-card");
+
+                const statusClass = valve.status === true ? "on" : (valve.status === false ? "off" : "error");
+                const statusText = valve.status === true ? "ON" : (valve.status === false ? "OFF" : "ERROR");
+
+                card.innerHTML = `
+                    <button onclick="toggleValve(${valve.area_name}, true)">Area ${valve.area_name} ON</button>
+                    <button class="off" onclick="toggleValve(${valve.area_name}, false)">OFF</button>
+                `;
+                 //   <h2>${valve.name}</h2>
+                  //  <div class="status ${statusClass}">${statusText}</div>
+                  //  <button class="toggle-btn" onclick="toggleValve('${valve.ip}', ${valve.status === true ? false : true})">
+                 //       Turn ${valve.status === true ? 'OFF' : 'ON'}
+                 //   </button>
+                
+                
+                container.appendChild(card);
+            });
+            const submit = `<a href="{% url 'add_valve' %}">add valve</a>`;
+            container.appendChild(submit);
+        });
+    }
+
+
+    // Initial load + refresh every 5 seconds
+    fetchValveStatuses();
+    //setInterval(fetchValveStatuses, 2000);
 
     function emergencyShutdown() {
       alert('Emergency shutoff activated! All valves turning off.');
@@ -351,5 +307,52 @@
       document.getElementById('pressure-readout').textContent = `${pressure} psi`;
     }, 3000);
   </script>
+</div>
+<div style="padding-top: 89px;">
+    
+    {% comment %} <div class="valve-grid" id="valve-container"></div>
+    <button onclick="shutOffAll()" style="background-color:red; color:white; font-weight:bold; width:100%; padding:15px; margin-bottom:20px; border:none; border-radius:6px;">🚨 Emergency: Shut Off All Valves</button> {% endcomment %}
+
+    <script>
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== "") {
+                const cookies = document.cookie.split(";");
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + "=")) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function shutOffAll() {
+            if (confirm("Are you sure you want to shut off all valves?")) {
+                fetch('/dashboard/emergency-shutoff/')
+                .then(() => fetchValveStatuses());
+            }
+        }
+        function fetchSchedule() {
+            fetch('/dashboard/schedules/')
+                .then(res => res.json())
+                .then(data => {
+                const list = document.getElementById("schedule-list");
+                list.innerHTML = "";
+                data.schedules.forEach(s => {
+                    const li = document.createElement("li");
+                    li.innerText = `${s.valve}: ${s.start} – ${s.end} (${s.days.toUpperCase()})`;
+                    list.appendChild(li);
+                });
+                });
+        }
+
+        fetchSchedule();
+
+        
+    </script>
 </div>
 {% endblock %}

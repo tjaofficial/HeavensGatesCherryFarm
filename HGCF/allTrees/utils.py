@@ -12,11 +12,11 @@ def selectNextID(data, selector):
     if data.exists():
         print("DATA DOES EXISTS")
         if selector == "location":
-            lastID = int(data[0].locationID) + 1
+            lastID = data[0].locationID# + 1
         elif selector == "area":
-            lastID = int(data[0].areaID) + 1
+            lastID = data[0].areaID #+ 1
         elif selector == "tree":
-            lastID = int(data[0].treeID) + 1
+            lastID = data[0].treeID #+ 1
         lastIDLen = len(str(lastID))
         additionalZeros = 3 - lastIDLen
         newID = ''

@@ -28,7 +28,11 @@ DAYS_OF_WEEK = [
     ('fri', 'Friday'),
     ('sat', 'Saturday'),
 ]
-
+STATUS_CHOICES = [
+    ('healthy', 'Healthy'),
+    ('missing', 'Missing'),
+    ('dead', 'Dead'),
+]
 
 class locationTree_model(models.Model):
     locationID = models.CharField(max_length=10)
@@ -42,7 +46,12 @@ class locationTree_model(models.Model):
     
 class areaTree_model(models.Model):
     areaID = models.CharField(max_length=10)
-    locationID = models.ForeignKey(locationTree_model, on_delete=models.CASCADE, blank=True, null=True)
+    locationID = models.ForeignKey(
+        'locationTree_model', 
+        on_delete=models.CASCADE, 
+        blank=True, 
+        null=True
+    )
     name = models.CharField(max_length=45, blank=True, null=True)
     widthByTree = models.IntegerField()
     lengthByTree = models.IntegerField()
@@ -52,13 +61,18 @@ class areaTree_model(models.Model):
 
 class individualTrees_model(models.Model):
     treeID = models.CharField(max_length=20)
-    areaID = models.ForeignKey(areaTree_model, on_delete=models.CASCADE, blank=True, null=True)
-    locationID = models.ForeignKey(locationTree_model, on_delete=models.CASCADE, blank=True, null=True)
+    areaID = models.ForeignKey(
+        'areaTree_model', 
+        on_delete=models.CASCADE, 
+        blank=True, 
+        null=True
+    )
     rootStock = models.CharField(max_length=10)
     zionType = models.CharField(max_length=10)
     datePlanted = models.DateField(auto_now=False, auto_now_add=False)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='healthy')
     def __str__(self):
-        return str(self.locationID) + " - " + str(self.areaID.areaID) + " - " + str(self.treeID)
+        return str(self.areaID.areaID) + " - " + str(self.treeID)
 
 class logCategory_model(models.Model):
     name = models.CharField(max_length=25)
@@ -67,11 +81,17 @@ class logCategory_model(models.Model):
         return self.name
     
 class treeLogs_model(models.Model):
-    treeID = models.ForeignKey(individualTrees_model, on_delete=models.CASCADE)
+    treeID = models.ForeignKey(
+        'individualTrees_model', 
+        on_delete=models.CASCADE
+    )
     date = models.DateField(auto_now=False, auto_now_add=False)
     time = models.TimeField(auto_now=False, auto_now_add=False)
     note = models.CharField(max_length=10000)
-    category = models.ForeignKey(logCategory_model, on_delete=models.CASCADE)
+    category = models.ForeignKey(
+        'logCategory_model', 
+        on_delete=models.CASCADE
+    )
     def __str__(self):
         return self.treeID.treeID + ' - ' + self.category.name + ' - ' + str(self.date) + '-' + str(self.time)
     
@@ -239,6 +259,17 @@ class valve_registration(models.Model):
     )
     valveIP = models.CharField(
         max_length=17
+    )
+    areaID = models.ForeignKey(
+        'areaTree_model', 
+        on_delete=models.CASCADE, 
+        blank=True, 
+        null=True
+    )
+    sub_area = models.CharField(
+        max_length=17,
+        blank=True, 
+        null=True
     )
     def __str__(self):
         return f"{self.name}"

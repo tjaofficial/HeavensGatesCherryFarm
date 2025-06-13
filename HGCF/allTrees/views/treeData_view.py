@@ -1,16 +1,17 @@
-from django.shortcuts import render
+from django.shortcuts import render # type: ignore
 from ..models import individualTrees_model, areaTree_model, locationTree_model, treeLogs_model, tree_qr
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required # type: ignore
 
-lock = login_required(login_url='Login')
+lock = login_required(login_url='login')
 
 @lock
-def treeData2_view(request, locationID2, areaID2, treeID2):
+def treeData_view(request, locationID, areaID, treeID):
     noFooter = True
     smallHeader = True
     sideBar = True
-    treeData = individualTrees_model.objects.get(locationID__locationID=locationID2, areaID__areaID=areaID2, treeID=treeID2)
-    treeLogs = treeLogs_model.objects.filter(treeID__locationID__locationID=locationID2, treeID__areaID__areaID=areaID2, treeID__treeID=treeID2).order_by('-date')
+    fullTreeID = f"{locationID}-{areaID}-{treeID}"
+    treeData = individualTrees_model.objects.get(areaID__areaID=areaID, treeID=treeID)
+    treeLogs = treeLogs_model.objects.filter(treeID__areaID__areaID=areaID, treeID__treeID=treeID).order_by('-date')
     treeQrCode = tree_qr.objects.filter(treeID__id=treeData.id)
     if treeQrCode.exists():
         treeQrCode = treeQrCode[0]
@@ -19,29 +20,30 @@ def treeData2_view(request, locationID2, areaID2, treeID2):
     
 
     print(treeLogs)
-    return render(request, 'treeData.html',{
+    return render(request, 'tree_grid/treeData.html',{
         'treeQrCode': treeQrCode, 
         'treeLogs': treeLogs, 
-        'locationID': locationID2, 
-        'areaID': areaID2, 
-        'treeID': treeID2, 
+        'locationID': locationID, 
+        'areaID': areaID, 
+        'treeID': treeID, 
         'treeData': treeData,
         'smallHeader': smallHeader,
         'noFooter': noFooter,
-        'sideBar': sideBar
+        'sideBar': sideBar,
+        'fullTreeID': fullTreeID
     })
     
 @lock
-def treeLog_view(request, locationID2, areaID2, treeID2, selector):
+def treeLog_view(request, locationID, areaID, treeID, selector):
     noFooter = True
     smallHeader = True
     sideBar = True
     if selector == 'all':
-        treeLogData = treeLogs_model.objects.all().filter(treeID__locationID__locationID=locationID2, treeID__areaID__areaID=areaID2, treeID__treeID=treeID2).order_by('-date')
+        treeLogData = treeLogs_model.objects.filter(treeID__areaID__areaID=areaID, treeID__treeID=treeID).order_by('-date')
         variables = {
-            'locationID': locationID2, 
-            'areaID': areaID2, 
-            'treeID': treeID2, 
+            'locationID': locationID, 
+            'areaID': areaID, 
+            'treeID': treeID, 
             'selector': selector,
             'treeLogData': treeLogData,
             'smallHeader': smallHeader,
@@ -51,9 +53,9 @@ def treeLog_view(request, locationID2, areaID2, treeID2, selector):
     else:
         treeLog = treeLogs_model.objects.get(id=int(selector))
         variables = {
-            'locationID': locationID2, 
-            'areaID': areaID2, 
-            'treeID': treeID2, 
+            'locationID': locationID, 
+            'areaID': areaID, 
+            'treeID': treeID, 
             'treeLog': treeLog,
             'selector': selector,
             'smallHeader': smallHeader,
@@ -62,3 +64,86 @@ def treeLog_view(request, locationID2, areaID2, treeID2, selector):
         }
     print(selector)
     return render(request, 'treeLog.html', variables)
+
+@lock
+def area_tree_grid_view(request, area_id):
+    area = areaTree_model.objects.get(areaID=area_id)
+    trees = individualTrees_model.objects.filter(areaID=area)
+    
+    tree_map = {}
+    for tree in trees:
+        tree_map[tree.treeID] = {
+            "rootStock": tree.rootStock,
+            "zionType": tree.zionType,
+            "datePlanted": tree.datePlanted,
+            "status": "healthy",  # placeholder, you can later add a status field
+        }
+
+    context = {
+        'area': area,
+        'range_area': range(1, area.lengthByTree + 1),
+        'range_width': range(1, area.widthByTree + 1),
+        'tree_map': tree_map
+    }
+    return render(request, 'tree_grid.html', context)
+
+@lock
+def location_list_view(request):
+    noFooter = True
+    smallHeader = True
+    sideBar = True
+
+    locations = locationTree_model.objects.all()
+    print(locations)
+    return render(request, 'tree_grid/tree_locations.html', {
+        'locations': locations,
+        'smallHeader': smallHeader,
+        'noFooter': noFooter,
+        'sideBar': sideBar
+    })
+
+@lock
+def area_list_view(request, location_id):
+    noFooter = True
+    smallHeader = True
+    sideBar = True
+
+    location = locationTree_model.objects.get(id=location_id)
+    areas = areaTree_model.objects.filter(locationID=location)
+    return render(request, 'tree_grid/tree_areas.html', {
+        'location': location, 
+        'areas': areas,
+        'smallHeader': smallHeader,
+        'noFooter': noFooter,
+        'sideBar': sideBar
+    })
+
+@lock
+def area_tree_grid_view(request, area_id):
+    noFooter = True
+    smallHeader = True
+    sideBar = True
+    area = areaTree_model.objects.get(id=area_id)
+    trees = individualTrees_model.objects.filter(areaID=area)
+    tree_map = {}
+
+    for tree in trees:
+        tree_map[tree.treeID] = {
+            "rootStock": tree.rootStock,
+            "zionType": tree.zionType,
+            "datePlanted": tree.datePlanted.strftime('%Y-%m-%d'),
+            "status": getattr(tree, 'status', 'healthy'),  # optional field
+        }
+
+    return render(request, 'tree_grid/tree_grid.html', {
+        'area': area,
+        'range_area': range(1, area.lengthByTree + 1),
+        'range_width': range(1, area.widthByTree + 1),
+        'tree_map': tree_map,
+        'smallHeader': smallHeader,
+        'noFooter': noFooter,
+        'sideBar': sideBar
+    })
+
+
+

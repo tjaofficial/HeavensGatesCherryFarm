@@ -135,3 +135,17 @@ class valve_schedule_form(forms.ModelForm):
             'start_time': forms.TimeInput(attrs={'type': 'time', 'style': 'width: 130px;'}),
             'end_time': forms.TimeInput(attrs={'type': 'time', 'style': 'width: 130px;'}),
         }
+
+class ValveRegistrationForm(forms.ModelForm):
+    class Meta:
+        model = valve_registration
+        fields = ['name', 'valveIP', 'areaID', 'sub_area']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Valve Name'}),
+            'valveIP': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Valve IP Address'}),
+            'areaID': forms.Select(attrs={'class': 'form-control'}),
+            'sub_area': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Sub Area'}),
+        }
+
+
+

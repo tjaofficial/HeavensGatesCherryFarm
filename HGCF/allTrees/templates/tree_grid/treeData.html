@@ -6,17 +6,17 @@
 {% include "components/spacer.html" with headerSpace='small' %}
 <div class='mainCont'>
     <div class="treeCont">
-        {% include "components/backArrow.html" with destination="tree" %}
+        {% include "components/backArrow.html" with destination="grid" selector1=treeData.areaID.id %}
         <div style='margin-top: -46px; margin-bottom: 25px;text-align: center;'>
             <img src="{% static 'images/tree.jpeg' %}" />
         </div>
         <div class='dataCont'>
-            <b>Tree ID:</b>{{slts_qrcode}} {{treeData.locationID}}-{{treeData.areaID}}-{{treeData.treeID}}<br><br>
-            <b>Root Stock:</b> {{treeData.rootStock}}<br><br>
-            <b>Zion Type:</b> {{treeData.zionType}}<br><br>
-            <b>Date Planted:</b> {{treeData.datePlanted}}<br><br>
-            <b>Notes:</b> <br><br>
-            <b>Logs:</b> <br>
+            <strong>Tree ID:</strong> {{fullTreeID}}<br><br>
+            <strong>Root Stock:</strong> {{treeData.rootStock}}<br><br>
+            <strong>Zion Type:</strong> {{treeData.zionType}}<br><br>
+            <strong>Date Planted:</strong> {{treeData.datePlanted}}<br><br>
+            <strong>Notes:</strong> <br><br>
+            <strong>Logs:</strong> <br>
             <div class='logCont'>
                 <ul>
                     {% for log in treeLogs %}
