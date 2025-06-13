@@ -1,0 +1,18 @@
+.header{
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+}
+.logo{
+    height: 67px;
+}
+.logo img{
+    margin-left: 1rem;
+    width: 67px;
+}
+.navCont{
+    display: flex;
+    margin-right: 1rem;
+}

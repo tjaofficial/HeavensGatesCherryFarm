@@ -1,0 +1,10 @@
+{% load static %}
+<ul style="margin-top: 2px;">
+    {% for location in locationsData%}
+    <li>
+        <a href="{% url 'addArea' location.locationID %}">
+            {{location.city}}
+        </a>
+    </li>
+    {% endfor %}
+</ul>

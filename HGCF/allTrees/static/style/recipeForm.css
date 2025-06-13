@@ -1,0 +1,17 @@
+.mainCont{
+    display: flex;
+    justify-content: center;
+}
+.formCont{
+    background: #552301;
+    width: 40rem;
+    border-radius: 23px;
+    box-shadow: 11px 10px 1px 0px black;
+    text-align: center;
+    padding: 24px;
+    color: white;
+}
+#elementsCont{
+    text-align: left;
+    padding-left: 40px;
+}

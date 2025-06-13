@@ -1,0 +1,25 @@
+.mainCont{
+    background-color: white;
+    width: 37rem;
+    border-radius: 25px;
+    padding: 31px 0px;
+    margin: auto;
+    margin-bottom: 3rem;
+}
+.dataCont{
+    padding: 0px 80px;
+    text-align: left;
+}
+.logCont{
+    background-color: #d5d5d5;
+    border-radius: 6px;
+    height: 10rem;
+    padding: 2px 5px;
+    overflow: scroll;
+}
+.logCont ul{
+    margin: 5px auto;
+}
+.listGap{
+    margin-bottom: 7px;
+}

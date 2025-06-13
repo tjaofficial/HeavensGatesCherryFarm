@@ -1,0 +1,21 @@
+{% extends "mainLayout.html" %}{% load static %}{% block list%}
+<link href="{% static 'style/login.css' %}" rel="stylesheet" />
+<div id='mainCont'>
+    <form id='signup' name="login" action="" method="POST">
+        {% csrf_token %}
+        <div class='regHeader'>
+            <h2 class='treeSpace' style='margin:auto; text-align: center; font-size: 47px;'>Tree Space</h2>
+        </div>
+        <div class='regBody'>
+        {% if login_error.error %}
+            <div class="login__error">{{ login_error.message }}</div>
+        {% endif %}
+            <input id="username" type="text" name="username" placeholder='Username'><br>
+            <input  id="password" type="password" name="password" placeholder='Password'><br>
+            
+            <input id="submit" type="submit" value="Login">
+        </div>
+        <p style='text-align:center;'>Don't have an account? <a href="#">Sign up</a></p>
+    </form>
+</div>
+{% endblock %}

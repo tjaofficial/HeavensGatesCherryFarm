@@ -1,0 +1,30 @@
+{% load static %}
+<link href="{% static 'style/sideBar.css' %}" rel="stylesheet" />
+<div class="play">
+    <div class="headerSpacer"></div>
+    <ul>
+        <li>YouTube API</li>
+        <li>
+            <a href="{% url 'addLocation' %}">Trees</a>
+        </li>
+        <li>
+            <a href="{% url 'irrigation_dashboard' %}">Irrigation</a>
+        </li>
+        <li>
+            <a href="{% url 'recipeForm' %}">Recipes</a>
+        </li>
+        <li>
+            <a href="{% url 'weatherDash' %}">Weather</a>
+        </li>
+        <li>
+            <a href="{% url 'addProduct' %}">Products</a>
+        </li>
+        <li>
+            <a href="{% url 'store' %}">Store</a>
+        </li>
+        <li>Add News</li>
+        <li>
+            <a href="{% url 'Logout' %}">Logout</a>
+        </li>
+    </ul>
+</div>

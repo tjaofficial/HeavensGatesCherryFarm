@@ -1,0 +1,75 @@
+{% extends "mainLayout.html" %}{% load static %}{% block list%}
+<style>
+    .grid-container {
+        display: grid;
+        grid-template-columns: repeat({{ indexWidth }},auto);
+        background-color: #b1d5b3;
+        padding: 10px;
+        width: 50rem;
+        margin: auto;
+        border-radius: 15px;
+    }
+</style>
+<link href="{% static 'style/pageSetup.css' %}" rel="stylesheet" />
+<link href="{% static 'style/addCards.css' %}" rel="stylesheet" />
+<link href="{% static 'style/backArrow.css' %}" rel="stylesheet" />
+<link href="{% static 'style/addTree.css' %}" rel="stylesheet" />
+<script defer src="{% static 'script/hideAddContainer.js' %}"></script>
+<script defer src="{% static 'script/addTree.js' %}"></script>
+<div id="treeList" style="display:none;" data-treeList="{{treeList}}"></div>
+<div id="locationID" style="display:none;" data-locationID="{{locationID}}"></div>
+<div id="areaID" style="display:none;" data-areaID="{{areaID}}"></div>
+{% include "components/spacer.html" with headerSpace='small' %}
+{% include "components/secondarySideBars/secondarySideBar.html" with selector="tree" %}
+<div id='mainCont' class="secondarySideBarGap">
+    <div class="containerBorder">
+        {% include "components/backArrow.html" with destination="area" %}
+        <div class="grid-container">
+            {% for letter in columnList %}
+                <div class="grid-item">{{letter}}</div>
+            {% endfor %}
+            {% for number in rowRange %}
+                {% for letter in columnList %}
+                    {% if letter == '-' %}
+                        <div class="grid-item">{{number}}</div>
+                    {% else %}
+                        <div id="{{number}}{{letter}}" class="grid-item"></div>
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
+        </div>
+    </div>
+    <a id="addLink" href=# onclick="showAddElem(treeForm)">
+        <h3>Add Tree</h3>
+    </a>
+    <form id="treeForm" class="addCont" action='' method="POST" style="display:none;">
+        {% csrf_token %}
+        {{addForm.locationID.label}}<br>
+        <input type="text" style="background: gray;" readonly name="locationID" value="{{locationID}}"/><br>
+        {{addForm.areaID.label}}<br>
+        <input type="text" style="background: gray;" readonly name="areaID" value="{{areaID}}"/> <br>
+        {{addForm.treeID.label}}<br>
+        <select name='row' id="row" required>
+            <option value=''>-</option>
+            {% for number in rowRange %}
+                <option value='{{number}}'>{{number}}</option>
+            {% endfor %}
+        </select>
+        <select name='column' id="column" required>
+            <option value=''>-</option>
+            {% for letter in columnList %}
+                {% if letter != '-' %}
+                    <option value='{{letter}}'>{{letter}}</option>
+                {% endif %}
+            {% endfor %}
+        </select><br>
+        Root Stock<br>
+        {{addForm.rootStock}}<br>
+        Zion Type<br>
+        {{addForm.zionType}}<br>
+        Date Planted<br>
+        {{addForm.datePlanted}}<br>
+        <input type='submit' value='Save' />
+    </form>
+</div>
+{% endblock %}

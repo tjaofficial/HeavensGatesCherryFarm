@@ -1,0 +1,12 @@
+.regBody{
+
+}
+#signup{
+    background: #93c193;
+    width: 60%;
+    border-radius: 23px;
+    padding: 10px;
+    text-align: center;
+    border: black solid 2px;
+    margin: 9rem auto;
+}

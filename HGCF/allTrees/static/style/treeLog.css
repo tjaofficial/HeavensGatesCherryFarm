@@ -1,0 +1,19 @@
+.mainCont{
+    background-color: white;
+    width: 33rem;
+    border-radius: 25px;
+    padding: 31px 0px;
+}
+.mainCont a{
+    position: relative;
+    left: -14rem;
+    top: 0rem;
+}
+.mainCont svg{
+    width: 30px;
+}
+.eachLog{
+    margin-bottom: 20px;
+    background-color: lightgrey;
+    padding: 26px 0px;
+}

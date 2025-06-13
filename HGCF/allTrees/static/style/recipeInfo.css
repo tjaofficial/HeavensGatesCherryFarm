@@ -1,0 +1,47 @@
+.recipeCont{
+    margin-left: 160px;
+    padding: 18px;
+}
+.innerRecipeCont{
+    background: beige;
+    width: 40rem;
+    border-radius: 22px;
+    padding: 1px 26px;
+    margin: auto;
+    padding-bottom: 25px;
+}
+.elementIndent{
+    padding-left: 40px;
+}
+.ingredientIndent{
+    padding-left: 90px;
+}
+.headerInputs{
+    display:flex;
+}
+.headerInputs h4{
+    margin: 0px;
+}
+.grid-container {
+    display: grid;
+    grid-template-columns: auto auto auto;
+}
+.grid-item {
+    background-color: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(0, 0, 0, 0.8);
+    padding: 7px;
+    font-size: 15px;
+    text-align: center;
+}
+.imagesCont{
+    text-align: center;
+    background: gray;
+    height: 8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+.imagesCont img{
+    width:100%;
+}

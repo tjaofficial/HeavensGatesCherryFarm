@@ -1,0 +1,17 @@
+.grid-item {
+    background-color: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(0, 0, 0, 0.8);
+    padding: 9px;
+    font-size: 24px;
+    text-align: center;
+}
+.rows{
+    display:inline-flex;
+}
+.containerBorder{
+    background-color: #b1d5b3;
+    border-radius: 15px;
+    padding: 30px;
+    width: fit-content;
+    margin: auto;
+}

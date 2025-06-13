@@ -1,0 +1,15 @@
+{% load static %}
+<link href="{% static 'style/secondarySideBar.css' %}" rel="stylesheet" />
+<div class="theColumn">
+    <div class="headerSpacer"></div>
+    <div class="theHeader">{{selector|title}}s:</div>
+    {% if selector == 'location' %}
+        {% include 'components/secondarySideBars/locationSideBar.html' %}
+    {% elif selector == 'area'%}
+        {% include 'components/secondarySideBars/areaSideBar.html' %}
+    {% elif selector == 'tree'%}
+        {% include 'components/secondarySideBars/treeSideBar.html' %}
+    {% elif selector == 'recipe'%}
+        {% include 'components/secondarySideBars/recipeSideBar.html' %}
+    {% endif %}
+</div>

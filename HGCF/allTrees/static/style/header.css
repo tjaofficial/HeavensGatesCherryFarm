@@ -1,0 +1,181 @@
+#header ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+#header h2, h3, a {
+	color: #34495e;
+}
+
+#header a {
+	text-decoration: none;
+}
+.logo {
+	text-align: center;
+}
+.main-nav {
+	margin-top: 5px;
+	align-items: center;
+	display: inline-flex;
+}
+.main-nav a {
+	padding: 10px 15px;
+	text-transform: uppercase;
+	text-align: center;
+}
+.main-nav a {
+	color: #000000;
+	font-size: .99em;
+}
+.main-nav a:hover {
+	color: #718daa;
+}
+.header {
+	padding-top: .5em;
+	padding-bottom: .5em;
+	border: 1px solid #a2a2a2;
+	background-color: #ffe7cd;
+	box-shadow: 0px 0px 14px 0px rgba(0,0,0,0.75);
+	border-radius: 5px;
+	font-weight: bold;
+    font-size: 18px;
+	z-index: 4;
+    position: relative;
+}
+.navCont{
+	text-align: center;
+}
+.menu {
+	background: #a3825e;
+    border: black 3px solid;
+    border-radius: 11px;
+    width: 11rem;
+    padding: 10px;
+    margin: auto;
+	display: none;
+}
+#dropDownMenu ul{
+	flex-direction: column;
+	width: 100%;
+	text-align: center;
+	background-color: #3498db64;
+	align-items: center;
+	display: none;
+	text-decoration: none;
+	list-style-type: none;
+	padding: 5px;
+	margin:0px;
+}
+.logo img{
+	width: 37%;
+	max-width: 330px;
+}
+#header{
+	background-image: url('../images/wood_background.jpg');
+	background-repeat: no-repeat;
+	background-size: 100%;
+	border: black solid 2px;
+    border-radius: 0px 0px 24px 23px;
+}
+
+
+.woodButtonCont{
+	overflow: hidden;
+}
+.wood-button{
+	background-image: url('../images/wooden_button.png');
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    color: #000000;
+	text-shadow: 0 0 5px white;
+    box-shadow: 5px 5px 8px 0px black;
+    border-radius: 3px;
+}
+.wood-button-gap{
+	margin-right: 13px
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ================================= 
+  Media Queries
+==================================== */
+
+@media (min-width: 1025px) {
+	.header {
+		flex-direction: row;
+		justify-content: space-between;
+	}
+
+}
+
+@media screen and (max-width: 884px) {
+	.navCont ul{
+		display: none;
+	}
+    #dropDownMenu ul.show {
+        display: flex;
+    }
+/* 
+    .navCont li {
+        margin: 10px 0;
+    } */
+
+    .menu {
+        display: block;
+    }
+}
+
+
+/* @media (min-width: 769px) {
+	.main-nav {
+		display: flex;
+	}
+	.header {
+		flex-direction: column;
+		align-items: center;
+    	.header{
+            width: 80%;
+            margin: 0 auto;
+            max-width: 1150px;
+	    }
+	}
+
+} */
+
+
+
+/* @media (min-width: 912px) {
+	.header {
+		flex-direction: row;
+		justify-content: space-between;
+	}
+
+} */
+
+/* @media (min-width: 1025px) {
+	.header {
+		flex-direction: row;
+		justify-content: space-between;
+	}
+
+}
+
+@media (min-width: 1025px) {
+	.header {
+		flex-direction: row;
+		justify-content: space-between;
+	}
+
+} */

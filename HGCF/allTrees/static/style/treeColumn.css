@@ -1,0 +1,14 @@
+.treeColumn{
+    background: azure;
+    position: fixed;
+    top: 0;
+    left: 160px;
+    bottom: 0;
+    width: 160px;
+    background-image: linear-gradient(to right, #000000 , #282828);
+    color: white;
+}
+.treeHeader{
+    padding: 16px 0px 0px 13px;
+    text-decoration: underline;
+}

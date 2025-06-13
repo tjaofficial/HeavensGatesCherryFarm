@@ -1,0 +1,85 @@
+{% extends "mainLayout.html" %}
+{% block list %}{% load static %}
+<style>
+    .form-container {
+        background: #2c2c2c;
+        border: 2px solid #7b380b;
+        border-radius: 10px;
+        padding: 25px;
+        max-width: 500px;
+        margin: auto;
+        box-shadow: 0 0 10px #000;
+    }
+
+    .form-container h2 {
+        color: #ff8800;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    label {
+        color: #ff8800;
+        font-weight: bold;
+    }
+
+    input, select {
+        width: 100%;
+        padding: 10px;
+        margin-top: 5px;
+        margin-bottom: 15px;
+        background-color: #333;
+        border: 1px solid #7b380b;
+        color: #eee;
+        border-radius: 5px;
+    }
+
+    .checkbox-group label {
+        display: block;
+        margin: 5px 0;
+        font-weight: normal;
+    }
+
+    .submit-btn {
+        background-color: #7b380b;
+        border: none;
+        color: #fff;
+        padding: 12px;
+        width: 100%;
+        font-size: 16px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .submit-btn:hover {
+        background-color: #ff8800;
+    }
+</style>
+    <link href="{% static 'style/valve_timer.css' %}" rel="stylesheet" >
+    {% include "components/spacer.html" with headerSpace='small' %}
+    <div class="tileCont main" style="padding-top: 150px;">
+        <div class="form-container">
+            <h2>Set Irrigation Schedule</h2>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+
+                <label for="id_valve">Select Valve</label>
+                {{ form.valve }}
+
+                <label for="id_start_time">Start Time</label>
+                {{ form.start_time }}
+                <br>
+
+                <label for="id_end_time">End Time</label>
+                {{ form.end_time }}<br>
+
+                <label>Days</label>
+                <div class="checkbox-group">
+                    {{ form.days }}
+                </div>
+
+                <button type="submit" class="submit-btn">Save Schedule</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

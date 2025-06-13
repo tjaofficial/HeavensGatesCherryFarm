@@ -1,0 +1,17 @@
+/* ONLY FOR IF YOU ARE WITHIN TREESPACE */
+.play{
+    background: azure;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 160px;
+    background-image: linear-gradient(to right, #000000 , #282828);
+    color: white;
+}
+.insideBody{
+    margin-left: 160px;
+}
+.headerSpacer{
+    height: 89px;
+}

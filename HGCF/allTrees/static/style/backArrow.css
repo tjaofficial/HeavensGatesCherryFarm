@@ -1,0 +1,8 @@
+#backLink{
+    position: relative;
+    text-align: center;
+}
+
+#backLink svg{
+    width: 30px;
+}

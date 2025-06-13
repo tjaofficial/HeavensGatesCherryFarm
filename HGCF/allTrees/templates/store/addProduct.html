@@ -1,0 +1,143 @@
+{% extends "mainLayout.html" %}{% load static %}{% block list%}
+<link href="{% static 'style/addProduct.css' %}" rel="stylesheet" />
+<script defer src="{% static 'script/addProduct.js' %}"></script>
+{% include "components/spacer.html" with headerSpace='small' %}
+<div class="main">
+    <form method="POST" name="product-form" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="product-card">
+            <div class="product-card-header bottomBorder">Images</div>
+            <hr>
+            <div class="product-card-content">
+                <div class="form-group">
+                    <label class="label" for="product-mainImage">Photo:</label>
+                    {{productForm.mainImage}}
+                </div>
+            </div>
+        </div>
+        <br>
+        <div class="product-card">
+            <div class="product-card-header bottomBorder">Product info</div>
+            <hr>
+            <div class="product-card-content">
+                <div class="flex">
+                    <div class="form-group" style="width: 68%;">
+                        <label class="label" for="product-name">Product Name</label><br>
+                        {{productForm.product_name}}
+                    </div>
+                    <div class="form-group">
+                        <label class="label" for="product-name">Ribbon</label><br>
+                        {{productForm.ribbon}}
+                    </div>
+                </div>
+                <br>
+                <div class="">
+                    <div class="form-group">
+                        <label class="label" for="product-description">Description</label><br>
+                        {{productForm.description}}
+                    </div>
+                </div>
+                <br>
+                <div class="form-group">
+                    <label class="label" for="product-show_in_store">Show in Store: </label>
+                    {{productForm.show_in_store}}
+                </div>
+            </div>
+        </div>
+        <br>
+        <div class="product-card">
+            <div class="product-card-header bottomBorder">Pricing</div>
+            <hr>
+            <div class="product-card-content">
+                <div class="form-group">
+                    <label class="label" for="product-price">Price:</label><br>
+                    {{productForm.price}}
+                    <div style="position: relative; top: -28px; left: 58px; width: 20px;">$</div>
+                </div>
+                <div class="form-group">
+                    <label class="label" for="product-on_sale">On Sale:</label><br>
+                    {{productForm.on_sale}}
+                </div>
+                <div class="flex">
+                    <div class="form-group">
+                        <label class="label" for="product-sale_percentage">Discount</label><br>
+                        {{productForm.sale_percentage}}
+                    </div>
+                    <div class="form-group">
+                        <label class="label" for="product-sale_price">Sale Price</label><br>
+                        {{productForm.sale_price}}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br>
+        <div class="product-card">
+            <div class="product-card-header bottomBorder">Inventory and Shiping</div>
+            <hr>
+            <div class="product-card-content">
+                <div class="form-group">
+                    {{productForm.track_inventory}}
+                    <label class="label" for="product-track_inventory">Track Inventory</label><br>
+                </div>
+                <div class="flex">
+                    <div class="form-group">
+                        <label class="label" for="product-inventory_status">Status</label><br>
+                        {{productForm.inventory_status}}
+                    </div>
+                    <div class="form-group">
+                        <label class="label" for="product-shipping_weight">Shipping Weight</label><br>
+                        {{productForm.shipping_weight}}
+                    </div>
+                </div>
+                <div class="hidden">
+                    <div class="form-group">
+                        <label class="label" for="product-inventory_tota">Inventory Total</label><br>
+                        {{productForm.inventory_total}}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br>
+        <div class="product-card">
+            <div class="product-card-header bottomBorder">Pre Order</div>
+            <hr>
+            <div class="product-card-content">
+                <div class="form-group">
+                    <label class="label" for="product-pre_order">Pre Order</label>
+                    {{productForm.pre_order}}
+                </div>
+
+                <div class="form-group">
+                    <label class="label" for="product-pre_order_message">Pre Order Message</label>
+                    {{productForm.pre_order_message}}
+                </div>
+                <div class="form-group">
+                    <label class="label" for="product-limit">Limit</label>
+                    {{productForm.limit}}
+                </div>
+                <div class="form-group">
+                    <label class="label" for="product-limit_number">Limit to </label>
+                    {{productForm.limit_number}}
+                </div>
+            </div>
+        </div>
+        
+        
+        
+
+        
+
+        
+        
+        
+
+
+        
+        
+        
+
+        <button type="submit">Add Product</button>
+    </form>
+</div>
+
+{% endblock %}

@@ -1,0 +1,14 @@
+.mainCont{
+    background-color: white;
+    width: 33rem;
+    border-radius: 25px;
+    padding: 31px 0px;
+}
+.mainCont #backButton{
+    position: relative;
+    left: -14rem;
+    top: 0rem;
+}
+.mainCont svg{
+    width: 30px;
+}

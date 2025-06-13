@@ -1,0 +1,15 @@
+{% load static %}
+<link href="{% static 'style/areaColumn.css' %}" rel="stylesheet" />
+<div class="areaColumn">
+    <div class="headerSpacer"></div>
+    <div class="areaHeader">Areas:</div>
+    {% if areasData|length > 0 %}
+        <ul style="margin-top: 2px;">
+            {% for area in areasData%}
+            <li><a href="{% url 'addTree' locationID area.areaID %}">{{area.areaID}}-{{area.name}}</a></li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p style="text-align: center;">- No areas added -</p>
+    {% endif %}
+</div>

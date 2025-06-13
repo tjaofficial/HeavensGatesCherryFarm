@@ -1,0 +1,19 @@
+{% load static %}
+<link href="{% static 'style/treeColumn.css' %}" rel="stylesheet" />
+<div class="treeColumn">
+    <div class="headerSpacer"></div>
+    <div class="treeHeader">Trees:</div>
+    {% if treeData|length > 0 %}
+        <ul style="margin-top: 2px;">
+            {% for tree in treeData%}
+            <li>
+                <a href="{% url 'addArea' tree.treeID %}">
+                    {{tree.city}}
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p style="text-align: center;">- No trees added -</p>
+    {% endif %}
+</div>

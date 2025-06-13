@@ -1,0 +1,28 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="{% static 'style/layout.css' %}" rel="stylesheet" />
+        <script defer src="{% static 'script/header.js' %}"></script>
+        <title>Heaven's Gates Cherry Farm</title>
+    </head>
+    <body>
+        {% include "components/header.html" %}
+        {% if sideBar %}{% include "components/sideBar.html" %}{% endif %}
+        {% comment %} <div class="bigHeaderSpacer"></div>  {% endcomment %}
+        <div class="insideBody">
+            <div id="layoutDataContainer">
+                {% block list %}
+                
+                {% endblock %}
+            </div>
+        </div>
+    </body>
+    {% if not noFooter %}
+    <footer>
+        <p>&copy; 2023 Heaven's Gates Cherry Farm</p>
+    </footer>
+    {% endif %}
+</html>

@@ -1,0 +1,32 @@
+{% extends "mainLayout.html" %}{% load static %}{% block list%}
+<link href="{% static 'style/treeLog.css' %}" rel="stylesheet" />
+{% include "components/spacer.html" with headerSpace='small' %}
+<div class='mainCont' style="margin: auto;">
+    <a href="{% url 'treeData' locationID areaID treeID %}">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+            <path d="M512 256A256 256 0 1 0 0 256a256 256 0 1 0 512 0zM271 135c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9l-87 87 87 87c9.4 9.4 9.4 24.6 0 33.9s-24.6 9.4-33.9 0L167 273c-9.4-9.4-9.4-24.6 0-33.9L271 135z"/>
+        </svg>
+    </a><br>
+    {% if selector == 'all' %}
+    <div class='dataCont' style='overflow: scroll;'>
+        {% for log in treeLogData %}
+        <div class='eachLog'>
+            <b>Tree ID:</b> {{locationID}}-{{areaID}}-{{treeID}} <b>Category:</b> {{log.category}}<br><br>
+            <b>Date:</b> {{log.date}}  <b>Time:</b> {{log.time}}<br><br>
+            
+            <b>Comment:</b> {{log.note}}
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class='dataCont'>
+        <div style='margin-top: -21px;'>
+            <b>Tree ID:</b> {{locationID}}-{{areaID}}-{{treeID}} <b>Category:</b> {{treeLog.category}}<br><br>
+            <b>Date:</b> {{treeLog.date}}  <b>Time:</b> {{treeLog.time}}<br><br>
+            
+            <b>Comment:</b> {{treeLog.note}}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,179 @@
+/* .cropped {
+    width: 1205px;
+    height: 20rem;
+    text-align: center;
+    overflow: hidden;
+    margin: auto;
+}
+
+.cropped img {
+    margin: -15rem 0px 0px 0px;
+    width: 1205px;
+} */
+
+
+  
+  .slideshow-container {
+    position: relative;
+    min-height: 300px;
+    height: 587px;
+    width: 93%;
+    box-shadow: 0 0 116px 0px #552f00;
+    border: #7c4a2c solid 10px;
+    margin: 10px auto;
+    box-sizing: content-box;
+    margin-top: -20px;
+    z-index: 0;
+    border-radius: 39px;
+    overflow: hidden;
+    max-width: 1295px;
+  }
+  
+  .mySlides {
+    display: none;
+    transition: opacity 0.6s ease-in-out; 
+    height: 100%;
+  }
+  
+  img {
+    width: 100%;
+    height: 100%;
+  }
+  
+  .prev, .next {
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    width: auto;
+    padding: 16px;
+    margin-top: -22px;
+    font-size: 20px;
+    color: white;
+    background-color: rgba(0, 0, 0, 0.5);
+    border: none;
+    text-align: center;
+    transition: background-color 0.2s ease-in-out;
+  }
+  .prev{
+    left: 0;
+  }
+  .next{
+    right: 0;
+  }
+  
+  .prev:hover, .next:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+  }
+  
+  /* .fade {
+    animation: fade 5s infinite;
+  } */
+  
+  @keyframes fade {
+    from {opacity: .4}
+    to {opacity: 1}
+  }
+  
+
+
+  header {
+    background-color: #4CAF50;
+    color: white;
+    text-align: center;
+    padding: 1em;
+  }
+  
+  #home{
+    padding: 20px;
+    background-image: url(../images/wooden_banner4.png);
+    background-position: center center;
+    background-repeat: no-repeat;
+    border-radius: 8px;
+    max-width: 1260px;
+    width: 100%;
+    /* box-shadow: inset 0 0 93px 0px black; */
+    background-size: 100% 90%;
+    margin: auto;
+    margin-top: -102px;
+    position: relative;
+    z-index: 1;
+  }
+  
+  
+  .crop {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+  .triFoldCont{
+    display: inline-flex;
+    margin: 64px 43px;
+    /* background: tan; */
+    /* height: 19rem; */
+    justify-content: center;
+    border: 4px solid black;
+    box-shadow: 0 0 18px 7px black;
+    border-radius: 9px;
+  }
+  .promo1, .promo2, .promo3{
+    width: 34%;
+  }
+  .promo1, .promo3{
+    display: inline-flex;
+  }
+  .promo1{
+    background-image: url('../images/HGCFFlower.jpg');
+    background-size: auto 100%;
+    border-radius: 5px 0 0 5px;
+  }
+  .promo2{
+    background: #9b5833;
+  }
+  .promo3{
+    border-radius: 0 5px 5px 0;
+    background-image: url('../images/egg-flower.jpg');
+    background-size: 100% auto;
+  }
+  .textCont2{
+    padding: 45px;
+    text-align: center;
+  }
+.promoHeader2{
+    color: white;
+    font-weight: bold;
+    font-size: 34px;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+}
+.textCont3{
+  margin-bottom: 40px;
+  color: white;
+}
+.promoLink2 a{
+  padding: 10px 15px;
+  text-decoration: none;
+  font-size: 20px;
+}
+.textCont3 span{
+  color: orange;
+}
+.textCont{
+    text-align: center;
+    background: #f3d5ad;
+    width: 13rem;
+    margin: auto;
+    padding: 20px;
+    text-transform: uppercase;
+}
+hr{
+  color: black;
+    border: solid 1px black;
+}
+.promoHeaderLittle{
+  font-size: 15px;
+  font-weight: bold;
+}
+.promoHeader{
+  font-size: 25px;
+  font-weight: bold;
+}

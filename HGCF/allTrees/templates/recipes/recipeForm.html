@@ -1,0 +1,157 @@
+{% extends "mainLayout.html" %}{% load static %}{% block list %}
+<link href="{% static 'style/pageSetup.css' %}" rel="stylesheet" />
+<link href="{% static 'style/backArrow.css' %}" rel="stylesheet" />
+<link href="{% static 'style/recipeForm.css' %}" rel="stylesheet" />
+<script defer src="{% static 'script/recipeForm.js' %}"></script>
+{% include "components/spacer.html" with headerSpace='small' %}
+<div class='mainCont'>
+    {% include "components/secondarySideBars/secondarySideBar.html" with selector="recipe" %}
+    {% include "components/backArrow.html" with destination="dashboard" %}
+    <div class="formCont">
+        <form name="recipe" id="recipe" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.image1.label}}<br>
+            {{ form.image1 }}<br>
+            {{ form.image2.label}}<br>
+            {{ form.image2 }}<br>
+            {{ form.image3.label}}<br>
+            {{ form.image3 }}<br>
+            {{ form.image4.label}}<br>
+            {{ form.image4 }}<br><br>
+            {{ form.name.label}}<br>
+            {{ form.name }}<br><br>
+            {{ form.description.label}}<br>
+            {{ form.description }}<br><br>
+            {{ form.cuisine.label}}<br>
+            {{ form.cuisine }}<br><br>
+            {{ form.freezer_friendly.label}}<br>
+            {{ form.freezer_friendly }}<br><br>
+            {{ form.serving_size.label}}<br>
+            {{ form.serving_size }}<br><br>
+            Time to Prepare<br>
+            <div style="display:flex; justify-content: center;">
+                <div style="margin-right:30px">Prep-Time</div>
+                <div style="margin-right:30px">Cook-Time</div>
+                <div>Total-Time</div>
+            </div>
+            <input style="width:100px;" placeholder="HH:MM" name="prep-time" id="prep-time" type="text">
+            <input style="width:100px;" placeholder="HH:MM" name="cook-time" id="cook-time" type="text">
+            <input style="width:100px;" placeholder="HH:MM" name="total-time" id="total-time" type="text"><br><br>
+
+            {{ form.meal_type.label}}<br>
+            {{ form.meal_type }}<br><br>
+            
+            {{ form.ingredients.label}}<br>
+            Number of Elements(1-5): <input id="iElements" oninput="addElement(this)" type="number" name="numberOfElements" style="width:35px;" placeholder="0"><br>
+            <div id="elementsCont"></div><br>
+            {{ form.equipment.label}}<br>
+            Pieces of Equipment(1-15):<br>
+            <input id="eAmount" oninput="showInputsE()" type="number" name="numberOfEquipment" style="width:35px;" placeholder="0">
+            <div id="equipmentCont">
+                <div id="e1" style="display:none;">
+                    1) <input id="eName1" type="text" name="eName1" placeholder="name of equipment" style="width:120px;">
+                    <input id="eQty1" type="number" name="eQty1" placeholder="qty" style="width:35px;">
+                    <input id="eNotes1" type="text" name="eNotes1" placeholder="notes" style="width:150px;"><br>
+                </div>
+                <div id="i2" style="display:none;">
+                    2) <input id="eName2" type="text" name="eName2" placeholder="name of equipment" style="width:120px;">
+                    <input id="eQty2" type="number" name="eQty2" placeholder="qty" style="width:35px;">
+                    <input id="eNotes2" type="text" name="eNotes2" placeholder="notes" style="width:150px;"><br>
+                </div>
+
+                <div id="i3" style="display:none;">
+                    3) <input id="eName3" type="text" name="eName3" placeholder="name of equipment" style="width:120px;">
+                    <input id="eQty3" type="number" name="eQty3" placeholder="qty" style="width:35px;">
+                    <input id="eNotes3" type="text" name="eNotes3" placeholder="notes" style="width:150px;"><br>
+                </div>
+
+                <div id="i4" style="display:none;">
+                    4) <input id="eName4" type="text" name="eName4" placeholder="name of equipment" style="width:120px;">
+                    <input id="eQty4" type="number" name="eQty4" placeholder="qty" style="width:35px;">
+                    <input id="eNotes4" type="text" name="eNotes4" placeholder="notes" style="width:150px;"><br>
+                </div>
+
+                <div id="i5" style="display:none;">
+                    5) <input id="eName5" type="text" name="eName5" placeholder="name of equipment" style="width:120px;">
+                    <input id="eQty5" type="number" name="eQty5" placeholder="qty" style="width:35px;">
+                    <input id="eNotes5" type="text" name="eNotes5" placeholder="notes" style="width:150px;"><br>
+                </div>
+
+                <div id="i6" style="display:none;">
+                    6) <input id="eName6" type="text" name="eName6" placeholder="name of equipment" style="width:120px;">
+                    <input id="eQty6" type="number" name="eQty6" placeholder="qty" style="width:35px;">
+                    <input id="eNotes6" type="text" name="eNotes6" placeholder="notes" style="width:150px;"><br>
+                </div>
+
+                <div id="i7" style="display:none;">
+                    7) <input id="eName7" type="text" name="eName7" placeholder="name of equipment" style="width:120px;">
+                    <input id="eQty7" type="number" name="eQty7" placeholder="qty" style="width:35px;">
+                    <input id="eNotes7" type="text" name="eNotes7" placeholder="notes" style="width:150px;"><br>
+                </div>
+
+                <div id="i8" style="display:none;">
+                    8) <input id="eName8" type="text" name="eName8" placeholder="name of equipment" style="width:120px;">
+                    <input id="eQty8" type="number" name="eQty8" placeholder="qty" style="width:35px;">
+                    <input id="eNotes8" type="text" name="eNotes8" placeholder="notes" style="width:150px;"><br>
+                </div>
+
+                <div id="i9" style="display:none;">
+                    9) <input id="eName9" type="text" name="eName9" placeholder="name of equipment" style="width:120px;">
+                    <input id="eQty9" type="number" name="eQty9" placeholder="qty" style="width:35px;">
+                    <input id="eNotes9" type="text" name="eNotes9" placeholder="notes" style="width:150px;"><br>
+                </div>
+
+                <div id="i10" style="display:none;">
+                    10) <input id="eName10" type="text" name="eName10" placeholder="name of equipment" style="width:120px;">
+                    <input id="eQty10" type="number" name="eQty10" placeholder="qty" style="width:35px;">
+                    <input id="eNotes10" type="text" name="eNotes10" placeholder="notes" style="width:150px;"><br>
+                </div>
+
+                <div id="i11" style="display:none;">
+                    11) <input id="eName11" type="text" name="eName11" placeholder="name of equipment" style="width:120px;">
+                    <input id="eQty11" type="number" name="eQty11" placeholder="qty" style="width:35px;">
+                    <input id="eNotes11" type="text" name="eNotes11" placeholder="notes" style="width:150px;"><br>
+                </div>
+
+                <div id="i12" style="display:none;">
+                    12) <input id="eName12" type="text" name="eName12" placeholder="name of equipment" style="width:120px;">
+                    <input id="eQty12" type="number" name="eQty12" placeholder="qty" style="width:35px;">
+                    <input id="eNotes12" type="text" name="eNotes12" placeholder="notes" style="width:150px;"><br>
+                </div>
+
+                <div id="i13" style="display:none;">
+                    13) <input id="eName13" type="text" name="eName13" placeholder="name of equipment" style="width:120px;">
+                    <input id="eQty13" type="number" name="eQty13" placeholder="qty" style="width:35px;">
+                    <input id="eNotes13" type="text" name="eNotes13" placeholder="notes" style="width:150px;"><br>
+                </div>
+
+                <div id="i14" style="display:none;">
+                    14) <input id="eName14" type="text" name="eName14" placeholder="name of equipment" style="width:120px;">
+                    <input id="eQty14" type="number" name="eQty14" placeholder="qty" style="width:35px;">
+                    <input id="eNotes14" type="text" name="eNotes14" placeholder="notes" style="width:150px;"><br>
+                </div>
+
+                <div id="i15" style="display:none;">
+                    15) <input id="eName15" type="text" name="eName15" placeholder="name of equipment" style="width:120px;">
+                    <input id="eQty15" type="number" name="eQty15" placeholder="qty" style="width:35px;">
+                    <input id="eNotes15" type="text" name="eNotes15" placeholder="notes" style="width:150px;"><br>
+                </div>
+            </div><br>
+
+            
+            {{ form.directions.label}}<br>
+            {{ form.directions }}<br>
+            Create Title by adding a "@" at the start of the line.<br>
+            Separate each direction by pressing "Enter" twice.<br><br>
+            {{ form.special_notes.label}}<br>
+            {{ form.special_notes }}<br><br>
+            {{ form.healthy_choice.label}}<br>
+            {{ form.healthy_choice }}<br><br>
+            <input type="submit" name="submit" value="Save Recipe">
+        </form>
+    </div>
+</div>
+
+
+
+{% endblock %}

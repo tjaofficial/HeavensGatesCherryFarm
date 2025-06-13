@@ -1,0 +1,111 @@
+{% extends "mainLayout.html" %}
+{% load static %}{% block list%}
+    <link href="{% static 'style/dashboard.css' %}" rel="stylesheet" />
+    <script defer src="{% static 'script/dashboard.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <div id="areaCols" class="hidden" data-col="{{areaData.widthByTree}}"></div>
+    <div id="areaRows" class="hidden" data-row="{{areaData.lengthByTree}}"></div>
+    {% include "components/spacer.html" with headerSpace='small' %}
+    <div class="tileCont main">
+        <section class="card" id="tree-watering">
+            <h2>Tree Watering</h2>
+            <div class="selectCont">
+                {% comment %} <select name="location" id="location">
+                    {% for location in locationData %}
+                    <option value="{{location.locationID}}">{{location.city}}</option>
+                    {% endfor %}
+                </select> {% endcomment %}
+                <select name="area" id="area">
+                    <option value="001">Adam</option>
+                    <option value="005">Eve</option>
+                    <option value="001">Cain</option>
+                </select>
+            </div>
+            {% comment %} <canvas id="tree-watering-chart"></canvas> {% endcomment %}
+            <div id="sensors">
+                <div class="rowSensorCont">
+                    <div class="lightSensorCont">
+                        A1
+                        <div class="lightSensor"></div>
+                    </div>
+                    <div class="lightSensorCont">
+                        A2
+                        <div class="lightSensor lightSensorDry"></div>
+                    </div>
+                </div>
+                <div class="rowSensorCont">
+                    <div class="lightSensorCont">
+                        A1
+                        <div class="lightSensor"></div>
+                    </div>
+                    <div class="lightSensorCont">
+                        A2
+                        <div class="lightSensor lightSensorDry"></div>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <button id="valve-toggle" onclick="toggleValve('on')">Open Valve</button>
+                <button onclick="toggleValve('off')">Close Valve</button>
+                <div id="answer"></div>
+                <div><a href="{% url 'irrigation_timer' %}">Timer Set</a></div>
+                <script>
+                    function toggleValve(action) {
+                        fetch(`/toggle-valve/?action=${action}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.status === 'success') {
+                                    const sentence = `Valve ${data.relay === 'on' ? 'opened' : 'closed'} successfully.`
+                                    //alert(sentence);
+                                    document.getElementById('answer').innerHTML = sentence;
+                                } else {
+                                    alert('Error: ' + data.error);
+                                }
+                            });
+                    }
+                </script>
+            </div>
+            <div id="valve-status" style="margin-bottom: 1rem;">Valve Status: 
+                <br>
+                <span id="valve-state">Loading...</span>
+            </div>
+
+            <script>
+                function fetchValveStatus() {
+                    fetch("/valve-status/")
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.status === "success") {
+                                document.getElementById("valve-state").innerHTML = "";
+                                Object.entries(data.valve_data).forEach(([key,value]) => {
+                                    let valveHTML = "";
+                                    valveHTML += `${key} Status: ${value.valve_on === true ? 'opened' : 'closed'}<br>`;
+                                    document.getElementById("valve-state").innerHTML += valveHTML;
+                                })
+                            } else {
+                                document.getElementById("valve-state").innerText = "Error";
+                            }
+                        });
+                }
+
+                // Run every 5 seconds
+                setInterval(fetchValveStatus, 5000);
+                fetchValveStatus(); // Initial load
+            </script>
+        </section>
+    
+        <section class="card" id="weather">
+        <h2>Weather</h2>
+        <div id="weather-data">
+            <!-- Weather information will be displayed here -->
+        </div>
+        </section>
+
+        <section class="card" id="sales">
+        <h2>Sales</h2>
+        <div id="sales-data">
+            <!-- Sales information will be displayed here -->
+        </div>
+        </section>
+    </div>
+{% endblock %}

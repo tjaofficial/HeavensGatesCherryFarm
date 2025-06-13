@@ -1,0 +1,10 @@
+{% load static %}
+<ul style="margin-top: 2px;">
+    {% for recipe in modelData%}
+    <li>
+        <a href="{% url 'recipeInfo' recipe.name %}">
+            {{recipe.name}}
+        </a>
+    </li>
+    {% endfor %}
+</ul>
