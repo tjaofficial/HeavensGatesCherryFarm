@@ -1,0 +1,82 @@
+{% extends 'mainLayout.html' %}
+{% block list %}{% load static %}
+	{% block extra_head %}
+		<link href="{% static 'style/tree_grid.css' %}" rel="stylesheet">
+		<style>
+			.grid-container {
+				display: grid;
+				grid-template-columns: repeat({{ area.widthByTree }}, 200px);
+				gap: 10px;
+				padding: 10px;
+				justify-content: center;
+			}
+		</style>
+	{% endblock %}
+	<div class="card">
+		<header>
+			{% include "components/backArrow.html" with destination="area" selector1=area.locationID.id %}
+			<h2>Tree Layout for Area: {{ area.name }} ({{ area.areaID }})</h2>
+		</header>
+		<script>
+			const areaID = "{{ area.areaID}}";
+			const locationID = "{{ area.locationID.locationID }}";
+		</script>
+		<div class="grid-container">
+			{% for row in range_area %}
+				{% for col in range_width %}
+					{% with row|stringformat:"s" as row_str %}
+						{% with col|stringformat:"s" as col_str %}
+							{% with col_str|add:"-"|add:row_str as tid %}
+								{% if tree_map.tid %}
+									<div class="tree-cell {{ tree_map.tid..status }}" onclick="showTreePopup('{{ tid }}')">
+										{{ tid }}
+									</div>
+								{% else %}
+									<div class="tree-cell missing" onclick="showTreePopup('{{ tid }}')">
+										{{ tid }}
+									</div>
+								{% endif %}
+							{% endwith %}
+						{% endwith %}
+					{% endwith %}
+				{% endfor %}
+			{% endfor %}
+		</div>
+
+		<div class="overlay" onclick="hidePopup()"></div>
+		<div class="tree-popup" id="treePopup">
+			<h3 id="treeTitle"></h3>
+			<p><strong>Tree ID:</strong> <span id="treeId"></span></p>
+			<p><strong>Root Stock:</strong> <span id="rootStock"></span></p>
+			<p><strong>Zion Type:</strong> <span id="zionType"></span></p>
+			<p><strong>Date Planted:</strong> <span id="datePlanted"></span></p>
+			<p><strong>Status:</strong> <span id="status"></span></p>
+			<div>
+				<button onclick="hidePopup()">Close</button>
+				<a id="tree_link" href="">see more</a>
+			</div>
+		</div>
+
+		<script>
+			const treeData = {{ tree_map|safe }};
+
+			function showTreePopup(treeId) {
+				const tree = treeData[treeId];
+				document.getElementById("treeId").textContent = `${locationID}-${areaID}-${treeId}`;
+				document.getElementById("treeTitle").textContent = "Tree Details";
+				document.getElementById("rootStock").textContent = tree?.rootStock || 'N/A';
+				document.getElementById("zionType").textContent = tree?.zionType || 'N/A';
+				document.getElementById("datePlanted").textContent = tree?.datePlanted || 'N/A';
+				document.getElementById("status").textContent = tree?.status || 'Missing';
+				document.querySelector(".tree-popup").style.display = "block";
+				document.querySelector(".overlay").style.display = "block";
+				document.getElementById('tree_link').href += `../../tree-data/${locationID}/${areaID}/${treeId}`
+			}
+
+			function hidePopup() {
+				document.querySelector(".tree-popup").style.display = "none";
+				document.querySelector(".overlay").style.display = "none";
+			}
+		</script>
+	</div>
+{% endblock %}

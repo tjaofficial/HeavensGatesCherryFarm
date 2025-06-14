@@ -1,0 +1,61 @@
+.valve-indicator {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.light {
+    width: 23px;
+    height: 23px;
+    border-radius: 50%;
+    position: relative;
+    background-color: #444;
+    box-shadow:
+        inset 0 0 4px rgba(0, 0, 0, 0.8),
+        0 0 3px rgba(0, 0, 0, 0.5);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    border: silver outset;
+}
+
+.light.on {
+  background-color: #00ff00;
+  box-shadow:
+    inset 0 0 4px rgba(0, 255, 0, 0.4),
+    0 0 8px rgba(0, 255, 0, 0.6),
+    0 0 15px rgba(0, 255, 0, 0.5);
+}
+
+.light.off {
+  background-color: #cc0000;
+  box-shadow:
+    inset 0 0 4px rgba(255, 0, 0, 0.5),
+    0 0 6px rgba(255, 0, 0, 0.3),
+    0 0 10px rgba(255, 0, 0, 0.2);
+}
+
+.valve-label {
+    font-weight: 500;
+    font-size: 1rem;
+    min-width: 180px;
+}
+
+.valve-toggle-btn {
+    padding: 5px 10px;
+    border-radius: 4px;
+    background-color: #eee;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.valve-toggle-btn:hover {
+    background-color: #ddd;
+}
+
+#indicators{
+    background: #7b380c30;
+    padding: 10px;
+    border-radius: 8px;
+    height: 185px;
+}

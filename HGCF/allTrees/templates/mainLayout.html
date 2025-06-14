@@ -4,25 +4,31 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link href="{% static 'style/layout.css' %}" rel="stylesheet" />
-        <script defer src="{% static 'script/header.js' %}"></script>
         <title>Heaven's Gates Cherry Farm</title>
+        <meta name="keywords" content="Fruit Farm, Heavens Gates Cherry Farm, Cherries, Strawberries, Organic, Family Friendly, Produce, Buy Fruit">
+        <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/HGCF-logo.png' %}">
+        <link href="{% static 'style/layout.css' %}" rel="stylesheet">
+        <link href="{% static 'style/universal.css' %}" rel="stylesheet">
+        <script defer src="{% static 'script/header.js' %}"></script>
+        {% block extra_head %}{% endblock %}
     </head>
     <body>
         {% include "components/header.html" %}
         {% if sideBar %}{% include "components/sideBar.html" %}{% endif %}
         {% comment %} <div class="bigHeaderSpacer"></div>  {% endcomment %}
         <div class="insideBody">
-            <div id="layoutDataContainer" style="{% if sideBar %}margin-top: 88px;{% endif %}">
-                {% block list %}
-                
-                {% endblock %}
+            <div id="layoutDataContainer" style="{% if sideBar %}margin-top: 89px;{% endif %}">
+                <div style="padding: 50px;">
+                    {% block list %}
+                    
+                    {% endblock %}
+                </div>
             </div>
         </div>
     </body>
     {% if not noFooter %}
-    <footer>
-        <p>&copy; 2023 Heaven's Gates Cherry Farm</p>
-    </footer>
+        <footer>
+            <p>&copy; 2023 Heaven's Gates Cherry Farm</p>
+        </footer>
     {% endif %}
 </html>

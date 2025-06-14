@@ -20,7 +20,7 @@ def treeData_view(request, locationID, areaID, treeID):
     
 
     print(treeLogs)
-    return render(request, 'tree_grid/treeData.html',{
+    return render(request, 'tree_grid/select_pages/tree_data.html',{
         'treeQrCode': treeQrCode, 
         'treeLogs': treeLogs, 
         'locationID': locationID, 
@@ -63,29 +63,7 @@ def treeLog_view(request, locationID, areaID, treeID, selector):
             'sideBar': sideBar
         }
     print(selector)
-    return render(request, 'treeLog.html', variables)
-
-@lock
-def area_tree_grid_view(request, area_id):
-    area = areaTree_model.objects.get(areaID=area_id)
-    trees = individualTrees_model.objects.filter(areaID=area)
-    
-    tree_map = {}
-    for tree in trees:
-        tree_map[tree.treeID] = {
-            "rootStock": tree.rootStock,
-            "zionType": tree.zionType,
-            "datePlanted": tree.datePlanted,
-            "status": "healthy",  # placeholder, you can later add a status field
-        }
-
-    context = {
-        'area': area,
-        'range_area': range(1, area.lengthByTree + 1),
-        'range_width': range(1, area.widthByTree + 1),
-        'tree_map': tree_map
-    }
-    return render(request, 'tree_grid.html', context)
+    return render(request, 'tree_grid/select_pages/tree_log.html', variables)
 
 @lock
 def location_list_view(request):
@@ -95,7 +73,7 @@ def location_list_view(request):
 
     locations = locationTree_model.objects.all()
     print(locations)
-    return render(request, 'tree_grid/tree_locations.html', {
+    return render(request, 'tree_grid/select_pages/tree_locations.html', {
         'locations': locations,
         'smallHeader': smallHeader,
         'noFooter': noFooter,
@@ -110,7 +88,7 @@ def area_list_view(request, location_id):
 
     location = locationTree_model.objects.get(id=location_id)
     areas = areaTree_model.objects.filter(locationID=location)
-    return render(request, 'tree_grid/tree_areas.html', {
+    return render(request, 'tree_grid/select_pages/tree_areas.html', {
         'location': location, 
         'areas': areas,
         'smallHeader': smallHeader,
@@ -135,7 +113,7 @@ def area_tree_grid_view(request, area_id):
             "status": getattr(tree, 'status', 'healthy'),  # optional field
         }
 
-    return render(request, 'tree_grid/tree_grid.html', {
+    return render(request, 'tree_grid/select_pages/tree_grid.html', {
         'area': area,
         'range_area': range(1, area.lengthByTree + 1),
         'range_width': range(1, area.widthByTree + 1),

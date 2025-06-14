@@ -32,7 +32,7 @@
                 <a href="{% url 'treeLog' locationID areaID treeID 'all' %}">see all</a><br><br>
                 <div>
                     <p>Assigned QR Code</p>
-                    <img src="{{treeQrCode.qr_code.url}}">
+                    <img style="position: relative;left: -16px;" src="{{treeQrCode.qr_code.url}}">
                 </div>
                 <a class='linkStyleRemove' href="{% url 'addLog' locationID areaID treeID %}"><div class='primButton'>Add Log</div></a>
                 <br>

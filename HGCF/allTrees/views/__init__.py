@@ -1,6 +1,5 @@
 from .dashboard_view import *
-from .addArea_view import *
-from .addLocation_view import *
+from .tree_data_add import *
 from .addTree_view import *
 from .treeData_view import *
 from .addLog_view import *

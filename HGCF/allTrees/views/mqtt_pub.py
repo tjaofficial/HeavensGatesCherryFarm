@@ -3,12 +3,7 @@ import ssl
 import time
 import json
 from ..models import valve_registration
-
-# 🔐 Replace these with your real values
-MQTT_BROKER = "9a39b7a6a28349a0849650ac1624b36e.s2.eu.hivemq.cloud"
-MQTT_PORT = 8883
-MQTT_USERNAME = "tjaofficial"
-MQTT_PASSWORD = "Tmattar1992!"
+from django.conf import settings # type: ignore
 
 # This will hold the status results keyed by device ID
 valve_status_map = {}
@@ -41,12 +36,12 @@ def get_valve_statuses():
     valve_status_map.clear()
 
     client = mqtt.Client()
-    client.username_pw_set(MQTT_USERNAME, MQTT_PASSWORD)
+    client.username_pw_set(settings.MQTT_USERNAME, settings.MQTT_PASSWORD)
     client.tls_set(cert_reqs=ssl.CERT_REQUIRED)
     client.on_connect = on_connect
     client.on_message = on_message
 
-    client.connect(MQTT_BROKER, MQTT_PORT, 60)
+    client.connect(settings.MQTT_BROKER, settings.MQTT_PORT, 60)
     client.loop_start()
 
     # Actively request each device's status

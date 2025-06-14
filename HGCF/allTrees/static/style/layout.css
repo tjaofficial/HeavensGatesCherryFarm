@@ -1,5 +1,5 @@
 html{
-    background: black;
+    /* background: black; */
     height: 100%;
 }
 * {
@@ -12,7 +12,7 @@ body {
 	height: 100%;
     min-width: 570px;
     background: #7b380b;
-    box-shadow: inset 0px 0px 171px 87px black;
+    /* box-shadow: inset 0px 0px 171px 87px black; */
 }
 .primButton{
     background-color: #ffa9a9;
@@ -34,9 +34,6 @@ input{
     border-radius: 3px;
     overflow: hidden;
     text-align: center;
-}
-.insideBody{
-    /* background: #8e4618; */
 }
 footer {
     background-color: #1d0e04;

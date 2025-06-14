@@ -67,8 +67,14 @@ class individualTrees_model(models.Model):
         blank=True, 
         null=True
     )
-    rootStock = models.CharField(max_length=10)
-    zionType = models.CharField(max_length=10)
+    rootStock = models.CharField(
+        max_length=10,
+        default='none'
+    )
+    zionType = models.CharField(
+        max_length=10,
+        default='none'
+    )
     datePlanted = models.DateField(auto_now=False, auto_now_add=False)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='healthy')
     def __str__(self):

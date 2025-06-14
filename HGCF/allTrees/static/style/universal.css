@@ -1,0 +1,29 @@
+.card {
+    background: #2c2c2c;
+    border: 2px solid #7b380b;
+    border-radius: 10px;
+    padding: 25px;
+    margin: auto;
+    box-shadow: 0 0 10px #000;
+}
+
+.card header h2 {
+    color: white;
+    margin: 0px auto;
+}
+
+.card header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card header a {
+    text-decoration-line: underline;
+    color: white;
+    cursor: pointer;
+}
+.card header a:hover{
+    text-decoration-line: underline;
+    color: rgb(255, 112, 10);
+}

@@ -1,0 +1,34 @@
+{% extends "mainLayout.html" %}
+{% block list %}{% load static %}
+	{% block extra_head %}
+		<link href="{% static 'style/pageSetup.css' %}" rel="stylesheet" />
+		<link href="{% static 'style/addCards.css' %}" rel="stylesheet" />
+		<link href="{% static 'style/backArrow.css' %}" rel="stylesheet" />
+		<link href="{% static 'style/add_location.css' %}" rel="stylesheet" />
+		<script defer src="{% static 'script/hideAddContainer.js' %}"></script>
+	{% endblock %}
+	{% include "components/spacer.html" with headerSpace='small' %}
+{% comment %} {% include "components/secondarySideBars/secondarySideBar.html" with selector="location" %} {% endcomment %}
+<div class="card main_card_width">
+    <header>
+		{% include "components/backArrow.html" with destination="location" %}
+        <h2>Add Location</h2>
+    </header>
+    <form id="locationForm" action='' method="POST">
+        {% csrf_token %}
+        {{addForm.locationID.label}}<br>
+        <input type="text" readonly style="background: gray;" name="locationID" value="{{newID}}"/> <br>
+        {{addForm.name.label}}<br>
+        {{addForm.name}}<br>
+        {{addForm.address.label}}<br>
+        {{addForm.address}}<br>
+        {{addForm.city.label}}<br>
+        {{addForm.city}}<br>
+        {{addForm.state.label}}<br>
+        {{addForm.state}}<br>
+        Date Established<br>
+        {{addForm.dateEst}}<br>
+        <input type='submit' value='Save' />
+    </form>
+</div>
+{% endblock %}

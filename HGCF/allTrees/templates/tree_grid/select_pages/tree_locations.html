@@ -1,0 +1,23 @@
+{% extends 'mainLayout.html' %}
+{% block list %}{% load static %}
+    {% block extra_head %}
+        <link href="{% static 'style/tree_locations.css' %}" rel="stylesheet" />
+    {% endblock %}
+    {% comment %} {% include "components/spacer.html" with headerSpace='small' %} {% endcomment %}
+    <div class="card">
+        <header>
+            <h2>Select a Farm Location</h2>
+            <a href="{% url 'add_location' %}" style="float:right;">Add Location</a>
+        </header>
+        <div class="location-grid">
+        {% for loc in locations %}
+            <a href="{% url 'area_list' loc.id %}" style="text-decoration: none; color: inherit;">
+            <div class="location-card">
+                <img src="{% static 'images/locations/hale.jpg' %}" alt="{{ loc.name }}" />
+                <h3>{{ loc.name }}</h3>
+            </div>
+            </a>
+        {% endfor %}
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,34 @@
+.location-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, 300px);
+    gap: 1rem;
+    padding: 1rem;
+}
+.location-grid a{
+    width: 300px;
+}
+.location-card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.2s;
+    width: 100%;
+}
+
+.location-card:hover {
+    transform: scale(1.02);
+}
+
+.location-card img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+}
+
+.location-card h3 {
+    padding: 0.75rem;
+    margin: 0;
+}

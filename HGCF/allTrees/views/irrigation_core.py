@@ -27,27 +27,28 @@ lock = login_required(login_url='login')
 #         return JsonResponse({"status": "error", "message": str(e)}, status=500)
 
 def get_all_valve_statuses(request):
-    try:
-        status_map = get_valve_statuses()
-        valves = {}
-        registered_valves = list(valve_registration.objects.all())
+    status_map = get_valve_statuses()
+# try:
+    print("Valve Status Map:", status_map)  # Add this
+    valves = {}
+    registered_valves = list(valve_registration.objects.all())
 
-        for i, valve in enumerate(registered_valves):
-            device_id = valve.valveIP
-            status = status_map.get(device_id)
+    for i, valve in enumerate(registered_valves):
+        device_id = valve.valveIP
+        status = status_map.get(device_id)
 
-            valves[device_id] = {
-                "name": valve.name or f"Valve {chr(65 + i)}",
-                "status": status,
-                "ip": device_id,  # Required by frontend
-                "area_name": valve.areaID.name
-            }
+        valves[device_id] = {
+            "name": valve.name or f"Valve {chr(65 + i)}",
+            "status": status,
+            "ip": device_id,  # Required by frontend
+            "area_name": valve.areaID.name
+        }
 
-        print(valves)
+    print(valves)
 
-        return JsonResponse({"status": "success", "valves": valves})
-    except Exception as e:
-        return JsonResponse({"status": "error", "message": str(e)}, status=500)
+    return JsonResponse({"status": "success", "valves": valves})
+    # except Exception as e:
+    #     return JsonResponse({"status": "error2", "message": str(e)}, status=500)
 
 def get_schedule_overview(request):
     today = now().strftime('%a').lower()  # e.g., 'mon'
@@ -74,7 +75,7 @@ def irrigation_timer(request):
             schedule = form.save(commit=False)
             schedule.days = ','.join(form.cleaned_data['days'])
             schedule.save()
-            return redirect('dashboard')
+            return redirect('irrigation_dashboard')
     else:
         form = valve_schedule_form()
 
@@ -110,14 +111,14 @@ def toggle_valve(request):
     if request.method == "POST":
         data = json.loads(request.body)
         device_id = data.get("device_id")
-        turn_on = data.get("turn") == "on"
+        turn_on = data.get("turn_on") == True
 
         print(device_id, turn_on)
         try:
             publish_valve_command(device_id, turn_on)
             return JsonResponse({"status": "success"})
         except Exception as e:
-            return JsonResponse({"status": "error", "message": str(e)})
+            return JsonResponse({"status": "error1", "message": str(e)})
 
     return JsonResponse({"status": "error", "message": "Invalid request"})
 

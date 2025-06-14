@@ -1,0 +1,33 @@
+{% extends "mainLayout.html" %}
+{% block list %}{% load static %}
+    {% block extra_head %}
+        <link href="{% static 'style/pageSetup.css' %}" rel="stylesheet" />
+        <link href="{% static 'style/addCards.css' %}" rel="stylesheet" />
+        <link href="{% static 'style/backArrow.css' %}" rel="stylesheet" />
+        <script defer src="{% static 'script/hideAddContainer.js' %}"></script>
+        <link href="{% static 'style/add_area.css' %}" rel="stylesheet">
+    {% endblock %}
+    {% include "components/spacer.html" with headerSpace='small' %}
+    <div class="card main_card_width">
+        <header>
+            {% include "components/backArrow.html" with destination="area" selector1=locationID %}
+            <h2>Add Area</h2>
+        </header>
+        <form id="areaForm" action='' method="POST">
+            {% csrf_token %}
+            {{addForm.locationID.label}}<br>
+            <input type="text" style="background: gray;" readonly name="locationID" value="{{location.locationID}}"/><br>
+            {{addForm.areaID.label}}<br>
+            <input type="text" style="background: gray;" readonly name="areaID" value="{% if areasData|length > 0 %}{{newID}}{% else %}001{% endif %}"/> <br>
+            {{addForm.name.label}}<br>
+            {{addForm.name}}<br>
+            {{addForm.widthByTree.label}}<br>
+            {{addForm.widthByTree}}<br>
+            {{addForm.lengthByTree.label}}<br>
+            {{addForm.lengthByTree}}<br>
+            {{addForm.dateEst.label}}<br>
+            {{addForm.dateEst}}<br>
+            <input type='submit' value='Save' />
+        </form>
+    </div>
+{% endblock %}

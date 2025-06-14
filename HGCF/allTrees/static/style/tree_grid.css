@@ -1,0 +1,56 @@
+.tree-cell {
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 1rem;
+    text-align: center;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    color: white;
+}
+.tree-cell:hover {
+    scale: 1.2;
+    box-shadow: 0px 0px 7px 3px black;
+}
+
+.tree-cell.healthy {
+    background-color: #4caf50;
+}
+
+.tree-cell.dead {
+    background-color: #f44336;
+}
+
+.tree-cell.missing {
+    background-color: #9e9e9e;
+}
+
+.tree-popup {
+    position: fixed;
+    top: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 1rem;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    display: none;
+    width: 280px;
+}
+
+.tree-popup h3 {
+    margin-bottom: 0.5rem;
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    z-index: 999;
+}

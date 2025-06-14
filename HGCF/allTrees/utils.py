@@ -14,13 +14,15 @@ def selectNextID(data, selector):
         print("DATA DOES EXISTS")
         if selector == "location":
             lastID = data[0].locationID# + 1
+            starter = "L"
         elif selector == "area":
-            lastID = data[0].areaID #+ 1
+            lastID = int(data[0].areaID[1:]) + 1
+            starter = "A"
         elif selector == "tree":
             lastID = data[0].treeID #+ 1
         lastIDLen = len(str(lastID))
         additionalZeros = 3 - lastIDLen
-        newID = ''
+        newID = f"{starter}"
         for x in range(additionalZeros):
             newID += '0'
         newID += str(lastID)

@@ -1,0 +1,133 @@
+h1 {
+		text-align: center;
+		color: #ff8800;
+		margin-bottom: 30px;
+	}
+	.valve-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+		gap: 20px;
+	}
+	.valve-card {
+		background: #2c2c2c;
+		border: 2px solid #7b380b;
+		border-radius: 10px;
+		padding: 15px;
+		box-shadow: 0 0 5px #000;
+		text-align: center;
+	}
+	.valve-card h2 {
+		margin-bottom: 10px;
+		color: #ff8800;
+	}
+	.status {
+		font-size: 1.2em;
+		margin-bottom: 10px;
+	}
+	.status.on {
+		color: #0f0;
+	}
+	.status.off {
+		color: #aaa;
+	}
+	.status.error {
+		color: red;
+	}
+	.toggle-btn {
+		padding: 10px;
+		width: 100%;
+		background-color: #7b380b;
+		border: none;
+		color: white;
+		font-weight: bold;
+		border-radius: 5px;
+		cursor: pointer;
+	}
+	.toggle-btn:hover {
+		background-color: #ff8800;
+	}
+	.dashboard {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+		gap: 1rem;
+	}
+	.irrigation-dash-card {
+		background: white;
+		border-radius: 1rem;
+		box-shadow: 0 0 20px 1px rgb(0 0 0 / 62%);
+		padding: 1rem;
+		border: silver 5px outset;
+		display: flex;
+		flex-direction: column;
+	}
+	.irrigation-dash-card h2 {
+		margin-bottom: 0.75rem;
+		font-size: 1.25rem;
+		margin-top: 0px;
+	}
+	.schedule-card a {
+		text-decoration: none;
+		color: #007bff;
+		font-weight: bold;
+	}
+	.valve-manual button {
+		margin: 0.25rem;
+		padding: 0.75rem 1.25rem;
+		border: none;
+		background: #4caf50;
+		color: white;
+		border-radius: 0.5rem;
+		cursor: pointer;
+	}
+	.valve-manual button.off {
+		background: #f44336;
+	}
+	.zone-table {
+		width: 100%;
+		border-collapse: collapse;
+	}
+	.zone-table th, .zone-table td {
+		padding: 0.5rem;
+		text-align: center;
+		border-bottom: 1px solid #ddd;
+	}
+	.light {
+		width: 15px;
+		height: 15px;
+		border-radius: 50%;
+		display: inline-block;
+		margin: 0 5px;
+	}
+	.green {
+		background-color: #4caf50;
+	}
+	.red {
+		background-color: #f44336;
+	}
+	.emergency-btn {
+		position: fixed;
+		top: 6rem;
+		right: 2rem;
+		background-color: red;
+		width: 60px;
+		height: 60px;
+		border-radius: 50%;
+		box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+		border: 3px solid #fff;
+		z-index: 999;
+		cursor: pointer;
+	}
+	.emergency-btn:active {
+		transform: scale(0.95);
+	}
+	#schedule-list {
+		background: #7b380c30;
+    	height: 185px;
+		border-radius: 8px;
+		padding: 10px;
+	}
+	@media (max-width: 600px) {
+		.dashboard {
+		grid-template-columns: 1fr;
+		}
+	}
