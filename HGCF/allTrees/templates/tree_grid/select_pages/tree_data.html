@@ -1,43 +1,45 @@
-{% extends "mainLayout.html" %}{% load static %}{% block list%}
-<link href="{% static 'style/pageSetup.css' %}" rel="stylesheet" />
-<link href="{% static 'style/backArrow.css' %}" rel="stylesheet" />
-<link href="{% static 'style/addCards.css' %}" rel="stylesheet" />
-<link href="{% static 'style/treeData.css' %}" rel="stylesheet" />
-{% include "components/spacer.html" with headerSpace='small' %}
-<div class='mainCont'>
-    <div class="treeCont">
-        {% include "components/backArrow.html" with destination="grid" selector1=treeData.areaID.id %}
-        <div style='margin-top: -46px; margin-bottom: 25px;text-align: center;'>
-            <img src="{% static 'images/tree.jpeg' %}" />
-        </div>
-        <div class='dataCont'>
-            <strong>Tree ID:</strong> {{fullTreeID}}<br><br>
-            <strong>Root Stock:</strong> {{treeData.rootStock}}<br><br>
-            <strong>Zion Type:</strong> {{treeData.zionType}}<br><br>
-            <strong>Date Planted:</strong> {{treeData.datePlanted}}<br><br>
-            <strong>Notes:</strong> <br><br>
-            <strong>Logs:</strong> <br>
-            <div class='logCont'>
-                <ul>
-                    {% for log in treeLogs %}
-                    <li class='listGap'>
-                        <a href="{% url 'treeLog' locationID areaID treeID log.id%}">
-                            {{log}}
-                        </a>
-                    </li>
-                    {% endfor %}
-                </ul>
+{% extends "mainLayout.html" %}
+{% block list %}{% load static %}
+    {% block extra_head %}
+        <link href="{% static 'style/pageSetup.css' %}" rel="stylesheet" />
+        <link href="{% static 'style/backArrow.css' %}" rel="stylesheet" />
+        <link href="{% static 'style/addCards.css' %}" rel="stylesheet" />
+        <link href="{% static 'style/treeData.css' %}" rel="stylesheet" />
+    {% endblock %}
+    <div class='card'>
+        <div class="treeCont" style="color:white;">
+            {% include "components/backArrow.html" with destination="grid" selector1=treeData.areaID.id %}
+            <div style='margin-top: -46px; margin-bottom: 25px;text-align: center;'>
+                <img src="{% static 'images/tree.jpeg' %}" />
             </div>
-            <center>
-                <a href="{% url 'treeLog' locationID areaID treeID 'all' %}">see all</a><br><br>
-                <div>
-                    <p>Assigned QR Code</p>
-                    <img style="position: relative;left: -16px;" src="{{treeQrCode.qr_code.url}}">
+            <div class='dataCont'>
+                <strong>Tree ID:</strong> {{fullTreeID}}<br><br>
+                <strong>Root Stock:</strong> {{treeData.rootStock}}<br><br>
+                <strong>Zion Type:</strong> {{treeData.zionType}}<br><br>
+                <strong>Date Planted:</strong> {{treeData.datePlanted}}<br><br>
+                <strong>Notes:</strong> <br><br>
+                <strong>Logs:</strong> <br>
+                <div class='logCont'>
+                    <ul>
+                        {% for log in treeLogs %}
+                        <li class='listGap'>
+                            <a href="{% url 'treeLog' locationID areaID treeID log.id%}">
+                                {{log}}
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
                 </div>
-                <a class='linkStyleRemove' href="{% url 'addLog' locationID areaID treeID %}"><div class='primButton'>Add Log</div></a>
-                <br>
-            </center>
+                <center>
+                    <a href="{% url 'treeLog' locationID areaID treeID 'all' %}">see all</a><br><br>
+                    <div>
+                        <p>Assigned QR Code</p>
+                        <img style="position: relative;left: -16px;" src="{{treeQrCode.qr_code.url}}">
+                    </div>
+                    <a class='linkStyleRemove' href="{% url 'addLog' locationID areaID treeID %}"><div class='primButton'>Add Log</div></a>
+                    <br>
+                </center>
+            </div>
         </div>
     </div>
-</div>
 {% endblock %}

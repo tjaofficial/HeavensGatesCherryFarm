@@ -11,7 +11,7 @@ def treeData_view(request, locationID, areaID, treeID):
     sideBar = True
     fullTreeID = f"{locationID}-{areaID}-{treeID}"
     treeData = individualTrees_model.objects.get(areaID__areaID=areaID, treeID=treeID)
-    treeLogs = treeLogs_model.objects.filter(treeID__areaID__areaID=areaID, treeID__treeID=treeID).order_by('-date')
+    treeLogs = treeLogs_model.objects.filter(treeID=treeData).order_by('-timestamp')
     treeQrCode = tree_qr.objects.filter(treeID__id=treeData.id)
     if treeQrCode.exists():
         treeQrCode = treeQrCode[0]
@@ -38,8 +38,9 @@ def treeLog_view(request, locationID, areaID, treeID, selector):
     noFooter = True
     smallHeader = True
     sideBar = True
+    treeData = individualTrees_model.objects.get(areaID__areaID=areaID, treeID=treeID)
     if selector == 'all':
-        treeLogData = treeLogs_model.objects.filter(treeID__areaID__areaID=areaID, treeID__treeID=treeID).order_by('-date')
+        treeLogData = treeLogs_model.objects.filter(treeID=treeData).order_by('-timestamp')
         variables = {
             'locationID': locationID, 
             'areaID': areaID, 

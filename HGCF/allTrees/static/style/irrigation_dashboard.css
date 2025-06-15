@@ -48,7 +48,7 @@ h1 {
 	}
 	.dashboard {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+		grid-template-columns: repeat(auto-fit, minmax(423px, 1fr));
 		gap: 1rem;
 	}
 	.irrigation-dash-card {
@@ -59,6 +59,7 @@ h1 {
 		border: silver 5px outset;
 		display: flex;
 		flex-direction: column;
+		width: 423px;
 	}
 	.irrigation-dash-card h2 {
 		margin-bottom: 0.75rem;

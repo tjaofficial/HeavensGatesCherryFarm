@@ -1,32 +1,43 @@
-{% extends "mainLayout.html" %}{% load static %}{% block list%}
-<link href="{% static 'style/treeLog.css' %}" rel="stylesheet" />
-{% include "components/spacer.html" with headerSpace='small' %}
-<div class='mainCont' style="margin: auto;">
-    <a href="{% url 'treeData' locationID areaID treeID %}">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-            <path d="M512 256A256 256 0 1 0 0 256a256 256 0 1 0 512 0zM271 135c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9l-87 87 87 87c9.4 9.4 9.4 24.6 0 33.9s-24.6 9.4-33.9 0L167 273c-9.4-9.4-9.4-24.6 0-33.9L271 135z"/>
-        </svg>
-    </a><br>
-    {% if selector == 'all' %}
-    <div class='dataCont' style='overflow: scroll;'>
-        {% for log in treeLogData %}
-        <div class='eachLog'>
-            <b>Tree ID:</b> {{locationID}}-{{areaID}}-{{treeID}} <b>Category:</b> {{log.category}}<br><br>
-            <b>Date:</b> {{log.date}}  <b>Time:</b> {{log.time}}<br><br>
-            
-            <b>Comment:</b> {{log.note}}
-        </div>
-        {% endfor %}
+{% extends "mainLayout.html" %}
+{% load static %}{% block list%}
+    {% block extra_head %}
+        <link href="{% static 'style/pageSetup.css' %}" rel="stylesheet" />
+        <link href="{% static 'style/backArrow.css' %}" rel="stylesheet" />
+        <link href="{% static 'style/treeLog.css' %}" rel="stylesheet" />
+    {% endblock %}
+    <div class='card' style="margin: auto;color:white;">
+        {% include "components/backArrow.html" with destination="tree" selector1=locationID selector2=areaID selector3=treeID %}
+        {% if selector == 'all' %}
+            <div class='dataCont' style='overflow: scroll;background: black;border-radius: 5px;'>
+                <ul>
+                    {% for log in treeLogData %}
+                        <li>
+                            [ {{log.timestamp}} ] {{log.category}} - {{log.note}}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% else %}
+            <div class='dataCont' style="background: black;border-radius: 5px;padding:10px;">
+                <div>
+                    <div style="display:flex;">
+                        <span style="width:120px;display: block;"><strong>Time Stamp:</strong></span> 
+                        <span>{{treeLog.timestamp}}</span><br>
+                    </div>
+                    <div style="display:flex;">
+                        <span style="width:120px;display: block;"><strong>Tree ID:</strong></span> 
+                        <span>{{locationID}}-{{areaID}}-{{treeID}}</span><br>
+                    </div>
+                    <div style="display:flex;">
+                        <span style="width:120px;display: block;"><strong>Category:</strong></span> 
+                        <span>{{treeLog.category}}</span><br>
+                    </div>
+                    <div style="display:flex;">
+                        <span style="width:120px;display: block;"><strong>Log:</strong></span> 
+                        <span>{{treeLog.note}}</span>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
     </div>
-    {% else %}
-    <div class='dataCont'>
-        <div style='margin-top: -21px;'>
-            <b>Tree ID:</b> {{locationID}}-{{areaID}}-{{treeID}} <b>Category:</b> {{treeLog.category}}<br><br>
-            <b>Date:</b> {{treeLog.date}}  <b>Time:</b> {{treeLog.time}}<br><br>
-            
-            <b>Comment:</b> {{treeLog.note}}
-        </div>
-    </div>
-    {% endif %}
-</div>
 {% endblock %}

@@ -7,48 +7,34 @@ from django.utils.timezone import now # type: ignore
 from django.contrib.auth.decorators import login_required # type: ignore
 import json
 from django.views.decorators.csrf import csrf_exempt # type: ignore
-from ..utils import publish_valve_command
+from ..utils import publish_valve_command, get_irrigation_log_messages, add_log_to_area_trees
 from .mqtt_pub import get_valve_statuses
 
 lock = login_required(login_url='login')
 
-#SHELLY_IP = "192.168.2.84"  # Replace with static IP of your Shelly
-
-# def toggle_valve(request):
-#     ip = request.GET.get("ip")
-#     action = request.GET.get("action")  # 'on' or 'off'
-#     if not ip or action not in ["on", "off"]:
-#         return JsonResponse({"error": "Invalid input"}, status=400)
-
-#     try:
-#         res = requests.get(f"http://{ip}/rpc/Switch.Set?id=0&on={'true' if action == 'on' else 'false'}", timeout=3)
-#         return JsonResponse({"status": "success"})
-#     except Exception as e:
-#         return JsonResponse({"status": "error", "message": str(e)}, status=500)
-
 def get_all_valve_statuses(request):
     status_map = get_valve_statuses()
-# try:
-    print("Valve Status Map:", status_map)  # Add this
-    valves = {}
-    registered_valves = list(valve_registration.objects.all())
+    try:
+        print("Valve Status Map:", status_map)  # Add this
+        valves = {}
+        registered_valves = list(valve_registration.objects.all())
 
-    for i, valve in enumerate(registered_valves):
-        device_id = valve.valveIP
-        status = status_map.get(device_id)
+        for i, valve in enumerate(registered_valves):
+            device_id = valve.valveIP
+            status = status_map.get(device_id)
 
-        valves[device_id] = {
-            "name": valve.name or f"Valve {chr(65 + i)}",
-            "status": status,
-            "ip": device_id,  # Required by frontend
-            "area_name": valve.areaID.name
-        }
+            valves[device_id] = {
+                "name": valve.name or f"Valve {chr(65 + i)}",
+                "status": status,
+                "ip": device_id,  # Required by frontend
+                "area_name": valve.areaID.name
+            }
 
-    print(valves)
+        print(valves)
 
-    return JsonResponse({"status": "success", "valves": valves})
-    # except Exception as e:
-    #     return JsonResponse({"status": "error2", "message": str(e)}, status=500)
+        return JsonResponse({"status": "success", "valves": valves})
+    except Exception as e:
+        return JsonResponse({"status": "error2", "message": str(e)}, status=500)
 
 def get_schedule_overview(request):
     today = now().strftime('%a').lower()  # e.g., 'mon'
@@ -114,8 +100,27 @@ def toggle_valve(request):
         turn_on = data.get("turn_on") == True
 
         print(device_id, turn_on)
+        valveSelect = valve_registration.objects.get(valveIP=device_id)
+        logMessage = get_irrigation_log_messages('manual', 'start', valveSelect, request.user)
+        print(logMessage)
         try:
-            publish_valve_command(device_id, turn_on)
+            if turn_on:
+                allValves = valve_registration.objects.all()
+                for valve in allValves:
+                    deviveID = valve.valveIP
+                    if deviveID == device_id:
+                        logMessage = get_irrigation_log_messages('manual', 'start', valveSelect, request.user)
+                        add_log_to_area_trees(valveSelect, logMessage, 'Irrigation')
+                        publish_valve_command(device_id, True)
+                    else:
+                        offValve = valve_registration.objects.get(valveIP=deviveID)
+                        logMessage = get_irrigation_log_messages('manual', 'stop', offValve, request.user)
+                        add_log_to_area_trees(offValve, logMessage, 'Irrigation')
+                        publish_valve_command(deviveID, False)
+            else:
+                logMessage = get_irrigation_log_messages('manual', 'stop', valveSelect, request.user)
+                add_log_to_area_trees(valveSelect, logMessage, 'Irrigation')
+                publish_valve_command(device_id, False)
             return JsonResponse({"status": "success"})
         except Exception as e:
             return JsonResponse({"status": "error1", "message": str(e)})

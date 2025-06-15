@@ -6,7 +6,7 @@
     <div class="product-container">
         {% for product in allProducts %}
             <div class="product">
-                <img src="{% static '' %}{{product.mainImage}}" alt="Product 1">
+                <img src="media/{{product.mainImage}}" alt="Product 1">
                 <h2>{{product.product_name}}</h2>
                 <p>Price: ${{product.price}}</p>
                 <button class="quick-view-button" onclick="openQuickView({{product.id}})">Quick View</button>

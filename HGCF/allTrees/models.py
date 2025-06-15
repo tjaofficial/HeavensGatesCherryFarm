@@ -91,15 +91,21 @@ class treeLogs_model(models.Model):
         'individualTrees_model', 
         on_delete=models.CASCADE
     )
-    date = models.DateField(auto_now=False, auto_now_add=False)
-    time = models.TimeField(auto_now=False, auto_now_add=False)
+    timestamp = models.DateTimeField(auto_now_add=False)
     note = models.CharField(max_length=10000)
     category = models.ForeignKey(
         'logCategory_model', 
         on_delete=models.CASCADE
     )
     def __str__(self):
-        return self.treeID.treeID + ' - ' + self.category.name + ' - ' + str(self.date) + '-' + str(self.time)
+        return f"[ {self.timestamp} ] {self.category.name} - {self.note}"
+    
+    class Meta:
+        indexes = [
+            models.Index(fields=['treeID']),
+            models.Index(fields=['timestamp']),
+        ]
+        ordering = ['-timestamp']
     
 class tree_qr(models.Model):
     treeID = models.OneToOneField(

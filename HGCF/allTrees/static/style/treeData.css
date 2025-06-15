@@ -1,13 +1,13 @@
 .mainCont{
     background-color: white;
-    width: 37rem;
+    width: 70rem;
     border-radius: 25px;
     padding: 31px 0px;
     margin: auto;
     margin-bottom: 3rem;
 }
 .dataCont{
-    padding: 0px 80px;
+    padding: 0px 20px;
     text-align: left;
 }
 .logCont{
@@ -16,6 +16,7 @@
     height: 10rem;
     padding: 2px 5px;
     overflow: scroll;
+    width: 100%;
 }
 .logCont ul{
     margin: 5px auto;
