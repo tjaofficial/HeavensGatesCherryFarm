@@ -121,6 +121,10 @@ h1 {
 	.emergency-btn:active {
 		transform: scale(0.95);
 	}
+	.emergency-btn:hover {
+		width: 173px;
+		border-radius: 10%;
+	}
 	#schedule-list {
 		background: #7b380c30;
     	height: 185px;

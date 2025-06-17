@@ -5,7 +5,9 @@
 		<link href="{% static 'style/manual_valve_control.css' %}" rel="stylesheet">
 	{% endblock %}
 	<div class="card" style="padding: 35px;">
-		<button class="emergency-btn" title="Emergency Shutoff" onclick="emergencyShutdown()"></button>
+		<button class="emergency-btn" title="Emergency Shutoff" onclick="shutOffAll()">
+			<span style="font-size: 20px;font-weight: bold;display: none;">E-STOP ALL VALVES</span>
+		</button>
 		<header>
 			<h2 style="margin-bottom: 15px;">Irrigation Control Dashboard</h2>
 		</header>
@@ -162,8 +164,20 @@
 				{ area: 'Area 2', row: 'Row 3', side: 'Front', active: false },
 				{ area: 'Area 2', row: 'Row 4', side: 'Back', active: true },
 			];
+			function fetchValveStatuses(updateOnly = false) {
+				fetch("/irrigation/dashboard/valve-statuses/")
+				.then(resp => resp.json())
+				.then(data => {
+					if (data.status === "success") {
+						renderValves(data.valves, updateOnly);
+					} else {
+						console.error("Error fetching valves:", data.message);
+					}
+				})
+				.catch(console.error);
+			}
 			function fetchSchedule() {
-				fetch('/dashboard/schedules/')
+				fetch('/irrigation/schedules/')
 					.then(res => res.json())
 					.then(data => {
 						const list = document.getElementById("schedule-list");
@@ -194,32 +208,26 @@
 			});
 			}
 
-			function emergencyShutdown() {
-			alert('Emergency shutoff activated! All valves turning off.');
-			// Actual shutdown logic goes here
-			}
-
 			renderZoneStatus();
+
+			document.querySelector('.emergency-btn').addEventListener('mouseover', function() {
+				document.querySelector('.emergency-btn span').style.display = 'block';
+			});
+			document.querySelector('.emergency-btn').addEventListener('mouseout', function() {
+				document.querySelector('.emergency-btn span').style.display = 'none';
+			});
+			function shutOffAll() {
+				if (confirm("Are you sure you want to shut off all valves?")) {
+					fetch('/irrigation/emergency-shutoff/')
+					.then(() => fetchValveStatuses());
+				}
+			}
 
 			// Simulate pressure sensor
 			setInterval(() => {
 			const pressure = (Math.random() * 30 + 10).toFixed(2);
 			document.getElementById('pressure-readout').textContent = `${pressure} psi`;
 			}, 3000);
-		</script>
-	</div>
-	<div style="padding-top: 89px;">
-		
-		{% comment %} <div class="valve-grid" id="valve-container"></div>
-		<button onclick="shutOffAll()" style="background-color:red; color:white; font-weight:bold; width:100%; padding:15px; margin-bottom:20px; border:none; border-radius:6px;">🚨 Emergency: Shut Off All Valves</button> {% endcomment %}
-
-		<script>
-			function shutOffAll() {
-				if (confirm("Are you sure you want to shut off all valves?")) {
-					fetch('/dashboard/emergency-shutoff/')
-					.then(() => fetchValveStatuses());
-				}
-			}
 		</script>
 	</div>
 {% endblock %}

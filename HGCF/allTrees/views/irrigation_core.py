@@ -84,13 +84,18 @@ def irrigation_dashboard(request):
     })
 
 def emergency_shutoff(request):
-    for valve in valve_registration.objects.all():
-        try:
-            requests.get(f"http://{valve.valveIP}/rpc/Switch.Set?id=0&on=false", timeout=2)
-        except:
-            continue
-    return JsonResponse({"status": "all_off"})
-
+    try:
+        for valve in valve_registration.objects.all():
+            deviveID = valve.valveIP
+            try:
+                publish_valve_command(deviveID, False)
+                logMessage = get_irrigation_log_messages('emergency', 'stop_all', valve, request.user)
+                add_log_to_area_trees(valve, logMessage, 'Irrigation')
+            except:
+                continue
+        return JsonResponse({"status": "all_off"})
+    except Exception as e:
+            return JsonResponse({"status": "error-e-stop", "message": str(e)})
 
 @csrf_exempt
 def toggle_valve(request):
@@ -109,18 +114,17 @@ def toggle_valve(request):
                 for valve in allValves:
                     deviveID = valve.valveIP
                     if deviveID == device_id:
+                        publish_valve_command(device_id, True)
                         logMessage = get_irrigation_log_messages('manual', 'start', valveSelect, request.user)
                         add_log_to_area_trees(valveSelect, logMessage, 'Irrigation')
-                        publish_valve_command(device_id, True)
                     else:
-                        offValve = valve_registration.objects.get(valveIP=deviveID)
-                        logMessage = get_irrigation_log_messages('manual', 'stop', offValve, request.user)
-                        add_log_to_area_trees(offValve, logMessage, 'Irrigation')
                         publish_valve_command(deviveID, False)
+                        logMessage = get_irrigation_log_messages('manual', 'stop', valve, request.user)
+                        add_log_to_area_trees(valve, logMessage, 'Irrigation')
             else:
+                publish_valve_command(device_id, False)
                 logMessage = get_irrigation_log_messages('manual', 'stop', valveSelect, request.user)
                 add_log_to_area_trees(valveSelect, logMessage, 'Irrigation')
-                publish_valve_command(device_id, False)
             return JsonResponse({"status": "success"})
         except Exception as e:
             return JsonResponse({"status": "error1", "message": str(e)})
