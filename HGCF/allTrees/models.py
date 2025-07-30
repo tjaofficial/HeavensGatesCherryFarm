@@ -283,6 +283,7 @@ class valve_registration(models.Model):
         blank=True, 
         null=True
     )
+    manual_override = models.BooleanField(default=False)
     def __str__(self):
         return f"{self.name}"
     

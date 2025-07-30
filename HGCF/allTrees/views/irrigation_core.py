@@ -117,14 +117,20 @@ def toggle_valve(request):
                         publish_valve_command(device_id, True)
                         logMessage = get_irrigation_log_messages('manual', 'start', valveSelect, request.user)
                         add_log_to_area_trees(valveSelect, logMessage, 'Irrigation')
+                        valveSelect.manual_override = True
+                        valveSelect.save()
                     else:
                         publish_valve_command(deviveID, False)
                         logMessage = get_irrigation_log_messages('manual', 'stop', valve, request.user)
                         add_log_to_area_trees(valve, logMessage, 'Irrigation')
+                        valveSelect.manual_override = True
+                        valveSelect.save()
             else:
                 publish_valve_command(device_id, False)
                 logMessage = get_irrigation_log_messages('manual', 'stop', valveSelect, request.user)
                 add_log_to_area_trees(valveSelect, logMessage, 'Irrigation')
+                valveSelect.manual_override = True
+                valveSelect.save()
             return JsonResponse({"status": "success"})
         except Exception as e:
             return JsonResponse({"status": "error1", "message": str(e)})
