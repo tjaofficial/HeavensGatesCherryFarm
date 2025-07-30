@@ -4,7 +4,7 @@ import paho.mqtt.client as mqtt # type: ignore
 import ssl
 import json
 import time
-from datetime import datetime
+from django.utils.timezone import localtime
 from django.conf import settings # type: ignore
 
 alphabetKey = {'a': '1', 'b': '2', 'c': '3', 'd': '4', 'e': '5', 'f': '6', 'g': '7', 'h': '8', 'i': '9', 'j': '10', 'k': '11', 'l': '12', 'm': '13', 'n': '14', 'o': '15', 'p': '16', 'q': '17', 'r': '18', 's': '19', 't': '20', 'u': '21', 'v': '22', 'w': '23', 'x': '24', 'y': '25', 'z': '26', 'A': '27', 'B': '28', 'C': '29', 'D': '30', 'E': '31', 'F': '32', 'G': '33', 'H': '34', 'I': '35', 'J': '36', 'K': '37', 'L': '38', 'M': '39', 'N': '40', 'O': '41', 'P': '42', 'Q': '43', 'R': '44', 'S': '45', 'T': '46', 'U': '47', 'V': '48', 'W': '49', 'X': '50', 'Y': '51', 'Z': '52'}
@@ -104,15 +104,15 @@ def publish_valve_command(device_id: str, turn_on: bool):
 def get_irrigation_log_messages(category, action, valve, user):
     templates = {
         'manual': {
-            'start': f'✅ Manual override: Valve {valve.name} OPENED by {user.username} (Area {valve.areaID.name})',
-            'stop': f'⏹️ Manual override: Valve {valve.name} CLOSED by {user.username} (Area {valve.areaID.name})',
+            'start': f'✅ Manual override: Valve {valve.name} OPENED by {user.username if user else False} (Area {valve.areaID.name})',
+            'stop': f'⏹️ Manual override: Valve {valve.name} CLOSED by {user.username if user else False} (Area {valve.areaID.name})',
         },
         'schedule': {
             'start': f'🔁✅ Scheduled watering STARTED for Area {valve.areaID.name} (Valve {valve.name})',
             'stop': f'🔁⏹️ Scheduled watering STOPPED for Area {valve.areaID.name} (Valve {valve.name})',
         },
         'emergency': {
-            'stop_all': f'⚠️ EMERGENCY STOP: All valves closed by {user.username}'
+            'stop_all': f'⚠️ EMERGENCY STOP: All valves closed by {user.username if user else False}'
         }
     }
     
@@ -123,7 +123,7 @@ def add_log_to_area_trees(valve, message, category):
     for tree in treeQuery:
         newTreeLog = treeLogs_model(
             treeID=tree,
-            timestamp=datetime.now(),
+            timestamp=localtime(),
             note=message,
             category=logCategory_model.objects.get(name=category),
         )

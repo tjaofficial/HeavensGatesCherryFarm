@@ -15,7 +15,7 @@ lock = login_required(login_url='login')
 def get_all_valve_statuses(request):
     status_map = get_valve_statuses()
     try:
-        print("Valve Status Map:", status_map)  # Add this
+        #print("Valve Status Map:", status_map)  # Add this
         valves = {}
         registered_valves = list(valve_registration.objects.all())
 
@@ -30,7 +30,7 @@ def get_all_valve_statuses(request):
                 "area_name": valve.areaID.name
             }
 
-        print(valves)
+        #print(valves)
 
         return JsonResponse({"status": "success", "valves": valves})
     except Exception as e:

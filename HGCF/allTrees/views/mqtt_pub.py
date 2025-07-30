@@ -11,14 +11,14 @@ valve_status_map = {}
 # Device IDs to monitor
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
-        print("✅ Connected to MQTT broker")
+        #print("✅ Connected to MQTT broker")
         client.subscribe("dashboard/rpc")
     else:
         print("❌ Failed to connect:", rc)
 
 def on_message(client, userdata, msg):
     try:
-        print(f"📩 Message received on topic: {msg.topic}")
+        #print(f"📩 Message received on topic: {msg.topic}")
         payload = json.loads(msg.payload.decode())
 
         # Validate it's a response with result
@@ -27,7 +27,7 @@ def on_message(client, userdata, msg):
             output = payload["result"].get("output", None)
             if output is not None:
                 valve_status_map[device_id] = output
-                print(f"✅ [{device_id}] Output status: {output}")
+                #print(f"✅ [{device_id}] Output status: {output}")
     except Exception as e:
         print(f"❌ Error in on_message: {e}")
 
@@ -54,7 +54,7 @@ def get_valve_statuses():
             "params": {"id": 0}
         })
         client.publish(topic, payload)
-        print(f"Published status request to {topic}")
+        #print(f"Published status request to {topic}")
 
     time.sleep(2.5)  # Wait for responses
 

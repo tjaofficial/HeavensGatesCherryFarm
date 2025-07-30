@@ -1,32 +1,35 @@
 from django.core.management.base import BaseCommand # type: ignore
-from django.utils.timezone import now # type: ignore
+from django.utils.timezone import localtime # type: ignore
 from ...models import valve_schedule  # adjust path to your app
-import requests # type: ignore
-import datetime
+from ...utils import publish_valve_command, get_irrigation_log_messages, add_log_to_area_trees
 
 class Command(BaseCommand):
     help = 'Checks schedule and activates valves'
 
     def handle(self, *args, **kwargs):
-        current_time = now().time()
-        current_day = now().strftime('%a').lower()  # 'mon', 'tue', etc.
-
+        current_time = localtime().time()
+        current_day = localtime().strftime('%a').lower()  # 'mon', 'tue', etc.
+        print("WHat the hell is hoing on")
         schedules = valve_schedule.objects.all()
 
         for schedule in schedules:
+            self.stdout.write(f"[DEBUG] Schedule for valve {schedule.valve}: days={schedule.get_day_list()}, start={schedule.start_time}, end={schedule.end_time}")
+            self.stdout.write(f"[DEBUG] Now: {current_day}, {current_time}")
+
             if current_day not in schedule.get_day_list():
                 continue  # skip if not today's day
 
             # compare times
-            if schedule.start_time <= current_time <= schedule.end_time:
-                self.activate_valve(schedule.valveIP, True)
-            else:
-                self.activate_valve(schedule.valveIP, False)
+            self.stdout.write(f"[DEBUG] Comparing: {schedule.start_time} <= {current_time} <= {schedule.end_time}")
 
-    def activate_valve(self, ip, turn_on):
-        try:
-            url = f"http://{ip}/rpc/Switch.Set?id=0&on={'true' if turn_on else 'false'}"
-            requests.get(url, timeout=3)
-            self.stdout.write(self.style.SUCCESS(f"{'ON' if turn_on else 'OFF'} → {ip}"))
-        except Exception as e:
-            self.stderr.write(f"Error for {ip}: {e}")
+            valve = schedule.valve
+            if schedule.start_time <= current_time <= schedule.end_time:
+                publish_valve_command(valve.valveIP, True)
+                logMessage = get_irrigation_log_messages('schedule', 'start', valve, False)
+                add_log_to_area_trees(valve, logMessage, 'Irrigation')
+                self.stdout.write(self.style.SUCCESS(f"ON → {valve.valveIP}"))
+            else:
+                publish_valve_command(valve.valveIP, False)
+                logMessage = get_irrigation_log_messages('schedule', 'stop', valve, False)
+                add_log_to_area_trees(valve, logMessage, 'Irrigation')
+                self.stdout.write(self.style.SUCCESS(f"OFF → {valve.valveIP}"))
