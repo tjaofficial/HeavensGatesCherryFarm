@@ -51,11 +51,6 @@ INSTALLED_APPS = [
     'allTrees'
 ]
 
-# CRONJOBS = [
-#     ('* * * * *', 'HGCF.allTrees.cron.run_valve_schedule'),
-# ]
-
-
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
