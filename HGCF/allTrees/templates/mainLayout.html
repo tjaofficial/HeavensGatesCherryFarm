@@ -14,18 +14,11 @@
         {% block extra_head %}{% endblock %}
     </head>
     <body>
-        {% include "components/header.html" %}
-        {% if sideBar %}{% include "components/sideBar.html" %}{% endif %}
-        {% comment %} <div class="bigHeaderSpacer"></div>  {% endcomment %}
-        <div class="insideBody">
-            <div id="layoutDataContainer" style="{% if sideBar %}margin-top: 89px;{% endif %}">
-                <div style="padding: 50px;">
-                    {% block list %}
-                    
-                    {% endblock %}
-                </div>
-            </div>
-        </div>
+        <header>{% include "components/header.html" %}</header>
+        {% comment %} {% if sideBar %}{% include "components/sideBar.html" %}{% endif %} {% endcomment %}
+        <main style="{% if sideBar %}margin-top: 89px;{% endif %}">
+            {% block list %}{% endblock %}
+        </main>
     </body>
     {% if not noFooter %}
         <footer>

@@ -1,33 +1,44 @@
-{% extends "mainLayout.html" %}{% load static %}{% block list%}
-<link href="{% static 'style/pageSetup.css' %}" rel="stylesheet" />
-<link href="{% static 'style/homePage.css' %}" rel="stylesheet" />
-<script defer src="{% static 'script/slideshow.js' %}"></script>
-<div class="slideshow-container">
-    <div class="mySlides fade">
-      <div class="crop">
-          <img src="{% static 'images/HGCFsign.jpg' %}" alt="Slide 1">
-      </div>
-    </div>
+{% extends "mainLayout.html" %}{% load static %}
+{% block extra_head %} 
+    <link href="{% static 'style/pageSetup.css' %}" rel="stylesheet">
+    <link href="{% static 'style/homePage.css' %}" rel="stylesheet">
+    <link href="{% static 'style/homePage2.css' %}" rel="stylesheet">
+    <script defer>
+    // Soft scroll reveal
+    document.addEventListener("DOMContentLoaded", () => {
+        const sections = document.querySelectorAll("section");
+        const reveal = (entry) => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = 1;
+                entry.target.style.transform = "none";
+            }
+        };
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(reveal);
+            }, { threshold: 0.1 });
 
-    <div class="mySlides fade">
-      <div class="crop">
-          <img src="{% static 'images/HGCFFlower.jpg' %}" alt="Slide 2">
-      </div>
-    </div>
-
-    <div class="mySlides fade">
-      <div class="crop">
-          <img src="{% static 'images/HGCFsign (2).jpg' %}" alt="Slide 3">
-      </div>
-    </div>
-
-    <!-- Add more slides as needed -->
-
-    <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
-    <a class="next" onclick="plusSlides(1)">&#10095;</a>
-</div>
-<main>
-    <section id="home">
+            sections.forEach((section) => {
+            section.style.opacity = 0;
+            section.style.transform = "translateY(40px)";
+            observer.observe(section);
+        });
+    });
+    </script>
+{% endblock %}
+{% block list %}
+    <section class="landing-hero" style="display: flex; justify-content: center; gap: 70px; min-width:1520px;">
+        <div style="width: 605px;">
+            <img src="{% static 'images/the_boys.jpg' %}" alt="Our Farm Entrance" style="width: 605px; height: auto; display: block; filter: saturate(1.15);border-radius: 55px; margin: auto;">
+        </div>
+        <div>
+            <h1 style="margin-bottom:unset;">Welcome to<br>Heavens Gates Cherry Farm</h1>
+            <p>A family-run cherry and strawberry farm rooted in tradition, taste, and Michigan soil. Come for the fruit, stay for the peace.</p>
+        </div>
+        {% comment %} <div style="width: 560px;">
+            <img src="{% static 'images/strawberries.jpg' %}" alt="Our Farm Entrance" style="width: 443px; height: auto; display: block; filter: saturate(1.15); margin: auto; border-radius: 55px;">
+        </div> {% endcomment %}
+    </section>
+    <section id="home" style="min-width:1520px;">
         <div class="triFoldCont">
             <div class="promo1">
                 <div class="textCont">
@@ -41,29 +52,80 @@
                 <div class="textCont2">
                     <div class="promoHeader2">Fresh Farm Products</div>
                     <div class="textCont3">
-                          A beautiful 5 acre “U-Pick"
-                          <span>organic-practiced</span> berry, fruit and vegetable 
-                          farm located in the middle of the 
-                          Huron-Manistee National Forests in
-                          scenic east central Michigan.
+                            A beautiful 5 acre “U-Pick"
+                            <span>organic-practiced</span> berry, fruit and vegetable 
+                            farm located in the middle of the 
+                            Huron-Manistee National Forests in
+                            scenic east central Michigan.
                     </div>
                     <div class="promoLink2">
-                      <a class="wood-button" href="#">
+                        <a class="wood-button" href="#">
                         Directions
-                      </a>
+                        </a>
                     </div>
                 </div>
             </div>
             <div class="promo3">
                 <div class="textCont">
-                    <div class="promoHeader" style="line-height: 1.2;">Joyce's Kitchen</div>
-                    <div class="promoHeaderLittle">Lets Get Cooking!</div>
+                    <div class="promoHeader" style="line-height: 1.2;">Pantry Picks & Goodies</div>
+                    <div class="promoHeaderLittle">Lets Get Shopping!</div>
                     <hr>
-                    <div class="promoLink">Learn New Recipes</div>
+                    <div class="promoLink">See fresh new products</div>
                 </div>
             </div>
         </div>
     </section>
-</main>
-
+    <section class="about-farm" style="display: flex; flex-wrap: wrap; padding: 3rem 2rem; background: #f9ede2; color: #4b2e1e; margin-top: -105px; min-width:1520px;">
+        <div style="display: flex; margin: auto; margin-top: 20px; max-width: 1356px;">
+            <div style="flex: 12; min-width: 300px; padding: 1rem;">
+                <h2 style="font-size: 2.2rem; margin-bottom: 1rem;">About Our Farm</h2>
+                <p style="font-size: 1.15rem; line-height: 1.6;">
+                    Nestled in the heart of Michigan, Heavens Gates Cherry Farm is a 
+                    family-run farm dedicated to growing high-quality, hand-tended 
+                    fruit. We proudly grow sweet cherries and juicy strawberries, 
+                    perfect for fresh snacking, homemade desserts, and summer memories. 
+                    Whether you're stopping by for U-pick or placing a local order, we’re 
+                    here to bring you the freshest fruit straight from our fields.
+                </p>
+                <div style="background: #fff; border-radius: 8px; padding: 1.5rem; box-shadow: 0 0 12px rgba(0,0,0,0.1);">
+                    <h3 style="margin-bottom: 1rem; margin-top: 0px;">🍓 Did You Know?</h3>
+                    <ul style="list-style: none; padding: 0; margin: 0; font-size: 1rem;">
+                        <li>• Our cherries are handpicked at peak ripeness 🍒</li>
+                        <li>• No pesticides – just sunshine & good soil 🌱</li>
+                        <li>• Over 5,000 strawberry plants are in bloom! 🌼</li>
+                        <li>• We’re 100% family run – 3 generations deep 👨‍🌾</li>
+                    </ul>
+                </div>
+            </div>
+            <div style="width: 450px; padding: 1rem; display: flex; justify-content: center; align-items: center;">
+                <div class="popsPicture" onmouseover="this.style.transform='scale(1.03)'; this.style.boxShadow='0 18px 35px rgba(0,0,0,0.25)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 12px 25px rgba(0,0,0,0.15)';">
+                    <img src="{% static 'images/dad_sign.jpg' %}" alt="Our Farm Entrance" style="width: 100%; height: auto; display: block; filter: saturate(1.15);">
+                    <div style="position: absolute;bottom: 0;left: 0;width: 100%;padding: 0.75rem 1rem;background: linear-gradient(to top, rgba(0,0,0,0.5), transparent);color: white;font-weight: bold;font-size: 1rem;text-align: center;">
+                        Welcome to Heavens Gates 🍒
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    {% comment %} <section style="background: #fff8ef; padding: 3rem 1rem;">
+        <h2 style="text-align: center; font-size: 2rem; color: #542e1d; margin-bottom: 1.5rem;">What's Fresh This Week?</h2>
+        <div style="display: flex; overflow-x: auto; gap: 1.5rem; padding-bottom: 1rem;">
+            <div style="min-width: 220px; background: #ffffff; border-radius: 10px; padding: 1rem; box-shadow: 0 0 10px rgba(0,0,0,0.1); text-align: center;">
+                <h4>🍓 Strawberries</h4>
+                <p>Juicy, red, and ready. Best for jam or shortcake.</p>
+            </div>
+            <div style="min-width: 220px; background: #ffffff; border-radius: 10px; padding: 1rem; box-shadow: 0 0 10px rgba(0,0,0,0.1); text-align: center;">
+                <h4>🍒 Sweet Cherries</h4>
+                <p>Fresh off the branch – come pick or order!</p>
+            </div>
+            <div style="min-width: 220px; background: #ffffff; border-radius: 10px; padding: 1rem; box-shadow: 0 0 10px rgba(0,0,0,0.1); text-align: center;">
+                <h4>🌻 Wildflower Honey</h4>
+                <p>Limited batch from our neighbor’s bees.</p>
+            </div>
+        </div>
+    </section> {% endcomment %}
+    <section class="cta-section">
+        <h2>Visit Us or Reserve Your Pick</h2>
+        <a href="#">Plan Your Visit</a>
+    </section>
 {% endblock %}
