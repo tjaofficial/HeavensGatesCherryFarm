@@ -15,7 +15,7 @@
     </head>
     <body>
         <header>{% include "components/header.html" %}</header>
-        {% comment %} {% if sideBar %}{% include "components/sideBar.html" %}{% endif %} {% endcomment %}
+        {% if sideBar %}{% include "components/sideBar.html" %}{% endif %}
         <main style="{% if sideBar %}margin-top: 89px;{% endif %}">
             {% block list %}{% endblock %}
         </main>
