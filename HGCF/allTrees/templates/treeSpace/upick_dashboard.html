@@ -1,0 +1,285 @@
+{% extends "mainLayout.html" %}
+{% load static %}
+
+{% block list %}
+<link href="{% static 'style/treespace_upick.css' %}" rel="stylesheet" />
+<script defer src="{% static 'script/treespace_upick.js' %}"></script>
+
+{% comment %} {% include "components/spacer.html" with headerSpace='small' %} {% endcomment %}
+
+<div class="treespace-upick-page">
+
+    <form style="display:none;">
+        {% csrf_token %}
+    </form>
+
+    <section class="upick-admin-header">
+        <div>
+            <p class="admin-kicker">TreeSpace</p>
+            <h1>U-Pick Dashboard</h1>
+            <p>Manage reservations, check-ins, no-shows, and walk-in availability.</p>
+        </div>
+
+        <div class="admin-header-actions">
+            <a href="{% url 'upick_landing' %}" class="admin-btn secondary">Public U-Pick Page</a>
+            <a href="/admin/" class="admin-btn secondary">Django Admin</a>
+        </div>
+    </section>
+
+    <section class="event-picker-card">
+        <form method="GET" class="event-picker-form">
+            <label for="eventSelect">Select U-Pick Event</label>
+
+            <select name="event" id="eventSelect" onchange="this.form.submit()">
+                {% for event in events %}
+                    <option value="{{ event.id }}" {% if selected_event and event.id == selected_event.id %}selected{% endif %}>
+                        {{ event.date|date:"M j, Y" }} — {{ event.title }}
+                    </option>
+                {% endfor %}
+            </select>
+        </form>
+    </section>
+
+    {% if selected_event %}
+
+        <section class="admin-metrics-grid">
+            <div class="metric-card">
+                <span>Total Capacity</span>
+                <strong>{{ total_capacity }}</strong>
+            </div>
+
+            <div class="metric-card">
+                <span>Reserved</span>
+                <strong id="metricReserved">{{ total_reserved }}</strong>
+            </div>
+
+            <div class="metric-card">
+                <span>Checked In</span>
+                <strong id="metricCheckedIn">{{ total_checked_in }}</strong>
+            </div>
+
+            <div class="metric-card">
+                <span>Spots Remaining</span>
+                <strong id="metricRemaining">{{ spots_remaining }}</strong>
+            </div>
+
+            <div class="metric-card">
+                <span>Completed</span>
+                <strong id="metricCompleted">{{ total_completed }}</strong>
+            </div>
+
+            <div class="metric-card">
+                <span>No Shows</span>
+                <strong id="metricNoShow">{{ total_no_show }}</strong>
+            </div>
+        </section>
+
+        <section class="time-slot-admin-card">
+            <div class="section-title-row">
+                <div>
+                    <p>Time Slots</p>
+                    <h2>{{ selected_event.date|date:"F j, Y" }}</h2>
+                </div>
+            </div>
+
+            <div class="slot-admin-grid">
+                {% for slot in time_slots %}
+                    <article class="slot-admin-card">
+                        <h3>{{ slot.get_slot_label }}</h3>
+
+                        <div class="slot-admin-row">
+                            <span>Capacity</span>
+                            <strong>{{ slot.capacity }}</strong>
+                        </div>
+
+                        <div class="slot-admin-row">
+                            <span>Reserved</span>
+                            <strong>{{ slot.reserved_count }}</strong>
+                        </div>
+
+                        <div class="slot-admin-row">
+                            <span>Remaining</span>
+                            <strong>{{ slot.spots_remaining }}</strong>
+                        </div>
+
+                        {% if slot.is_full %}
+                            <p class="slot-pill full">Full</p>
+                        {% else %}
+                            <p class="slot-pill open">Open</p>
+                        {% endif %}
+                    </article>
+                {% empty %}
+                    <div class="empty-panel">
+                        <h3>No time slots created.</h3>
+                        <p>Add time slots from Django admin for this event.</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="reservation-admin-card">
+            <div class="section-title-row">
+                <div>
+                    <p>Reservations</p>
+                    <h2>Guest List</h2>
+                </div>
+
+                <div class="reservation-filters">
+                    <input 
+                        type="text" 
+                        id="reservationSearch" 
+                        placeholder="Search name, email, phone..."
+                    >
+
+                    <select id="statusFilter">
+                        <option value="">All Statuses</option>
+                        <option value="confirmed">Confirmed</option>
+                        <option value="checked_in">Checked In</option>
+                        <option value="completed">Completed</option>
+                        <option value="cancelled">Cancelled</option>
+                        <option value="no_show">No Show</option>
+                        <option value="released">Released</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="reservation-table-wrap">
+                {% if reservations %}
+                    <table class="reservation-table">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Guest</th>
+                                <th>Contact</th>
+                                <th>Party</th>
+                                <th>Status</th>
+                                <th>Notes</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for reservation in reservations %}
+                                <tr 
+                                    id="reservation-row-{{ reservation.id }}"
+                                    data-search="{{ reservation.full_name|lower }} {{ reservation.email|lower }} {{ reservation.phone|lower }}"
+                                    data-status="{{ reservation.status }}"
+                                >
+                                    <td>
+                                        <strong>{{ reservation.time_slot.start_time|time:"g:i A" }}</strong>
+                                    </td>
+
+                                    <td>
+                                        <strong>{{ reservation.full_name }}</strong>
+                                        <span class="muted">Created {{ reservation.created_at|date:"M j, g:i A" }}</span>
+                                    </td>
+
+                                    <td>
+                                        <span>{{ reservation.email }}</span>
+                                        <span class="muted">{{ reservation.phone }}</span>
+                                    </td>
+
+                                    <td>
+                                        <strong>{{ reservation.party_size }}</strong>
+                                    </td>
+
+                                    <td>
+                                        <span 
+                                            class="status-pill status-{{ reservation.status }}"
+                                            id="status-pill-{{ reservation.id }}"
+                                        >
+                                            {{ reservation.get_status_display }}
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        {% if reservation.customer_note %}
+                                            <span class="note-preview">{{ reservation.customer_note|truncatechars:60 }}</span>
+                                        {% else %}
+                                            <span class="muted">—</span>
+                                        {% endif %}
+                                    </td>
+
+                                    <td>
+                                        <div class="action-menu">
+                                            {% if reservation.status == "confirmed" %}
+                                                <button 
+                                                    type="button"
+                                                    onclick="updateReservationStatus('{{ reservation.id }}', 'check_in')"
+                                                    class="action-btn good"
+                                                >
+                                                    Check In
+                                                </button>
+                                            {% endif %}
+
+                                            {% if reservation.status == "checked_in" %}
+                                                <button 
+                                                    type="button"
+                                                    onclick="updateReservationStatus('{{ reservation.id }}', 'complete')"
+                                                    class="action-btn good"
+                                                >
+                                                    Complete
+                                                </button>
+                                            {% endif %}
+
+                                            {% if reservation.status != "cancelled" and reservation.status != "completed" %}
+                                                <button 
+                                                    type="button"
+                                                    onclick="updateReservationStatus('{{ reservation.id }}', 'release')"
+                                                    class="action-btn warning"
+                                                >
+                                                    Release
+                                                </button>
+
+                                                <button 
+                                                    type="button"
+                                                    onclick="updateReservationStatus('{{ reservation.id }}', 'no_show')"
+                                                    class="action-btn warning"
+                                                >
+                                                    No Show
+                                                </button>
+
+                                                <button 
+                                                    type="button"
+                                                    onclick="updateReservationStatus('{{ reservation.id }}', 'cancel')"
+                                                    class="action-btn danger"
+                                                >
+                                                    Cancel
+                                                </button>
+                                            {% endif %}
+
+                                            {% if reservation.status != "confirmed" and reservation.status != "checked_in" and reservation.status != "completed" %}
+                                                <button 
+                                                    type="button"
+                                                    onclick="updateReservationStatus('{{ reservation.id }}', 'confirm')"
+                                                    class="action-btn neutral"
+                                                >
+                                                    Reconfirm
+                                                </button>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <div class="empty-panel">
+                        <h3>No reservations yet.</h3>
+                        <p>Once guests reserve U-Pick slots, they will show up here.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </section>
+
+    {% else %}
+        <section class="empty-panel">
+            <h2>No U-Pick events found.</h2>
+            <p>Create a U-Pick event from Django admin first.</p>
+        </section>
+    {% endif %}
+
+    <div id="adminToast" class="admin-toast"></div>
+
+</div>
+{% endblock %}

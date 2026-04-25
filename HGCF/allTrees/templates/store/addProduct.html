@@ -1,143 +1,575 @@
-{% extends "mainLayout.html" %}{% load static %}{% block list%}
+{% extends "mainLayout.html" %}
+{% load static %}
+
+{% block list %}
 <link href="{% static 'style/addProduct.css' %}" rel="stylesheet" />
 <script defer src="{% static 'script/addProduct.js' %}"></script>
-{% include "components/spacer.html" with headerSpace='small' %}
-<div class="main">
-    <form method="POST" name="product-form" enctype="multipart/form-data">
-        {% csrf_token %}
-        <div class="card main_card_width" style="color: white;">
-            <div class="product-card-header bottomBorder">Images</div>
-            <hr>
-            <div class="product-card-content">
-                <div class="form-group">
-                    <label class="label" for="product-mainImage">Photo:</label>
-                    {{productForm.mainImage}}
-                </div>
+
+{% comment %} {% include "components/spacer.html" with headerSpace='small' %} {% endcomment %}
+<div class="add-product-page">
+    <div class="product-builder-shell">
+        <div class="builder-header">
+            <div>
+                <p class="builder-kicker">Heaven’s Gates Cherry Farm</p>
+                <h1>Add Product</h1>
+                <p>Create produce, merch, seasonal goods, preorder items, and product variants.</p>
+            </div>
+
+            <div class="builder-header-actions">
+                <a href="{% url 'store' %}" class="builder-btn secondary">View Store</a>
+                <button type="submit" form="productForm" class="builder-btn primary">Save Product</button>
             </div>
         </div>
-        <br>
-        <div class="card main_card_width" style="color: white;">
-            <div class="product-card-header bottomBorder">Product info</div>
-            <hr>
-            <div class="product-card-content">
-                <div class="flex">
-                    <div class="form-group" style="width: 68%;">
-                        <label class="label" for="product-name">Product Name</label><br>
-                        {{productForm.product_name}}
-                    </div>
-                    <div class="form-group">
-                        <label class="label" for="product-name">Ribbon</label><br>
-                        {{productForm.ribbon}}
-                    </div>
-                </div>
-                <br>
-                <div class="">
-                    <div class="form-group">
-                        <label class="label" for="product-description">Description</label><br>
-                        {{productForm.description}}
-                    </div>
-                </div>
-                <br>
-                <div class="form-group">
-                    <label class="label" for="product-show_in_store">Show in Store: </label>
-                    {{productForm.show_in_store}}
-                </div>
+
+        {% if productForm.errors or variantFormset.errors %}
+            <div class="form-alert">
+                <strong>Something needs fixed.</strong>
+                <span>Check the highlighted fields below. Django is being dramatic, but useful.</span>
             </div>
-        </div>
-        <br>
-        <div class="card main_card_width" style="color: white;">
-            <div class="product-card-header bottomBorder">Pricing</div>
-            <hr>
-            <div class="product-card-content">
-                <div class="form-group">
-                    <label class="label" for="product-price">Price:</label><br>
-                    {{productForm.price}}
-                    <div style="position: relative; top: -28px; left: 58px; width: 20px;">$</div>
-                </div>
-                <div class="form-group">
-                    <label class="label" for="product-on_sale">On Sale:</label><br>
-                    {{productForm.on_sale}}
-                </div>
-                <div class="flex">
-                    <div class="form-group">
-                        <label class="label" for="product-sale_percentage">Discount</label><br>
-                        {{productForm.sale_percentage}}
-                    </div>
-                    <div class="form-group">
-                        <label class="label" for="product-sale_price">Sale Price</label><br>
-                        {{productForm.sale_price}}
-                    </div>
-                </div>
+        {% endif %}
+
+        <form 
+            method="POST" 
+            name="product-form" 
+            id="productForm"
+            enctype="multipart/form-data"
+            class="product-builder-form"
+        >
+            {% csrf_token %}
+
+            <div class="builder-grid">
+
+                <main class="builder-main">
+
+                    <section class="builder-card">
+                        <div class="card-title-row">
+                            <div>
+                                <h2>Product Basics</h2>
+                                <p>Name, type, description, and store visibility.</p>
+                            </div>
+                        </div>
+
+                        <div class="form-grid two">
+                            <div class="field-group wide">
+                                <label>Product Name</label>
+                                {{ productForm.product_name }}
+                                {{ productForm.product_name.errors }}
+                            </div>
+
+                            <div class="field-group">
+                                <label>SKU</label>
+                                {{ productForm.sku }}
+                                {{ productForm.sku.errors }}
+                            </div>
+
+                            <div class="field-group">
+                                <label>Product Type</label>
+                                {{ productForm.product_type }}
+                                {{ productForm.product_type.errors }}
+                            </div>
+
+                            <div class="field-group">
+                                <label>Ribbon</label>
+                                {{ productForm.ribbon }}
+                                {{ productForm.ribbon.errors }}
+                            </div>
+
+                            <div class="field-group wide">
+                                <label>Short Description</label>
+                                {{ productForm.short_description }}
+                                {{ productForm.short_description.errors }}
+                            </div>
+
+                            <div class="field-group wide">
+                                <label>Description</label>
+                                {{ productForm.description }}
+                                {{ productForm.description.errors }}
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="builder-card">
+                        <div class="card-title-row">
+                            <div>
+                                <h2>Pricing</h2>
+                                <p>Base price and sale pricing. Variants can override this later.</p>
+                            </div>
+                        </div>
+
+                        <div class="form-grid three">
+                            <div class="field-group">
+                                <label>Price</label>
+                                <div class="money-wrap">
+                                    <span>$</span>
+                                    {{ productForm.price }}
+                                </div>
+                                {{ productForm.price.errors }}
+                            </div>
+
+                            <div class="field-group">
+                                <label>Unit Type</label>
+                                {{ productForm.unit_type }}
+                                {{ productForm.unit_type.errors }}
+                            </div>
+
+                            <div class="field-group">
+                                <label>Unit Label</label>
+                                {{ productForm.unit_label }}
+                                {{ productForm.unit_label.errors }}
+                            </div>
+
+                            <div class="toggle-card">
+                                <div>
+                                    <strong>On Sale</strong>
+                                    <span>Enable sale display.</span>
+                                </div>
+                                {{ productForm.on_sale }}
+                            </div>
+
+                            <div class="field-group sale-field">
+                                <label>Discount %</label>
+                                {{ productForm.sale_percentage }}
+                                {{ productForm.sale_percentage.errors }}
+                            </div>
+
+                            <div class="field-group sale-field">
+                                <label>Sale Price</label>
+                                <div class="money-wrap">
+                                    <span>$</span>
+                                    {{ productForm.sale_price }}
+                                </div>
+                                {{ productForm.sale_price.errors }}
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="builder-card">
+                        <div class="card-title-row">
+                            <div>
+                                <h2>Inventory & Fulfillment</h2>
+                                <p>Handle stock, pickup, shipping, and farm stand behavior.</p>
+                            </div>
+                        </div>
+
+                        <div class="form-grid three">
+                            <div class="toggle-card">
+                                <div>
+                                    <strong>Track Inventory</strong>
+                                    <span>Use stock quantity.</span>
+                                </div>
+                                {{ productForm.track_inventory }}
+                            </div>
+
+                            <div class="field-group">
+                                <label>Status</label>
+                                {{ productForm.inventory_status }}
+                                {{ productForm.inventory_status.errors }}
+                            </div>
+
+                            <div class="field-group inventory-field">
+                                <label>Inventory Total</label>
+                                {{ productForm.inventory_total }}
+                                {{ productForm.inventory_total.errors }}
+                            </div>
+
+                            <div class="toggle-card">
+                                <div>
+                                    <strong>Allow Backorder</strong>
+                                    <span>Allow purchase with no stock.</span>
+                                </div>
+                                {{ productForm.allow_backorder }}
+                            </div>
+
+                            <div class="field-group">
+                                <label>Fulfillment</label>
+                                {{ productForm.fulfillment_type }}
+                                {{ productForm.fulfillment_type.errors }}
+                            </div>
+
+                            <div class="field-group">
+                                <label>Shipping Weight</label>
+                                {{ productForm.shipping_weight }}
+                                {{ productForm.shipping_weight.errors }}
+                            </div>
+
+                            <div class="toggle-card">
+                                <div>
+                                    <strong>Taxable</strong>
+                                    <span>Charge tax if checkout supports it.</span>
+                                </div>
+                                {{ productForm.taxable }}
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="builder-card">
+                        <div class="card-title-row">
+                            <div>
+                                <h2>Seasonal & Preorder</h2>
+                                <p>Useful for strawberries, cherries, harvest windows, and limited drops.</p>
+                            </div>
+                        </div>
+
+                        <div class="form-grid three">
+                            <div class="toggle-card">
+                                <div>
+                                    <strong>Preorder</strong>
+                                    <span>Let customers reserve it.</span>
+                                </div>
+                                {{ productForm.pre_order }}
+                            </div>
+
+                            <div class="field-group wide preorder-field">
+                                <label>Preorder Message</label>
+                                {{ productForm.pre_order_message }}
+                                {{ productForm.pre_order_message.errors }}
+                            </div>
+
+                            <div class="toggle-card">
+                                <div>
+                                    <strong>Seasonal</strong>
+                                    <span>Show as seasonal product.</span>
+                                </div>
+                                {{ productForm.is_seasonal }}
+                            </div>
+
+                            <div class="field-group seasonal-field">
+                                <label>Harvest Date</label>
+                                {{ productForm.harvest_date }}
+                                {{ productForm.harvest_date.errors }}
+                            </div>
+
+                            <div class="field-group seasonal-field">
+                                <label>Season Start</label>
+                                {{ productForm.season_start }}
+                                {{ productForm.season_start.errors }}
+                            </div>
+
+                            <div class="field-group seasonal-field">
+                                <label>Season End</label>
+                                {{ productForm.season_end }}
+                                {{ productForm.season_end.errors }}
+                            </div>
+
+                            <div class="toggle-card">
+                                <div>
+                                    <strong>Limit Per Order</strong>
+                                    <span>Cap purchase quantity.</span>
+                                </div>
+                                {{ productForm.limit_per_order }}
+                            </div>
+
+                            <div class="field-group limit-field">
+                                <label>Limit Number</label>
+                                {{ productForm.limit_number }}
+                                {{ productForm.limit_number.errors }}
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="builder-card">
+                        <div class="card-title-row">
+                            <div>
+                                <h2>Variants</h2>
+                                <p>Add sizes/options like Small, Medium, XL, Pint, Quart, Flat, or special batches.</p>
+                            </div>
+
+                            <button type="button" class="builder-btn small secondary" id="addVariantBtn">
+                                Add Variant
+                            </button>
+                        </div>
+
+                        {{ variantFormset.management_form }}
+
+                        <div id="variantList" class="variant-list">
+                            {% for variant_form in variantFormset %}
+                                <div class="variant-card">
+                                    {{ variant_form.id }}
+
+                                    <div class="variant-card-header">
+                                        <strong>Variant</strong>
+
+                                        {% if variant_form.DELETE %}
+                                            <label class="delete-variant">
+                                                {{ variant_form.DELETE }}
+                                                <span>Delete</span>
+                                            </label>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="form-grid three">
+                                        <div class="field-group">
+                                            <label>Variant Name</label>
+                                            {{ variant_form.variant_name }}
+                                            {{ variant_form.variant_name.errors }}
+                                        </div>
+
+                                        <div class="field-group">
+                                            <label>Size</label>
+                                            {{ variant_form.size }}
+                                            {{ variant_form.size.errors }}
+                                        </div>
+
+                                        <div class="field-group">
+                                            <label>SKU</label>
+                                            {{ variant_form.sku }}
+                                            {{ variant_form.sku.errors }}
+                                        </div>
+
+                                        <div class="field-group">
+                                            <label>Price Override</label>
+                                            {{ variant_form.price_override }}
+                                            {{ variant_form.price_override.errors }}
+                                        </div>
+
+                                        <div class="field-group">
+                                            <label>Sale Price Override</label>
+                                            {{ variant_form.sale_price_override }}
+                                            {{ variant_form.sale_price_override.errors }}
+                                        </div>
+
+                                        <div class="field-group">
+                                            <label>Inventory</label>
+                                            {{ variant_form.inventory_total }}
+                                            {{ variant_form.inventory_total.errors }}
+                                        </div>
+
+                                        <div class="toggle-card">
+                                            <div>
+                                                <strong>Track</strong>
+                                                <span>Inventory</span>
+                                            </div>
+                                            {{ variant_form.track_inventory }}
+                                        </div>
+
+                                        <div class="toggle-card">
+                                            <div>
+                                                <strong>Online</strong>
+                                                <span>Visible online</span>
+                                            </div>
+                                            {{ variant_form.is_active_online }}
+                                        </div>
+
+                                        <div class="toggle-card">
+                                            <div>
+                                                <strong>POS</strong>
+                                                <span>Visible offline</span>
+                                            </div>
+                                            {{ variant_form.is_active_offline }}
+                                        </div>
+
+                                        <div class="toggle-card">
+                                            <div>
+                                                <strong>Active</strong>
+                                                <span>Usable variant</span>
+                                            </div>
+                                            {{ variant_form.is_active }}
+                                        </div>
+
+                                        <div class="field-group">
+                                            <label>Display Order</label>
+                                            {{ variant_form.display_order }}
+                                            {{ variant_form.display_order.errors }}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <template id="emptyVariantTemplate">
+                            <div class="variant-card">
+                                <div class="variant-card-header">
+                                    <strong>Variant</strong>
+                                    <button type="button" class="remove-new-variant">Remove</button>
+                                </div>
+
+                                <div class="form-grid three">
+                                    <div class="field-group">
+                                        <label>Variant Name</label>
+                                        {{ variantFormset.empty_form.variant_name }}
+                                    </div>
+
+                                    <div class="field-group">
+                                        <label>Size</label>
+                                        {{ variantFormset.empty_form.size }}
+                                    </div>
+
+                                    <div class="field-group">
+                                        <label>SKU</label>
+                                        {{ variantFormset.empty_form.sku }}
+                                    </div>
+
+                                    <div class="field-group">
+                                        <label>Price Override</label>
+                                        {{ variantFormset.empty_form.price_override }}
+                                    </div>
+
+                                    <div class="field-group">
+                                        <label>Sale Price Override</label>
+                                        {{ variantFormset.empty_form.sale_price_override }}
+                                    </div>
+
+                                    <div class="field-group">
+                                        <label>Inventory</label>
+                                        {{ variantFormset.empty_form.inventory_total }}
+                                    </div>
+
+                                    <div class="toggle-card">
+                                        <div>
+                                            <strong>Track</strong>
+                                            <span>Inventory</span>
+                                        </div>
+                                        {{ variantFormset.empty_form.track_inventory }}
+                                    </div>
+
+                                    <div class="toggle-card">
+                                        <div>
+                                            <strong>Online</strong>
+                                            <span>Visible online</span>
+                                        </div>
+                                        {{ variantFormset.empty_form.is_active_online }}
+                                    </div>
+
+                                    <div class="toggle-card">
+                                        <div>
+                                            <strong>POS</strong>
+                                            <span>Visible offline</span>
+                                        </div>
+                                        {{ variantFormset.empty_form.is_active_offline }}
+                                    </div>
+
+                                    <div class="toggle-card">
+                                        <div>
+                                            <strong>Active</strong>
+                                            <span>Usable variant</span>
+                                        </div>
+                                        {{ variantFormset.empty_form.is_active }}
+                                    </div>
+
+                                    <div class="field-group">
+                                        <label>Display Order</label>
+                                        {{ variantFormset.empty_form.display_order }}
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </section>
+
+                    <section class="builder-card">
+                        <div class="card-title-row">
+                            <div>
+                                <h2>SEO</h2>
+                                <p>Optional search and accessibility details.</p>
+                            </div>
+                        </div>
+
+                        <div class="form-grid two">
+                            <div class="field-group">
+                                <label>Alt Text</label>
+                                {{ productForm.alt_text }}
+                                {{ productForm.alt_text.errors }}
+                            </div>
+
+                            <div class="field-group">
+                                <label>Meta Title</label>
+                                {{ productForm.meta_title }}
+                                {{ productForm.meta_title.errors }}
+                            </div>
+
+                            <div class="field-group wide">
+                                <label>Meta Description</label>
+                                {{ productForm.meta_description }}
+                                {{ productForm.meta_description.errors }}
+                            </div>
+                        </div>
+                    </section>
+
+                </main>
+
+                <aside class="builder-side">
+
+                    <section class="builder-card sticky-card">
+                        <h2>Product Image</h2>
+
+                        <div class="image-preview-box" id="imagePreviewBox">
+                            <span>No image selected</span>
+                            <img id="imagePreview" alt="Product preview">
+                        </div>
+
+                        <div class="field-group">
+                            <label>Main Image</label>
+                            {{ productForm.mainImage }}
+                            {{ productForm.mainImage.errors }}
+                        </div>
+                    </section>
+
+                    <section class="builder-card">
+                        <h2>Publishing</h2>
+
+                        <div class="toggle-stack">
+                            <div class="toggle-card">
+                                <div>
+                                    <strong>Show in Store</strong>
+                                    <span>Display on shop page.</span>
+                                </div>
+                                {{ productForm.show_in_store }}
+                            </div>
+
+                            <div class="toggle-card">
+                                <div>
+                                    <strong>Active</strong>
+                                    <span>Master product status.</span>
+                                </div>
+                                {{ productForm.is_active }}
+                            </div>
+
+                            <div class="toggle-card">
+                                <div>
+                                    <strong>Online</strong>
+                                    <span>Available online.</span>
+                                </div>
+                                {{ productForm.is_active_online }}
+                            </div>
+
+                            <div class="toggle-card">
+                                <div>
+                                    <strong>POS</strong>
+                                    <span>Available at farm stand.</span>
+                                </div>
+                                {{ productForm.is_active_offline }}
+                            </div>
+
+                            <div class="toggle-card">
+                                <div>
+                                    <strong>Custom Price</strong>
+                                    <span>Allow POS manual price.</span>
+                                </div>
+                                {{ productForm.allow_custom_price }}
+                            </div>
+                        </div>
+
+                        <div class="form-grid one">
+                            <div class="field-group">
+                                <label>Store Display Order</label>
+                                {{ productForm.store_display_order }}
+                                {{ productForm.store_display_order.errors }}
+                            </div>
+
+                            <div class="field-group">
+                                <label>POS Display Order</label>
+                                {{ productForm.pos_display_order }}
+                                {{ productForm.pos_display_order.errors }}
+                            </div>
+                        </div>
+
+                        <button type="submit" class="builder-btn primary full">Save Product</button>
+                    </section>
+
+                </aside>
+
             </div>
-        </div>
-        <br>
-        <div class="card main_card_width" style="color: white;">
-            <div class="product-card-header bottomBorder">Inventory and Shiping</div>
-            <hr>
-            <div class="product-card-content">
-                <div class="form-group">
-                    {{productForm.track_inventory}}
-                    <label class="label" for="product-track_inventory">Track Inventory</label><br>
-                </div>
-                <div class="flex">
-                    <div class="form-group">
-                        <label class="label" for="product-inventory_status">Status</label><br>
-                        {{productForm.inventory_status}}
-                    </div>
-                    <div class="form-group">
-                        <label class="label" for="product-shipping_weight">Shipping Weight</label><br>
-                        {{productForm.shipping_weight}}
-                    </div>
-                </div>
-                <div class="hidden">
-                    <div class="form-group">
-                        <label class="label" for="product-inventory_tota">Inventory Total</label><br>
-                        {{productForm.inventory_total}}
-                    </div>
-                </div>
-            </div>
-        </div>
-        <br>
-        <div class="product-card">
-            <div class="product-card-header bottomBorder">Pre Order</div>
-            <hr>
-            <div class="product-card-content">
-                <div class="form-group">
-                    <label class="label" for="product-pre_order">Pre Order</label>
-                    {{productForm.pre_order}}
-                </div>
-
-                <div class="form-group">
-                    <label class="label" for="product-pre_order_message">Pre Order Message</label>
-                    {{productForm.pre_order_message}}
-                </div>
-                <div class="form-group">
-                    <label class="label" for="product-limit">Limit</label>
-                    {{productForm.limit}}
-                </div>
-                <div class="form-group">
-                    <label class="label" for="product-limit_number">Limit to </label>
-                    {{productForm.limit_number}}
-                </div>
-            </div>
-        </div>
-        
-        
-        
-
-        
-
-        
-        
-        
-
-
-        
-        
-        
-
-        <button type="submit">Add Product</button>
-    </form>
+        </form>
+    </div>
 </div>
 
 {% endblock %}

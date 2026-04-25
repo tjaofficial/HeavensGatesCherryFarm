@@ -1,30 +1,67 @@
 {% load static %}
 <link href="{% static 'style/sideBar.css' %}" rel="stylesheet" />
-<div class="play">
+<script defer src="{% static 'script/sideBar.js' %}"></script>
+
+<button 
+    type="button" 
+    id="sideBarToggle" 
+    class="sidebar-toggle"
+    aria-label="Open TreeSpace sidebar"
+    aria-expanded="false"
+>
+    ☰ TreeSpace
+</button>
+
+<div id="sideBarOverlay" class="sidebar-overlay"></div>
+
+<aside id="treeSpaceSidebar" class="play">
     <div class="headerSpacer"></div>
+
+    <div class="sidebar-title">
+        TreeSpace
+    </div>
+
     <ul>
         <li>YouTube API</li>
+
         <li>
             <a href="{% url 'location_list' %}">Trees</a>
         </li>
+
         <li>
             <a href="{% url 'irrigation_dashboard' %}">Irrigation</a>
         </li>
+
+        <li>
+            <a href="{% url 'treespace_upick_dashboard' %}">U-Pick</a>
+        </li>
+
         <li>
             <a href="{% url 'recipeForm' %}">Recipes</a>
         </li>
+
         <li>
             <a href="{% url 'weatherDash' %}">Weather</a>
         </li>
+
         <li>
             <a href="{% url 'addProduct' %}">Products</a>
         </li>
+
         <li>
             <a href="{% url 'store' %}">Store</a>
         </li>
-        <li>Add News</li>
+
+        <li>
+            <a href="{% url 'pos_terminal_page' %}">POS</a>
+        </li>
+
+        <li>
+            <a href="#">Add News</a>
+        </li>
+
         <li>
             <a href="{% url 'Logout' %}">Logout</a>
         </li>
     </ul>
-</div>
+</aside>

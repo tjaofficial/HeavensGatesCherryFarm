@@ -1,6 +1,7 @@
 from django.shortcuts import render # type: ignore
 from ..models import individualTrees_model, locationTree_model, areaTree_model
 from django.contrib.auth.decorators import login_required # type: ignore
+from ..utils import build_seo
 # import paho.mqtt.client as mqtt
 # from .mqtt_pub import on_connect, on_message, on_exit
 # import atexit

@@ -1,78 +1,128 @@
-// Function to open Quick View for a product
-function openQuickView(productId) {
-    const prodID = productId
-    const modal = document.getElementById(`${productId}`);
-    modal.style.display = 'block';
-    modal.id='openedModal';
-  }
-  
-  // Function to close Quick View
-  function closeQuickView(productId) {
-    const modal = document.getElementById('openedModal');
-    modal.style.display = 'none';
-    modal.id = modal.dataset.prodid;
-  }
-  
-  // Close Quick View modal if the user clicks outside the modal
-  window.onclick = function (event) {
-    const modal = document.getElementById('openedModal');
-    if (event.target === modal) {
-      modal.style.display = 'none';
-      modal.id = modal.dataset.prodid;
+function getCSRFToken() {
+    const csrfInput = document.querySelector("input[name='csrfmiddlewaretoken']");
+    if (csrfInput) {
+        return csrfInput.value;
     }
-  };
 
-function addThisShit(prodID){
-    // Create a request object and specify the URL and method
-    var url = "/store";
-    var data = {
-        product_id: prodID  // Replace with the actual product ID
-    };
+    const cookieValue = document.cookie
+        .split("; ")
+        .find(row => row.startsWith("csrftoken="));
 
-    fetch(url, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": getCookie("csrftoken") // Include the CSRF token
-        },
-        body: JSON.stringify(data) // Convert data to JSON string
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error("Network response was not ok");
+    return cookieValue ? cookieValue.split("=")[1] : "";
+}
+
+function openQuickView(productId) {
+    const modal = document.getElementById(`quick-view-${productId}`);
+
+    if (!modal) {
+        console.error(`Quick view modal not found for product ID: ${productId}`);
+        return;
+    }
+
+    modal.classList.add("active");
+    document.body.style.overflow = "hidden";
+}
+
+function closeQuickView() {
+    document.querySelectorAll(".quick-view-modal.active").forEach(modal => {
+        modal.classList.remove("active");
+    });
+
+    document.body.style.overflow = "";
+}
+
+async function addToCart(productId) {
+    const variantSelect = document.getElementById(`variant-${productId}`);
+    let variantId = null;
+
+    if (variantSelect) {
+        variantId = variantSelect.value;
+
+        if (!variantId) {
+            showStoreToast("Please select a size or option first.", true);
+            return;
         }
-        return response.json(); // Parse the response as JSON
-    })
-    .then(data => {
-        console.log(data)
-        // Request was successful, handle the response here
-        const parsedData = data;
-        // Redirect the user to a different page
-        if (parsedData.redirectUrl) {
-            window.location.href = parsedData.redirectUrl;
+    }
+
+    try {
+        const response = await fetch(window.location.pathname, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": getCSRFToken()
+            },
+            body: JSON.stringify({
+                product_id: productId,
+                variant_id: variantId
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            showStoreToast(data.message || "Could not add item to cart.", true);
+            return;
         }
-    })
-    .catch(error => {
-        // Request failed, handle errors here
-        console.error("Fetch error:", error);
+
+        showStoreToast(data.message || "Item added to cart.");
+        updateCartCounter(data.cartCount);
+    } catch (error) {
+        console.error("Add to cart error:", error);
+        showStoreToast("Something went wrong adding this item.", true);
+    }
+}
+
+function showStoreToast(message, isError = false) {
+    const toast = document.getElementById("storeToast");
+
+    if (!toast) {
+        alert(message);
+        return;
+    }
+
+    toast.textContent = message;
+    toast.classList.toggle("error", isError);
+    toast.classList.add("show");
+
+    clearTimeout(window.storeToastTimer);
+
+    window.storeToastTimer = setTimeout(() => {
+        toast.classList.remove("show");
+    }, 2800);
+}
+
+function setupStoreSearch() {
+    const searchInput = document.getElementById("storeSearch");
+    const productCards = document.querySelectorAll(".product-card");
+
+    if (!searchInput) return;
+
+    searchInput.addEventListener("input", function () {
+        const searchValue = this.value.trim().toLowerCase();
+
+        productCards.forEach(card => {
+            const productName = card.dataset.productName || "";
+            const shouldShow = productName.includes(searchValue);
+
+            card.style.display = shouldShow ? "" : "none";
+        });
     });
 }
-// Function to get CSRF token from cookies (use as shown above)
-function getCookie(name) {
-    var cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        var cookies = document.cookie.split(';');
-        for (var i = 0; i < cookies.length; i++) {
-            var cookie = cookies[i].trim();
-            // Check if the cookie name matches the one you're looking for
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
+
+function updateCartCounter(count) {
+    const cartCounter = document.getElementById("cartCounter");
+
+    if (!cartCounter) return;
+
+    cartCounter.textContent = count;
 }
 
+document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") {
+        closeQuickView();
+    }
+});
 
-  
+document.addEventListener("DOMContentLoaded", function () {
+    setupStoreSearch();
+});

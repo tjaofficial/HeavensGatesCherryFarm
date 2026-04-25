@@ -2,63 +2,178 @@ body {
     font-family: 'Segoe UI', sans-serif;
     margin: 0;
     padding: 0;
-  }
+    overflow-x: hidden;
+}
 
-  section.landing-hero {
+/* ================================
+   Landing Hero
+================================ */
+
+section.landing-hero {
     background: linear-gradient(135deg, #dba37d, #ffdb7a);
     color: #3b1d0b;
-    padding: 2rem 2rem 4rem 2rem;
+    padding: 2rem 2rem 4rem;
     text-align: center;
     border-bottom: 10px solid #7b380b;
     position: relative;
     overflow: hidden;
-    /* height: 360px; */
-  }
 
-  .landing-hero h1 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 70px;
+}
+
+.landing-hero-image {
+    width: 605px;
+    max-width: 45%;
+    flex-shrink: 0;
+}
+
+.landing-hero-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+    filter: saturate(1.15);
+    border-radius: 55px;
+}
+
+.landing-hero-copy {
+    max-width: 720px;
+}
+
+.landing-hero h1 {
     font-size: 3rem;
-    margin-bottom: 1rem;
+    margin: 0 0 1rem;
     animation: fadeInDown 1s ease-out;
-  }
+}
 
-  .landing-hero p {
+.landing-hero p {
     font-size: 1.3rem;
     max-width: 700px;
     margin: 0 auto;
     animation: fadeInUp 1s ease-out;
-  }
+}
 
-  .highlight-section {
-    padding: 4rem 2rem;
-    text-align: center;
-    background: #fff4e0;
-    color: #542e1d;
-  }
+/* ================================
+   About Farm
+================================ */
 
-  .highlight-section h2 {
-    font-size: 2rem;
-    margin-bottom: 1rem;
-  }
+.about-farm {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 3rem 2rem;
+    background: #f9ede2;
+    color: #4b2e1e;
+    margin-top: -105px;
+}
 
-  .highlight-section p {
-    max-width: 750px;
-    margin: 0 auto;
+.about-farm-inner {
+    display: flex;
+    gap: 2rem;
+    margin: 20px auto 0;
+    max-width: 1356px;
+    width: 100%;
+    align-items: center;
+}
+
+.about-farm-copy {
+    flex: 1;
+    min-width: 300px;
+    padding: 1rem;
+}
+
+.about-farm-copy h2 {
+    font-size: 2.2rem;
+    margin: 0 0 1rem;
+}
+
+.about-farm-copy p {
     font-size: 1.15rem;
-  }
+    line-height: 1.6;
+}
 
-  .cta-section {
+.farm-fact-card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 0 12px rgba(0,0,0,0.1);
+}
+
+.farm-fact-card h3 {
+    margin: 0 0 1rem;
+}
+
+.farm-fact-card ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 1rem;
+}
+
+.farm-fact-card li {
+    margin-bottom: 0.35rem;
+}
+
+.about-farm-image-wrap {
+    width: 450px;
+    padding: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.popsPicture {
+    position: relative;
+    overflow: hidden;
+    border-radius: 20px;
+    box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    max-width: 100%;
+}
+
+.popsPicture:hover {
+    transform: scale(1.03);
+    box-shadow: 0 18px 35px rgba(0,0,0,0.25);
+}
+
+.popsPicture img {
+    width: 100%;
+    height: auto;
+    display: block;
+    filter: saturate(1.15);
+}
+
+.popsPictureCaption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: linear-gradient(to top, rgba(0,0,0,0.5), transparent);
+    color: white;
+    font-weight: bold;
+    font-size: 1rem;
+    text-align: center;
+}
+
+/* ================================
+   CTA
+================================ */
+
+.cta-section {
     background: #7b380b;
     color: white;
     padding: 3rem 1rem;
     text-align: center;
-  }
+}
 
-  .cta-section h2 {
+.cta-section h2 {
     font-size: 2.5rem;
     margin-bottom: 1rem;
-  }
+}
 
-  .cta-section a {
+.cta-section a {
     display: inline-block;
     padding: 0.75rem 1.5rem;
     background: #e9ff7a;
@@ -68,29 +183,125 @@ body {
     border-radius: 6px;
     font-size: 1.1rem;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
-  }
+}
 
-  .cta-section a:hover {
+.cta-section a:hover {
     transform: scale(1.05);
     box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-  }
+}
 
-  @keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+@keyframes fadeInUp {
+    from { 
+        opacity: 0; 
+        transform: translateY(30px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
 
-  @keyframes fadeInDown {
-    from { opacity: 0; transform: translateY(-30px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+@keyframes fadeInDown {
+    from { 
+        opacity: 0; 
+        transform: translateY(-30px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
 
+/* ================================
+   Mobile
+================================ */
 
-.popsPicture{
-    position: relative;
-    overflow: hidden;
-    border-radius: 20px;
-    box-shadow: 0 12px 25px rgba(0,0,0,0.15);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    max-width: 100%;
+@media screen and (max-width: 900px) {
+    section.landing-hero {
+        flex-direction: column;
+        gap: 1.5rem;
+        padding: 2rem 1rem 7rem;
+    }
+
+    .landing-hero-image {
+        width: 100%;
+        max-width: 520px;
+    }
+
+    .landing-hero-image img {
+        border-radius: 28px;
+    }
+
+    .landing-hero h1 {
+        font-size: clamp(2rem, 9vw, 3rem);
+        line-height: 1.1;
+    }
+
+    .landing-hero p {
+        font-size: 1.05rem;
+        line-height: 1.55;
+    }
+
+    .about-farm {
+        margin-top: 0;
+        padding: 2.25rem 1rem;
+    }
+
+    .about-farm-inner {
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    .about-farm-copy {
+        padding: 0;
+    }
+
+    .about-farm-copy h2 {
+        font-size: 2rem;
+        text-align: center;
+    }
+
+    .about-farm-copy p {
+        font-size: 1rem;
+    }
+
+    .about-farm-image-wrap {
+        width: 100%;
+        max-width: 430px;
+        padding: 0;
+    }
+
+    .cta-section {
+        padding: 2.5rem 1rem 6rem;
+    }
+
+    .cta-section h2 {
+        font-size: 2rem;
+    }
+}
+
+@media screen and (max-width: 520px) {
+    section.landing-hero {
+        padding: 1.5rem 0.85rem 6rem;
+    }
+
+    .landing-hero-image img {
+        border-radius: 22px;
+    }
+
+    .landing-hero h1 {
+        font-size: 2.15rem;
+    }
+
+    .landing-hero p {
+        font-size: 1rem;
+    }
+
+    .farm-fact-card {
+        padding: 1rem;
+    }
+
+    .farm-fact-card li {
+        line-height: 1.45;
+    }
 }

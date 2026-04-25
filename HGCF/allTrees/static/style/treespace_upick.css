@@ -1,0 +1,420 @@
+:root {
+    --farm-dark: #241006;
+    --farm-card: rgba(35, 18, 10, 0.92);
+    --farm-card-soft: rgba(255, 242, 210, 0.075);
+    --farm-border: rgba(255, 226, 171, 0.22);
+    --farm-cream: #fff2d2;
+    --farm-muted: rgba(255, 242, 210, 0.68);
+    --farm-gold: #d59a35;
+    --farm-red: #b41422;
+    --farm-red-dark: #760811;
+    --farm-green: #315f2b;
+    --farm-input: #f5f1e8;
+}
+
+.treespace-upick-page {
+    min-height: 100vh;
+    padding: 2rem 1.25rem 5rem;
+    color: var(--farm-cream);
+    background:
+        radial-gradient(circle at 15% 10%, rgba(180, 20, 34, 0.22), transparent 30%),
+        radial-gradient(circle at 85% 0%, rgba(213, 154, 53, 0.22), transparent 26%),
+        linear-gradient(180deg, #8a3a08 0%, #431703 100%);
+}
+
+.upick-admin-header,
+.event-picker-card,
+.time-slot-admin-card,
+.reservation-admin-card,
+.empty-panel {
+    max-width: 1250px;
+    margin-left: auto;
+    margin-right: auto;
+    background: var(--farm-card);
+    border: 1px solid var(--farm-border);
+    border-radius: 24px;
+    box-shadow: 0 14px 35px rgba(0,0,0,0.35);
+}
+
+.upick-admin-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 1.25rem;
+}
+
+.admin-kicker {
+    margin: 0 0 0.35rem;
+    color: var(--farm-gold);
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-size: 0.78rem;
+    font-weight: 900;
+}
+
+.upick-admin-header h1 {
+    margin: 0;
+    font-size: clamp(2rem, 5vw, 4rem);
+    line-height: 1;
+    text-transform: uppercase;
+    text-shadow: 4px 4px 0 rgba(0,0,0,0.34);
+}
+
+.upick-admin-header p {
+    margin: 0.5rem 0 0;
+    color: var(--farm-muted);
+}
+
+.admin-header-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.admin-btn {
+    border: none;
+    cursor: pointer;
+    border-radius: 999px;
+    padding: 0.8rem 1rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.admin-btn.secondary {
+    background: rgba(255, 242, 210, 0.12);
+    color: var(--farm-cream);
+    border: 1px solid rgba(255, 242, 210, 0.24);
+}
+
+.event-picker-card {
+    padding: 1.2rem;
+    margin-bottom: 1.25rem;
+}
+
+.event-picker-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.event-picker-form label {
+    font-weight: 900;
+    color: var(--farm-gold);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 0.78rem;
+}
+
+.event-picker-form select,
+.reservation-filters input,
+.reservation-filters select {
+    min-height: 44px;
+    border-radius: 12px;
+    border: 2px solid rgba(213, 154, 53, 0.35);
+    background: var(--farm-input);
+    color: #1d0b03;
+    padding: 0.75rem;
+    font-weight: 800;
+    outline: none;
+}
+
+.admin-metrics-grid {
+    max-width: 1250px;
+    margin: 0 auto 1.25rem;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 1rem;
+}
+
+.metric-card {
+    background: var(--farm-card);
+    border: 1px solid var(--farm-border);
+    border-radius: 20px;
+    padding: 1rem;
+    box-shadow: 0 12px 28px rgba(0,0,0,0.28);
+}
+
+.metric-card span {
+    display: block;
+    color: var(--farm-muted);
+    font-weight: 900;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.metric-card strong {
+    display: block;
+    color: var(--farm-gold);
+    font-size: 2rem;
+    margin-top: 0.35rem;
+}
+
+.time-slot-admin-card,
+.reservation-admin-card,
+.empty-panel {
+    padding: 1.25rem;
+    margin-bottom: 1.25rem;
+}
+
+.section-title-row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 242, 210, 0.16);
+}
+
+.section-title-row p {
+    margin: 0 0 0.25rem;
+    color: var(--farm-gold);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-weight: 900;
+    font-size: 0.78rem;
+}
+
+.section-title-row h2 {
+    margin: 0;
+    font-size: clamp(1.6rem, 4vw, 2.8rem);
+    text-transform: uppercase;
+}
+
+.slot-admin-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 1rem;
+}
+
+.slot-admin-card {
+    background: var(--farm-card-soft);
+    border: 1px solid rgba(255, 242, 210, 0.14);
+    border-radius: 18px;
+    padding: 1rem;
+}
+
+.slot-admin-card h3 {
+    margin: 0 0 0.8rem;
+}
+
+.slot-admin-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.45rem 0;
+    border-bottom: 1px solid rgba(255, 242, 210, 0.09);
+}
+
+.slot-admin-row span {
+    color: var(--farm-muted);
+}
+
+.slot-admin-row strong {
+    color: var(--farm-gold);
+}
+
+.slot-pill {
+    display: inline-flex;
+    margin: 0.8rem 0 0;
+    padding: 0.35rem 0.65rem;
+    border-radius: 999px;
+    font-weight: 900;
+    font-size: 0.8rem;
+}
+
+.slot-pill.open {
+    background: rgba(49, 95, 43, 0.28);
+    color: #9ee28f;
+}
+
+.slot-pill.full {
+    background: rgba(180, 20, 34, 0.28);
+    color: #ffb1b1;
+}
+
+.reservation-filters {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.reservation-table-wrap {
+    overflow-x: auto;
+}
+
+.reservation-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 980px;
+}
+
+.reservation-table th,
+.reservation-table td {
+    text-align: left;
+    padding: 0.9rem;
+    border-bottom: 1px solid rgba(255, 242, 210, 0.12);
+    vertical-align: top;
+}
+
+.reservation-table th {
+    color: var(--farm-gold);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.78rem;
+}
+
+.reservation-table td span {
+    display: block;
+}
+
+.muted {
+    color: var(--farm-muted);
+    font-size: 0.85rem;
+    margin-top: 0.2rem;
+}
+
+.note-preview {
+    color: var(--farm-muted);
+}
+
+.status-pill {
+    display: inline-flex;
+    padding: 0.35rem 0.65rem;
+    border-radius: 999px;
+    font-weight: 900;
+    font-size: 0.78rem;
+    white-space: nowrap;
+}
+
+.status-confirmed {
+    background: rgba(213, 154, 53, 0.22);
+    color: #ffd98a;
+}
+
+.status-checked_in {
+    background: rgba(49, 95, 43, 0.35);
+    color: #9ee28f;
+}
+
+.status-completed {
+    background: rgba(80, 150, 210, 0.25);
+    color: #b9e1ff;
+}
+
+.status-cancelled,
+.status-no_show,
+.status-released {
+    background: rgba(180, 20, 34, 0.25);
+    color: #ffb1b1;
+}
+
+.action-menu {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.action-btn {
+    border: none;
+    border-radius: 999px;
+    padding: 0.45rem 0.7rem;
+    font-weight: 900;
+    cursor: pointer;
+    font-size: 0.75rem;
+}
+
+.action-btn.good {
+    background: var(--farm-green);
+    color: #fff;
+}
+
+.action-btn.warning {
+    background: var(--farm-gold);
+    color: #241006;
+}
+
+.action-btn.danger {
+    background: var(--farm-red);
+    color: #fff;
+}
+
+.action-btn.neutral {
+    background: rgba(255, 242, 210, 0.16);
+    color: var(--farm-cream);
+}
+
+.empty-panel {
+    text-align: center;
+}
+
+.empty-panel h2,
+.empty-panel h3 {
+    margin-top: 0;
+}
+
+.empty-panel p {
+    color: var(--farm-muted);
+}
+
+.admin-toast {
+    position: fixed;
+    right: 1rem;
+    bottom: 1rem;
+    z-index: 10000;
+    max-width: 360px;
+    padding: 1rem 1.1rem;
+    border-radius: 16px;
+    background: rgba(49, 95, 43, 0.96);
+    color: #fff;
+    font-weight: 900;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.38);
+    transform: translateY(140%);
+    opacity: 0;
+    transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+.admin-toast.show {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.admin-toast.error {
+    background: rgba(180, 20, 34, 0.96);
+}
+
+@media (max-width: 1100px) {
+    .admin-metrics-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .upick-admin-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+
+@media (max-width: 700px) {
+    .treespace-upick-page {
+        padding-inline: 0.8rem;
+    }
+
+    .admin-metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .reservation-filters {
+        flex-direction: column;
+    }
+
+    .reservation-filters input,
+    .reservation-filters select {
+        width: 100%;
+    }
+}

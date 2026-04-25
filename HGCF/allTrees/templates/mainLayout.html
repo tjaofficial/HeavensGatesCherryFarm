@@ -4,19 +4,64 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Heaven's Gates Cherry Farm</title>
-        <meta name="keywords" content="Fruit Farm, Heavens Gates Cherry Farm, Cherries, Strawberries, Organic, Family Friendly, Produce, Buy Fruit, Michigan cherry farm, Fresh cherries near me, Strawberry farm in Michigan, Northern Michigan fruit farms">
-        <meta name="description" content="Heavens Gates Cherry Farm is a family-owned cherry and strawberry farm in Hale, Michigan offering U-pick fruit, fresh produce, and a beautiful farm experience.">
+
+        <title>{{ seo_title|default:"Heaven's Gates Cherry Farm | Hale, Michigan Fruit Farm" }}</title>
+        <meta name="description" content="{{ seo_description|default:"Heaven's Gates Cherry Farm is a family-owned cherry and strawberry farm in Hale, Michigan offering fresh fruit, seasonal produce, U-pick experiences, and local farm products." }}">
+        <meta name="robots" content="{{ seo_robots|default:"index, follow" }}">
+        <meta name="author" content="Heaven's Gates Cherry Farm">
+
+        <meta name="keywords" content="{{ seo_keywords|default:"Michigan cherry farm, Hale Michigan farm, fresh cherries, strawberries, U-pick fruit, local produce, family farm, northern Michigan fruit farm" }}">
+
+        <link rel="canonical" href="{{ seo_canonical|default:request.build_absolute_uri }}">
+
+        <meta property="og:type" content="{{ og_type|default:"website" }}">
+        <meta property="og:title" content="{{ og_title|default:"Heaven's Gates Cherry Farm | Hale, Michigan Fruit Farm" }}">
+        <meta property="og:description" content="{{ og_description|default:"Heaven's Gates Cherry Farm is a family-owned cherry and strawberry farm in Hale, Michigan offering fresh fruit, seasonal produce, U-pick experiences, and local farm products." }}">
+        <meta property="og:url" content="{{ og_url|default:request.build_absolute_uri }}">
+        <meta property="og:site_name" content="Heaven's Gates Cherry Farm">
+        <meta property="og:image" content="{{ og_image|default:request.scheme }}://{{ request.get_host }}{% static 'images/HGCF-logo.png' %}">
+        <meta property="og:image:alt" content="{{ og_image_alt|default:"Heaven's Gates Cherry Farm logo" }}">
+
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="{{ twitter_title|default:"Heaven's Gates Cherry Farm | Hale, Michigan Fruit Farm" }}">
+        <meta name="twitter:description" content="{{ twitter_description|default:"Heaven's Gates Cherry Farm is a family-owned cherry and strawberry farm in Hale, Michigan offering fresh fruit, seasonal produce, U-pick experiences, and local farm products." }}">
+        <meta name="twitter:image" content="{{ twitter_image|default:request.scheme }}://{{ request.get_host }}{% static 'images/HGCF-logo.png' %}">
+
+        <meta name="theme-color" content="#7a1022">
+
         <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/HGCF-logo.png' %}">
         <link href="{% static 'style/layout.css' %}" rel="stylesheet">
         <link href="{% static 'style/universal.css' %}" rel="stylesheet">
         <script defer src="{% static 'script/header.js' %}"></script>
+
+        {% block structured_data %}
+        <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "Farm",
+            "name": "Heaven's Gates Cherry Farm",
+            "url": "{{ request.scheme }}://{{ request.get_host }}",
+            "image": "{{ request.scheme }}://{{ request.get_host }}{% static 'images/HGCF-logo.png' %}",
+            "description": "Family-owned cherry and strawberry farm in Hale, Michigan offering fresh fruit, seasonal produce, and farm experiences.",
+            "address": {
+                "@type": "PostalAddress",
+                "addressLocality": "Hale",
+                "addressRegion": "MI",
+                "addressCountry": "US"
+            }
+        }
+        </script>
+        {% endblock %}
+
         {% block extra_head %}{% endblock %}
     </head>
     <body>
-        <header>{% include "components/header.html" %}</header>
+        <header>
+            {% include "components/header.html" %}
+        </header>
+        {% include "components/cart_button.html" %}
         {% if sideBar %}{% include "components/sideBar.html" %}{% endif %}
-        <main style="{% if sideBar %}margin-top: 89px;margin-left:200px;padding:25px;{% endif %}">
+        <main class="{% if sideBar %}with-sidebar{% endif %}">
             {% block list %}{% endblock %}
         </main>
     </body>

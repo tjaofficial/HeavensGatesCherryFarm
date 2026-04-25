@@ -1,0 +1,112 @@
+{% extends "mainLayout.html" %}
+{% load static %}
+
+{% block list %}
+<link href="{% static 'style/store.css' %}" rel="stylesheet" />
+<link href="{% static 'style/cart.css' %}" rel="stylesheet" />
+<script defer src="{% static 'script/cart.js' %}"></script>
+
+{% include "components/spacer.html" with headerSpace='none' %}
+
+<div class="cart-page">
+    <form style="display:none;">
+        {% csrf_token %}
+    </form>
+    <section class="cart-hero">
+        <p class="cart-kicker">Heaven’s Gates Cherry Farm</p>
+        <h1>Your Cart</h1>
+        <p>Review your goods before checkout. Strawberries wait for no one. Neither do hoodies in your size.</p>
+    </section>
+
+    <main class="cart-layout">
+        <section class="cart-items-panel">
+            {% if cartItems %}
+                {% for item in cartItems %}
+                    <article class="cart-item" id="cart-item-{{ item.id }}">
+                        <div class="cart-item-image">
+                            {% if item.product.mainImage %}
+                                <img src="{{ item.product.mainImage.url }}" alt="{{ item.product.product_name }}">
+                            {% else %}
+                                <div class="cart-image-placeholder">HG</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="cart-item-details">
+                            <h2>{{ item.get_item_name }}</h2>
+
+                            <p class="cart-item-meta">
+                                ${{ item.get_price }}
+                                {% if item.product.get_unit_display_label %}
+                                    <span>{{ item.product.get_unit_display_label }}</span>
+                                {% endif %}
+                            </p>
+
+                            <button 
+                                class="remove-cart-item"
+                                type="button"
+                                onclick="removeCartItem('{{ item.id }}')"
+                            >
+                                Remove
+                            </button>
+                        </div>
+
+                        <div class="cart-quantity">
+                            <button type="button" onclick="changeQuantity('{{ item.id }}', -1)">−</button>
+
+                            <input 
+                                type="number"
+                                min="1"
+                                value="{{ item.quantity }}"
+                                id="quantity-{{ item.id }}"
+                                onchange="updateCartItem('{{ item.id }}')"
+                            >
+
+                            <button type="button" onclick="changeQuantity('{{ item.id }}', 1)">+</button>
+                        </div>
+
+                        <div class="cart-item-total">
+                            <span>Item Total</span>
+                            <strong id="item-total-{{ item.id }}">${{ item.get_total }}</strong>
+                        </div>
+                    </article>
+                {% endfor %}
+            {% else %}
+                <div class="empty-cart">
+                    <h2>Your cart is empty.</h2>
+                    <p>Looks like the basket is dry. Go grab something fresh.</p>
+                    <a href="{% url 'store' %}" class="store-btn primary">Back to Shop</a>
+                </div>
+            {% endif %}
+        </section>
+
+        <aside class="cart-summary">
+            <h2>Order Summary</h2>
+
+            <div class="summary-row">
+                <span>Items</span>
+                <strong id="cartCount">{{ cart_count }}</strong>
+            </div>
+
+            <div class="summary-row">
+                <span>Subtotal</span>
+                <strong id="cartSubtotal">${{ cart_subtotal }}</strong>
+            </div>
+
+            <div class="summary-note">
+                Taxes, delivery, pickup details, and shipping can be handled during checkout.
+            </div>
+
+            {% if cartItems %}
+                <button class="checkout-button" type="button">
+                    Checkout Coming Soon
+                </button>
+            {% endif %}
+
+            <a href="{% url 'store' %}" class="continue-shopping">Continue Shopping</a>
+        </aside>
+    </main>
+
+    <div id="storeToast" class="store-toast"></div>
+
+</div>
+{% endblock %}

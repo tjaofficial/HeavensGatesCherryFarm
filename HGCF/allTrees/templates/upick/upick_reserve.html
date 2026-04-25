@@ -1,0 +1,111 @@
+{% extends "mainLayout.html" %}
+{% load static %}
+
+{% block list %}
+<link href="{% static 'style/upick.css' %}" rel="stylesheet" />
+
+{% include "components/spacer.html" with headerSpace='none' %}
+
+<div class="upick-page">
+
+    <section class="upick-hero small">
+        <p class="upick-kicker">Reserve Your Spot</p>
+        <h1>{{ event.crop_name }}</h1>
+        <p>
+            {{ event.date|date:"F j, Y" }} —
+            {{ time_slot.get_slot_label }}
+        </p>
+    </section>
+
+    <main class="reservation-layout">
+
+        <section class="reservation-form-card">
+            <h2>Reservation Info</h2>
+
+            <form method="POST">
+                {% csrf_token %}
+
+                <div class="hp-wrap">
+                    {{ form.honey_pot }}
+                </div>
+
+                <div class="form-grid two">
+                    <div class="field-group">
+                        <label>First Name</label>
+                        {{ form.first_name }}
+                        {{ form.first_name.errors }}
+                    </div>
+
+                    <div class="field-group">
+                        <label>Last Name</label>
+                        {{ form.last_name }}
+                        {{ form.last_name.errors }}
+                    </div>
+
+                    <div class="field-group">
+                        <label>Email</label>
+                        {{ form.email }}
+                        {{ form.email.errors }}
+                    </div>
+
+                    <div class="field-group">
+                        <label>Phone</label>
+                        {{ form.phone }}
+                        {{ form.phone.errors }}
+                    </div>
+
+                    <div class="field-group">
+                        <label>Party Size</label>
+                        {{ form.party_size }}
+                        {{ form.party_size.errors }}
+                    </div>
+
+                    <div class="field-group wide">
+                        <label>Note</label>
+                        {{ form.customer_note }}
+                        {{ form.customer_note.errors }}
+                    </div>
+                </div>
+
+                <label class="rules-check">
+                    {{ form.agreed_to_rules }}
+                    <span>
+                        I agree to the U-Pick rules, including the 15-minute grace period.
+                    </span>
+                </label>
+                {{ form.agreed_to_rules.errors }}
+
+                <button type="submit" class="upick-btn primary full">
+                    Confirm Reservation
+                </button>
+            </form>
+        </section>
+
+        <aside class="reservation-summary-card">
+            <h2>Your Time Slot</h2>
+
+            <div class="summary-row">
+                <span>Date</span>
+                <strong>{{ event.date|date:"F j, Y" }}</strong>
+            </div>
+
+            <div class="summary-row">
+                <span>Time</span>
+                <strong>{{ time_slot.get_slot_label }}</strong>
+            </div>
+
+            <div class="summary-row">
+                <span>Spots Left</span>
+                <strong>{{ time_slot.spots_remaining }}</strong>
+            </div>
+
+            <div class="summary-note">
+                Please arrive within 15 minutes of your scheduled time.
+                Late reservations may be released for walk-ins.
+            </div>
+        </aside>
+
+    </main>
+
+</div>
+{% endblock %}

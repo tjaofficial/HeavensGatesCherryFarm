@@ -1,19 +1,179 @@
-.header{
-    display: flex;
+/* ================================
+   Small Header / Fixed Admin Header
+================================ */
+
+.header,
+.site-header {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     z-index: 1001;
 }
-.logo{
+
+.header-inner {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-areas:
+        "logo nav";
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+    max-width: none;
+    padding: 0.4rem 1rem;
+}
+
+.logo {
+    grid-area: logo;
     height: 67px;
-}
-.logo img{
-    margin-left: 1rem;
-    width: 67px;
-}
-.navCont{
     display: flex;
+    align-items: center;
+}
+
+.logo img {
+    margin-left: 0;
+    width: 67px;
+    max-width: 67px;
+    height: auto;
+}
+
+.navCont {
+    grid-area: nav;
+    display: flex;
+    justify-content: flex-end;
     margin-right: 1rem;
+}
+
+.main-nav {
+    justify-content: flex-end;
+}
+
+.wood-button {
+    min-height: 38px;
+    min-width: 100px;
+    padding: 0.5rem 0.8rem;
+    font-size: 0.9rem;
+}
+
+/* Give fixed small header pages breathing room */
+main.with-sidebar {
+    margin-top: 89px;
+}
+
+/* ================================
+   Mobile Small Header
+================================ */
+
+@media screen and (max-width: 1037px) {
+    .header,
+    .site-header {
+        position: fixed;
+    }
+
+    .header-inner {
+        display: grid;
+        grid-template-columns: auto auto;
+        grid-template-areas:
+            "logo menu"
+            "nav nav";
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.45rem 0.75rem;
+    }
+
+    .logo {
+        height: auto;
+    }
+
+    .logo img {
+        width: 58px;
+        max-width: 58px;
+    }
+
+    .menu {
+        grid-area: menu;
+        display: inline-flex;
+        margin: 0;
+        width: auto;
+    }
+
+    .navCont {
+        grid-area: nav;
+        display: grid;
+        grid-template-rows: 0fr;
+        overflow: hidden;
+        width: 100%;
+        margin-right: 0;
+        transition: grid-template-rows 0.25s ease;
+    }
+
+    .navCont.is-open {
+        grid-template-rows: 1fr;
+    }
+
+    .main-nav {
+        min-height: 0;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.55rem;
+        width: 100%;
+        padding: 0;
+    }
+
+    .navCont.is-open .main-nav {
+        padding: 0.65rem 0 0.35rem;
+    }
+
+    .main-nav li {
+        width: 100%;
+    }
+
+    .main-nav a,
+    .wood-button {
+        width: 100%;
+        min-width: 0;
+        min-height: 44px;
+        font-size: 0.9rem;
+    }
+
+    main.with-sidebar {
+        margin-top: 76px;
+        margin-left: 0;
+        padding: 15px;
+    }
+}
+
+/* ================================
+   Tiny Phones
+================================ */
+
+@media screen and (max-width: 480px) {
+    .header-inner {
+        padding: 0.4rem 0.6rem;
+    }
+
+    .logo img {
+        width: 52px;
+        max-width: 52px;
+    }
+
+    .menu {
+        padding: 0.55rem 0.7rem;
+    }
+
+    .menu-text {
+        font-size: 0.85rem;
+    }
+
+    .wood-button {
+        min-height: 42px;
+        font-size: 0.85rem;
+    }
+
+    main.with-sidebar {
+        margin-top: 68px;
+    }
 }

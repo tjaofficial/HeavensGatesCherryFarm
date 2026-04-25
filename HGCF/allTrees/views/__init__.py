@@ -9,3 +9,6 @@ from .joyces_kitchen_view import *
 from .environmental_view import *
 from .store_view import *
 from .irrigation_core import *
+from .views_pos import *
+from .upick_view import *
+from .upick_dashboard_view import *

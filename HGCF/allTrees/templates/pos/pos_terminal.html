@@ -1,0 +1,167 @@
+{% extends "mainLayout.html" %}
+{% load static %}
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'style/pos_terminal.css' %}">
+    <script src="{% static 'script/pos_terminal.js' %}"></script>
+{% endblock %}
+{% block list %}
+    <div class="posShell">
+        <header class="posHeader">
+            <div>
+                <p class="posEyebrow">Heavens Gates Cherry Farm</p>
+                <h1>Farm POS</h1>
+                <p class="posSub">Fast in-person checkout for produce, strawberries, cherries, and more.</p>
+            </div>
+
+            <div class="posHeaderMeta">
+                <div class="metaCard">
+                    <span class="metaLabel">Tax Rate</span>
+                    <strong>{{ tax_rate }}</strong>
+                </div>
+                <div class="metaCard">
+                    <span class="metaLabel">Session</span>
+                    <strong>#{{ open_session.id }}</strong>
+                </div>
+            </div>
+        </header>
+
+        <main class="posMain">
+            <section class="productPanel">
+                <div class="panelHead">
+                    <h2>Products</h2>
+                    <input type="text" id="productSearch" class="searchInput" placeholder="Search products...">
+                </div>
+
+                <div id="productGrid" class="productGrid"></div>
+            </section>
+
+            <aside class="cartPanel">
+                <div class="panelHead">
+                    <h2>Current Sale</h2>
+                    <button id="clearCartBtn" class="ghostBtn" type="button">Clear</button>
+                </div>
+
+                <div class="customerFields">
+                    <input type="text" id="customerName" placeholder="Customer name (optional)">
+                    <input type="email" id="customerEmail" placeholder="Customer email (optional)">
+                    <textarea id="saleNotes" placeholder="Notes (optional)"></textarea>
+                </div>
+
+                <div class="readerBox">
+                    <label for="readerSelect">Stripe Reader</label>
+                    <div class="readerRow">
+                        <select id="readerSelect" class="readerSelect">
+                            <option value="">Select reader...</option>
+                        </select>
+                        <button id="refreshReadersBtn" class="ghostBtn" type="button">Refresh</button>
+                    </div>
+                    <small class="readerHelp">This stays empty until you add a Stripe reader to your Terminal location.</small>
+                </div>
+
+                <div id="cartItems" class="cartItems">
+                    <div class="emptyState">No items added yet.</div>
+                </div>
+
+                <div class="totalsBox">
+                    <div class="totalRow">
+                        <span>Subtotal</span>
+                        <strong id="subtotalDisplay">$0.00</strong>
+                    </div>
+                    <div class="totalRow">
+                        <span>Tax</span>
+                        <strong id="taxDisplay">$0.00</strong>
+                    </div>
+                    <div class="totalRow grandTotal">
+                        <span>Total</span>
+                        <strong id="totalDisplay">$0.00</strong>
+                    </div>
+                </div>
+
+                <div class="actionStack">
+                    <button id="createSaleBtn" class="primaryBtn" type="button">Create Sale</button>
+                    <button id="cashSaleBtn" class="secondaryBtn" type="button" disabled>Complete Cash Sale</button>
+                    <button id="cardSaleBtn" class="darkBtn" type="button" disabled>Card / Tap Payment</button>
+                    <button id="cancelCardPaymentBtn" class="ghostDangerBtn" type="button" disabled>Cancel Card Payment</button>
+                </div>
+
+                <div id="saleStatusBox" class="saleStatusBox hidden"></div>
+            </aside>
+        </main>
+    </div>
+    <div id="receiptModal" class="receiptModal hidden">
+        <div class="receiptBackdrop" id="receiptBackdrop"></div>
+
+        <div class="receiptDialog">
+            <div class="receiptHead">
+                <div>
+                    <p class="receiptEyebrow">Transaction Complete</p>
+                    <h2 id="receiptSaleNumber">Receipt</h2>
+                </div>
+                <button type="button" id="closeReceiptModalBtn" class="ghostBtn">Close</button>
+            </div>
+
+            <div class="receiptMetaGrid">
+                <div class="receiptMetaCard">
+                    <span>Payment Method</span>
+                    <strong id="receiptPaymentMethod">—</strong>
+                </div>
+                <div class="receiptMetaCard">
+                    <span>Status</span>
+                    <strong id="receiptStatus">—</strong>
+                </div>
+                <div class="receiptMetaCard">
+                    <span>Customer</span>
+                    <strong id="receiptCustomer">—</strong>
+                </div>
+                <div class="receiptMetaCard">
+                    <span>Completed</span>
+                    <strong id="receiptCompletedAt">—</strong>
+                </div>
+            </div>
+
+            <div class="receiptSection">
+                <h3>Items</h3>
+                <div id="receiptItems" class="receiptItems"></div>
+            </div>
+
+            <div class="receiptTotals">
+                <div class="receiptTotalRow">
+                    <span>Subtotal</span>
+                    <strong id="receiptSubtotal">$0.00</strong>
+                </div>
+                <div class="receiptTotalRow">
+                    <span>Tax</span>
+                    <strong id="receiptTax">$0.00</strong>
+                </div>
+                <div class="receiptTotalRow grand">
+                    <span>Total</span>
+                    <strong id="receiptTotal">$0.00</strong>
+                </div>
+                <div class="receiptTotalRow">
+                    <span>Cash Received</span>
+                    <strong id="receiptCashReceived">—</strong>
+                </div>
+                <div class="receiptTotalRow">
+                    <span>Change</span>
+                    <strong id="receiptCashChange">—</strong>
+                </div>
+            </div>
+
+            <div class="receiptActions">
+                <a id="receiptStripeLink" href="#" target="_blank" class="darkBtn hidden">Open Stripe Receipt</a>
+                <button type="button" id="receiptDoneBtn" class="primaryBtn">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.POS_CONFIG = {
+            productsUrl: "{% url 'pos_products_api' %}",
+            calculateTotalsUrl: "{% url 'pos_calculate_totals_api' %}",
+            createSaleUrl: "{% url 'pos_create_sale_api' %}",
+            readersUrl: "{% url 'pos_terminal_readers_api' %}",
+            saleDetailUrlBase: "/pos/api/sale/",
+            cashCompleteUrlBase: "/pos/api/sale/",
+        };
+    </script>
+{% endblock %}

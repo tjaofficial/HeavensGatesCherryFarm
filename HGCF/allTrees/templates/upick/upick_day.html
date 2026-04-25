@@ -1,0 +1,65 @@
+{% extends "mainLayout.html" %}
+{% load static %}
+
+{% block list %}
+<link href="{% static 'style/upick.css' %}" rel="stylesheet" />
+
+{% include "components/spacer.html" with headerSpace='none' %}
+
+<div class="upick-page">
+
+    <section class="upick-hero small">
+        <p class="upick-kicker">{{ event.crop_name }}</p>
+        <h1>{{ event.date|date:"F j, Y" }}</h1>
+        <p>{{ event.description|default:"Choose an available arrival time below." }}</p>
+    </section>
+
+    <main class="upick-main">
+        <div class="section-heading">
+            <p>Available Time Slots</p>
+            <h2>Choose Your Arrival Time</h2>
+        </div>
+
+        <div class="slot-grid">
+            {% for slot in time_slots %}
+                <article class="slot-card {% if slot.is_full %}is-full{% endif %}">
+                    <div>
+                        <h3>{{ slot.get_slot_label }}</h3>
+
+                        {% if slot.is_full %}
+                            <p class="slot-status full">Full</p>
+                        {% else %}
+                            <p class="slot-status available">{{ slot.spots_remaining }} spots available</p>
+                        {% endif %}
+
+                        {% if slot.notes %}
+                            <p class="slot-note">{{ slot.notes }}</p>
+                        {% endif %}
+                    </div>
+
+                    {% if slot.is_full %}
+                        <button class="upick-btn disabled" disabled>Full</button>
+                    {% else %}
+                        <a href="{% url 'upick_reserve' slot.id %}" class="upick-btn primary">
+                            Reserve
+                        </a>
+                    {% endif %}
+                </article>
+            {% empty %}
+                <div class="upick-empty">
+                    <h2>No time slots available.</h2>
+                    <p>This U-Pick day is not open for reservations yet.</p>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="rules-box">
+            <h2>U-Pick Rules</h2>
+            <p>{{ event.rules_text }}</p>
+        </div>
+
+        <a href="{% url 'upick_landing' %}" class="upick-back-link">← Back to U-Pick Dates</a>
+    </main>
+
+</div>
+{% endblock %}

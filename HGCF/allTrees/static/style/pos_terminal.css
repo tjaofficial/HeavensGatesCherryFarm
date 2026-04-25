@@ -1,0 +1,551 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #17202a;
+}
+
+.posShell {
+    min-height: 100vh;
+    padding: 16px;
+}
+
+.posHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 16px;
+    background: #ffffff;
+    border: 1px solid #dde3ea;
+    border-radius: 18px;
+    padding: 18px;
+}
+
+.posHeader h1 {
+    margin: 0 0 6px 0;
+    font-size: 28px;
+}
+
+.posEyebrow {
+    margin: 0 0 6px 0;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #4d6a57;
+}
+
+.posSub {
+    margin: 0;
+    color: #5b6570;
+}
+
+.posHeaderMeta {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.metaCard {
+    min-width: 110px;
+    background: #f8fafb;
+    border: 1px solid #dde3ea;
+    border-radius: 14px;
+    padding: 10px 12px;
+}
+
+.metaLabel {
+    display: block;
+    font-size: 12px;
+    color: #67727d;
+    margin-bottom: 4px;
+}
+
+.posMain {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: 16px;
+}
+
+.productPanel,
+.cartPanel {
+    background: #ffffff;
+    border: 1px solid #dde3ea;
+    border-radius: 18px;
+    padding: 16px;
+}
+
+.panelHead {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.panelHead h2 {
+    margin: 0;
+    font-size: 22px;
+}
+
+.searchInput,
+.customerFields input,
+.customerFields textarea,
+.qtyInput,
+.cashInput,
+.weightInput,
+.customPriceInput {
+    width: 100%;
+    border: 1px solid #cfd8e3;
+    border-radius: 12px;
+    padding: 12px;
+    font-size: 14px;
+    background: #fff;
+}
+
+.customerFields {
+    display: grid;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.customerFields textarea {
+    min-height: 78px;
+    resize: vertical;
+}
+
+.productGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+}
+
+.productCard {
+    border: 1px solid #d9e2ea;
+    border-radius: 16px;
+    background: #fbfcfd;
+    padding: 12px;
+    cursor: pointer;
+    transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+}
+
+.productCard:hover {
+    transform: translateY(-2px);
+    border-color: #7ca081;
+    box-shadow: 0 8px 20px rgba(0,0,0,.06);
+}
+
+.productCard h3 {
+    margin: 0 0 8px 0;
+    font-size: 16px;
+}
+
+.productCard p {
+    margin: 0 0 10px 0;
+    color: #5f6974;
+    font-size: 13px;
+    min-height: 34px;
+}
+
+.productMeta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+}
+
+.priceTag {
+    font-size: 18px;
+    font-weight: 700;
+    color: #20462a;
+}
+
+.unitBadge {
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: #e8f2ea;
+    color: #2c5b39;
+    font-weight: 700;
+}
+
+.cartItems {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 14px;
+    max-height: 420px;
+    overflow: auto;
+    padding-right: 4px;
+}
+
+.cartItem {
+    border: 1px solid #dbe2ea;
+    border-radius: 14px;
+    padding: 12px;
+    background: #fafcfd;
+}
+
+.cartTopRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.cartTitle {
+    margin: 0;
+    font-size: 15px;
+}
+
+.removeBtn,
+.ghostBtn {
+    border: 1px solid #d1d9e1;
+    background: #fff;
+    color: #44515d;
+    padding: 8px 10px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.removeBtn:hover,
+.ghostBtn:hover {
+    background: #f2f5f8;
+}
+
+.cartControls {
+    display: grid;
+    gap: 10px;
+}
+
+.inlineGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.totalsBox {
+    border-top: 1px solid #e4eaf0;
+    padding-top: 14px;
+    display: grid;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.totalRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.grandTotal {
+    font-size: 19px;
+}
+
+.actionStack {
+    display: grid;
+    gap: 10px;
+}
+
+.primaryBtn,
+.secondaryBtn,
+.darkBtn {
+    border: none;
+    border-radius: 14px;
+    padding: 14px 16px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.primaryBtn {
+    background: #2f6b3d;
+    color: #fff;
+}
+
+.secondaryBtn {
+    background: #d4a72c;
+    color: #1d1d1d;
+}
+
+.darkBtn {
+    background: #1c2733;
+    color: #fff;
+}
+
+.primaryBtn:disabled,
+.secondaryBtn:disabled,
+.darkBtn:disabled {
+    opacity: .55;
+    cursor: not-allowed;
+}
+
+.saleStatusBox {
+    margin-top: 12px;
+    border-radius: 12px;
+    padding: 12px;
+    font-size: 14px;
+}
+
+.saleStatusBox.success {
+    background: #e9f8ee;
+    color: #1f5f2f;
+    border: 1px solid #bfe2c9;
+}
+
+.saleStatusBox.error {
+    background: #fdecec;
+    color: #8b2323;
+    border: 1px solid #efb6b6;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.emptyState {
+    padding: 20px;
+    text-align: center;
+    color: #6a7480;
+    border: 1px dashed #cfd7df;
+    border-radius: 14px;
+    background: #fbfcfd;
+}
+
+@media (max-width: 980px) {
+    .posMain {
+        grid-template-columns: 1fr;
+    }
+
+    .posHeader {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 640px) {
+    .posShell {
+        padding: 10px;
+    }
+
+    .productGrid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .inlineGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .panelHead h2 {
+        font-size: 18px;
+    }
+
+    .posHeader h1 {
+        font-size: 22px;
+    }
+}
+
+.readerBox {
+    display: grid;
+    gap: 8px;
+    margin-bottom: 14px;
+    padding: 12px;
+    border: 1px solid #dbe2ea;
+    border-radius: 14px;
+    background: #fafcfd;
+}
+
+.readerBox label {
+    font-size: 14px;
+    font-weight: 700;
+    color: #2c3640;
+}
+
+.readerRow {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+}
+
+.readerSelect {
+    width: 100%;
+    border: 1px solid #cfd8e3;
+    border-radius: 12px;
+    padding: 12px;
+    font-size: 14px;
+    background: #fff;
+}
+
+.readerHelp {
+    color: #67727d;
+    font-size: 12px;
+}
+
+.ghostDangerBtn {
+    border: 1px solid #e3b8b8;
+    background: #fff5f5;
+    color: #8b2323;
+    padding: 12px 14px;
+    border-radius: 14px;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.ghostDangerBtn:hover {
+    background: #fdecec;
+}
+
+.ghostDangerBtn:disabled {
+    opacity: .55;
+    cursor: not-allowed;
+}
+
+.receiptModal {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+}
+
+.receiptBackdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(10, 16, 22, 0.56);
+}
+
+.receiptDialog {
+    position: relative;
+    z-index: 2;
+    width: min(760px, calc(100vw - 24px));
+    max-height: calc(100vh - 24px);
+    overflow: auto;
+    margin: 12px auto;
+    background: #ffffff;
+    border-radius: 20px;
+    border: 1px solid #dbe2ea;
+    box-shadow: 0 20px 50px rgba(0,0,0,.18);
+    padding: 18px;
+}
+
+.receiptHead {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.receiptHead h2 {
+    margin: 4px 0 0 0;
+}
+
+.receiptEyebrow {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: #59725d;
+}
+
+.receiptMetaGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.receiptMetaCard {
+    border: 1px solid #dbe2ea;
+    border-radius: 14px;
+    padding: 12px;
+    background: #fafcfd;
+}
+
+.receiptMetaCard span {
+    display: block;
+    font-size: 12px;
+    color: #687480;
+    margin-bottom: 4px;
+}
+
+.receiptSection {
+    margin-bottom: 16px;
+}
+
+.receiptSection h3 {
+    margin: 0 0 10px 0;
+}
+
+.receiptItems {
+    display: grid;
+    gap: 10px;
+}
+
+.receiptItem {
+    border: 1px solid #dbe2ea;
+    border-radius: 14px;
+    padding: 12px;
+    background: #fcfdff;
+}
+
+.receiptItemTop {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 6px;
+}
+
+.receiptItemName {
+    font-weight: 700;
+}
+
+.receiptItemMeta {
+    font-size: 13px;
+    color: #61707a;
+}
+
+.receiptTotals {
+    border-top: 1px solid #e2e8ef;
+    padding-top: 14px;
+    display: grid;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.receiptTotalRow {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.receiptTotalRow.grand {
+    font-size: 19px;
+}
+
+.receiptActions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+@media (max-width: 640px) {
+    .receiptDialog {
+        padding: 14px;
+    }
+
+    .receiptMetaGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .receiptHead {
+        flex-direction: column;
+    }
+
+    .receiptActions {
+        flex-direction: column;
+    }
+}

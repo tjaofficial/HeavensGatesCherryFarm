@@ -1,0 +1,77 @@
+{% extends "mainLayout.html" %}
+{% load static %}
+
+{% block list %}
+<link href="{% static 'style/upick.css' %}" rel="stylesheet" />
+
+{% include "components/spacer.html" with headerSpace='none' %}
+
+<div class="upick-page">
+
+    <section class="upick-hero">
+        <p class="upick-kicker">Heaven’s Gates Cherry Farm</p>
+        <h1>U-Pick Reservations</h1>
+        <p>
+            Reserve a check-in time for U-Pick. Your time slot helps us manage the field,
+            keep the experience smooth, and make sure there are enough berries to go around.
+        </p>
+    </section>
+
+    <section class="upick-info-grid">
+        <div class="upick-info-card">
+            <h2>How It Works</h2>
+            <p>Pick an available date, choose your arrival time, enter your party size, and check in when you arrive.</p>
+        </div>
+
+        <div class="upick-info-card">
+            <h2>15 Minute Grace Period</h2>
+            <p>If you do not arrive within 15 minutes of your scheduled time, your spot may be released for walk-ins.</p>
+        </div>
+
+        <div class="upick-info-card">
+            <h2>Picking Time</h2>
+            <p>Most guests finish within 60–90 minutes. We will not rush you, but reservations are meant to prevent crowding.</p>
+        </div>
+    </section>
+
+    <main class="upick-main">
+        <div class="section-heading">
+            <p>Available Dates</p>
+            <h2>Choose Your U-Pick Day</h2>
+        </div>
+
+        {% if events %}
+            <div class="upick-event-grid">
+                {% for event in events %}
+                    <article class="upick-event-card">
+                        <div>
+                            <p class="event-date">{{ event.date|date:"F j, Y" }}</p>
+                            <h3>{{ event.title }}</h3>
+
+                            {% if event.weather_note %}
+                                <p class="event-note">Weather: {{ event.weather_note }}</p>
+                            {% endif %}
+
+                            {% if event.field_note %}
+                                <p class="event-note">Field: {{ event.field_note }}</p>
+                            {% endif %}
+
+                            <p>{{ event.description|default:"U-Pick availability depends on weather, ripeness, and field conditions." }}</p>
+                        </div>
+
+                        <a href="{% url 'upick_day' event.id %}" class="upick-btn primary">
+                            View Times
+                        </a>
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="upick-empty">
+                <h2>No U-Pick dates available right now.</h2>
+                <p>Check back soon. Strawberries operate on farm time, which is basically “when they feel like it.”</p>
+            </div>
+        {% endif %}
+    </main>
+
+</div>
+{% endblock %}

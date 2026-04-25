@@ -1,34 +1,146 @@
-{% extends "mainLayout.html" %}{% load static %}{% block list%}
+{% extends "mainLayout.html" %}
+{% load static %}
+
+{% block list %}
 <link href="{% static 'style/store.css' %}" rel="stylesheet" />
 <script defer src="{% static 'script/store.js' %}"></script>
-{% include "components/spacer.html" with headerSpace='none' %}
-<div class="main">
-    <div class="product-container">
-        {% for product in allProducts %}
-            <div class="product">
-                <img src="media/{{product.mainImage}}" alt="Product 1">
-                <h2>{{product.product_name}}</h2>
-                <p>Price: ${{product.price}}</p>
-                <button class="quick-view-button" onclick="openQuickView({{product.id}})">Quick View</button>
+
+{% comment %} {% include "components/spacer.html" with headerSpace='none' %} {% endcomment %}
+
+<div class="store-page">
+    <section class="store-hero">
+        <div class="store-hero-overlay"></div>
+
+        <div class="store-hero-content">
+            <p class="store-kicker">Fresh From Heaven’s Gates</p>
+            <h1>Cherry Farm Shop</h1>
+            <p>
+                Browse farm goods, merch, seasonal drops, and whatever else we cook up from the orchard.
+                Small farm. Big flavor. Zero corporate weirdness.
+            </p>
+
+            <div class="store-actions">
+                <a href="#products" class="store-btn primary">Shop Products</a>
+                <a href="{% url 'home' %}" class="store-btn secondary">Back Home</a>
             </div>
-            <div class="quick-view-modal" data-prodid="{{product.id}}" id="{{product.id}}">
-                {% include "components/spacer.html" with headerSpace='none' %}
-                <div class="quick-view-content">
-                    <span class="close-button" onclick="closeQuickView()">&times;</span>
-                    <img src="{% static '' %}{{product.mainImage}}" alt="Product 1" style="width: 42rem;">
-                    <h2>{{product.product_name}}</h2>
-                    <p>Price: ${{product.price}}</p>
-                    <p>Description: {{product.description}}</p>
-                    <form style="display:none;">
-                        {% csrf_token %}
-                        <input type="hidden" name="product_id" value="{{product.id}}">
-                    </form>
-                    <button onclick="addThisShit({{product.id}})">Add to Cart</button>
-                </div>
+        </div>
+    </section>
+
+    <section class="store-toolbar">
+        <div>
+            <p class="toolbar-label">Products</p>
+            <h2>Available Now</h2>
+        </div>
+
+        <div class="store-search-wrap">
+            <input 
+                type="text" 
+                id="storeSearch" 
+                placeholder="Search products..."
+                autocomplete="off"
+            >
+        </div>
+    </section>
+
+    <main class="store-main" id="products">
+        {% if allProducts %}
+            <div class="product-grid">
+                {% for product in allProducts %}
+                    <article class="product-card" data-product-name="{{ product.product_name|lower }}" data-product-id="{{ product.id }}">
+                        <div class="product-image-wrap">
+                            {% if product.mainImage %}
+                                <img src="{{ product.mainImage.url }}" alt="{{ product.product_name }}">
+                            {% else %}
+                                <img src="{% static 'images/default-product.png' %}" alt="{{ product.product_name }}">
+                            {% endif %}
+
+                            <button 
+                                class="quick-view-button" 
+                                type="button"
+                                onclick="openQuickView('{{ product.id }}')"
+                            >
+                                Quick View
+                            </button>
+                        </div>
+
+                        <div class="product-info">
+                            <h3>{{ product.product_name }}</h3>
+
+                            <p class="product-description-preview">
+                                {{ product.description|truncatechars:90 }}
+                            </p>
+
+                            <div class="product-footer">
+                                <span class="product-price">
+                                    ${{ product.get_active_price }}
+                                    <small>{{ product.get_unit_display_label }}</small>
+                                </span>
+                                
+                                <button 
+                                    class="add-cart-mini" 
+                                    type="button"
+                                    onclick="addToCart('{{ product.id }}')"
+                                >
+                                    Add
+                                </button>
+                            </div>
+                        </div>
+                    </article>
+
+                    <div class="quick-view-modal" data-prodid="{{ product.id }}" id="quick-view-{{ product.id }}">
+                        <div class="quick-view-backdrop" onclick="closeQuickView()"></div>
+
+                        <div class="quick-view-content">
+                            <button class="close-button" type="button" onclick="closeQuickView()">
+                                &times;
+                            </button>
+
+                            <div class="quick-view-image">
+                                {% if product.mainImage %}
+                                    <img src="{{ product.mainImage.url }}" alt="{{ product.product_name }}">
+                                {% else %}
+                                    <img src="{% static 'images/default-product.png' %}" alt="{{ product.product_name }}">
+                                {% endif %}
+                            </div>
+
+                            <div class="quick-view-details">
+                                <p class="quick-label">Heaven’s Gates Cherry Farm</p>
+                                <h2>{{ product.product_name }}</h2>
+                                <p class="quick-price">${{ product.price }}</p>
+                                <p class="quick-description">{{ product.description }}</p>
+
+                                <form class="cart-form">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="product_id" value="{{ product.id }}">
+                                </form>
+                                {% if product.has_variants %}
+                                    <label class="variant-label" for="variant-{{ product.id }}">Choose Option</label>
+                                    <select class="variant-select" id="variant-{{ product.id }}">
+                                        <option value="">Select an option</option>
+                                        {% for variant in product.get_available_variants %}
+                                            <option value="{{ variant.id }}" data-price="{{ variant.get_active_price }}">
+                                                {{ variant.get_variant_label }} - ${{ variant.get_active_price }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                {% endif %}
+                                <button class="store-btn primary full" type="button" onclick="addToCart('{{ product.id }}')">
+                                    Add to Cart
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
             </div>
-        {% endfor %}
-        <!-- Add more product items as needed -->
-    </div>
+        {% else %}
+            <div class="empty-store">
+                <h2>No products available right now.</h2>
+                <p>Check back soon. The farm elves are probably out picking cherries or arguing with irrigation valves.</p>
+            </div>
+        {% endif %}
+    </main>
+
+    <div id="storeToast" class="store-toast"></div>
+
 </div>
 {% endblock %}
-

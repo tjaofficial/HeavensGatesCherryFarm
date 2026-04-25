@@ -3,6 +3,7 @@ from django.forms import ModelForm # type: ignore
 from .models import * # type: ignore
 from django.contrib.auth.forms import UserCreationForm # type: ignore
 from django.contrib.auth.models import User # type: ignore
+from django.forms import inlineformset_factory # type: ignore
 
 class individualTrees_form(ModelForm):
     class Meta:
@@ -48,8 +49,7 @@ class logCategory_form(ModelForm):
             'name': forms.TextInput(),
             'description': forms.TextInput(),
         }
-        
-        
+              
 class treeLogs_form(ModelForm):
     class Meta:
         model = treeLogs_model
@@ -97,29 +97,90 @@ class recipeForm(ModelForm):
             'freezer_friendly': forms.TextInput(),
         }
         
-class mainStore_products_form(ModelForm):
+class mainStore_products_form(forms.ModelForm):
     class Meta:
         model = mainStore_products
-        fields = ("__all__")
+        fields = [
+            "mainImage",
+            "product_name",
+            "sku",
+            "product_type",
+            "ribbon",
+            "short_description",
+            "description",
+
+            "price",
+            "unit_type",
+            "unit_label",
+            "on_sale",
+            "sale_percentage",
+            "sale_price",
+
+            "track_inventory",
+            "inventory_status",
+            "inventory_total",
+            "allow_backorder",
+
+            "pre_order",
+            "pre_order_message",
+            "is_seasonal",
+            "harvest_date",
+            "season_start",
+            "season_end",
+
+            "limit_per_order",
+            "limit_number",
+
+            "fulfillment_type",
+            "shipping_weight",
+            "taxable",
+
+            "show_in_store",
+            "is_active",
+            "is_active_online",
+            "is_active_offline",
+            "allow_custom_price",
+            "store_display_order",
+            "pos_display_order",
+
+            "alt_text",
+            "meta_title",
+            "meta_description",
+        ]
+
         widgets = {
-            'product_name': forms.TextInput(attrs={'class':'input', 'style':'width: 92%;', 'placeholder':'Add a product name'}),
-            'ribbon': forms.TextInput(attrs={'class':'input', 'placeholder':'e.g., New Arrival'}),
-            'description': forms.Textarea(attrs={'class':'input', 'style':'width:100%; height:unset; padding-top: 12px;overflow: scroll;padding-right: 12px;'}),
-            'price': forms.NumberInput(attrs={'min':'0', 'step':'0.01', 'class':'input', 'style':'padding-left: 22px; text-align:left; width: 5rem;'}),
-            'on_sale': forms.CheckboxInput(attrs={'required':False, 'class':'input'}),
-            'sale_percentage': forms.NumberInput(attrs={'class':'input'}),
-            'sale_price': forms.NumberInput(attrs={'class':'input'}),
-            'inventory_status': forms.Select(attrs={'required':False, 'class':'input'}),
-            'shipping_weight': forms.NumberInput(attrs={'class':'input'}),
-            'inventory_total': forms.NumberInput(attrs={'class':'input'}),
-            'pre_order': forms.CheckboxInput(attrs={'required':False, 'class':'input'}),
-            'pre_order_message': forms.TextInput(attrs={'class':'input'}),
-            'limit': forms.CheckboxInput(attrs={'required':False, 'class':'input'}),
-            'limit_number': forms.NumberInput(attrs={'class':'input'}),
-            'show_in_store': forms.CheckboxInput(attrs={'required':False, 'class':'input'}),
-            'mainImage': forms.ClearableFileInput,
-            'track_inventory': forms.CheckboxInput(attrs={'required':False, 'class':'input'}),
+            "description": forms.Textarea(attrs={"rows": 5}),
+            "short_description": forms.TextInput(attrs={"maxlength": 255}),
+            "pre_order_message": forms.TextInput(attrs={"maxlength": 180}),
+            "harvest_date": forms.DateInput(attrs={"type": "date"}),
+            "season_start": forms.DateInput(attrs={"type": "date"}),
+            "season_end": forms.DateInput(attrs={"type": "date"}),
         }
+
+class mainStore_product_variant_form(forms.ModelForm):
+    class Meta:
+        model = mainStore_product_variants
+        fields = [
+            "variant_name",
+            "size",
+            "sku",
+            "price_override",
+            "sale_price_override",
+            "track_inventory",
+            "inventory_total",
+            "is_active",
+            "is_active_online",
+            "is_active_offline",
+            "display_order",
+        ]
+
+ProductVariantFormSet = inlineformset_factory(
+    mainStore_products,
+    mainStore_product_variants,
+    form=mainStore_product_variant_form,
+    extra=0,
+    can_delete=True
+)
 
 class valve_schedule_form(forms.ModelForm):
     days = forms.MultipleChoiceField(
@@ -147,5 +208,64 @@ class ValveRegistrationForm(forms.ModelForm):
             'sub_area': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Sub Area'}),
         }
 
+class UPickReservationForm(forms.ModelForm):
+    honey_pot = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            "class": "hp-field",
+            "autocomplete": "off",
+            "tabindex": "-1"
+        })
+    )
 
+    class Meta:
+        model = UPickReservation
+        fields = [
+            "first_name",
+            "last_name",
+            "email",
+            "phone",
+            "party_size",
+            "customer_note",
+            "agreed_to_rules",
+        ]
+
+        widgets = {
+            "customer_note": forms.Textarea(attrs={
+                "rows": 4,
+                "placeholder": "Anything we should know? Optional."
+            }),
+            "agreed_to_rules": forms.CheckboxInput(),
+        }
+
+    def clean_honey_pot(self):
+        honey_pot = self.cleaned_data.get("honey_pot")
+
+        if honey_pot:
+            raise forms.ValidationError("Spam detected.")
+
+        return honey_pot
+
+    def clean_party_size(self):
+        party_size = self.cleaned_data.get("party_size")
+
+        if party_size < 1:
+            raise forms.ValidationError("Party size must be at least 1.")
+
+        if party_size > 10:
+            raise forms.ValidationError("For groups larger than 10, please contact us directly.")
+
+        return party_size
+
+    def clean_agreed_to_rules(self):
+        agreed = self.cleaned_data.get("agreed_to_rules")
+
+        if not agreed:
+            raise forms.ValidationError("You must agree to the U-Pick rules before reserving.")
+
+        return agreed
+    
+
+
+    
 

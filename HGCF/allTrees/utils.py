@@ -129,3 +129,28 @@ def add_log_to_area_trees(valve, message, category):
         )
         newTreeLog.save()
 
+def build_seo(
+    request,
+    title,
+    description,
+    keywords=None,
+    canonical=None,
+    og_image=None,
+    robots="index, follow"
+):
+    return {
+        "seo_title": title,
+        "seo_description": description,
+        "seo_keywords": keywords or "",
+        "seo_canonical": canonical or request.build_absolute_uri(),
+        "og_title": title,
+        "og_description": description,
+        "og_url": canonical or request.build_absolute_uri(),
+        "og_image": og_image or f"{request.scheme}://{request.get_host()}/static/images/HGCF-logo.png",
+        "twitter_title": title,
+        "twitter_description": description,
+        "twitter_image": og_image or f"{request.scheme}://{request.get_host()}/static/images/HGCF-logo.png",
+        "seo_robots": robots,
+    }
+
+

@@ -74,6 +74,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'allTrees.context_processors.cart_context'
             ],
         },
     },
@@ -172,3 +173,12 @@ MQTT_BROKER=os.environ.get('MQTT_BROKER')
 MQTT_PORT=int(os.environ.get('MQTT_PORT'))
 MQTT_USERNAME=os.environ.get('MQTT_USERNAME')
 MQTT_PASSWORD=os.environ.get('MQTT_PASSWORD')
+
+STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY", "")
+STRIPE_PUBLISHABLE_KEY = os.getenv("STRIPE_PUBLISHABLE_KEY", "")
+STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
+
+# Terminal / POS
+STRIPE_TERMINAL_LOCATION_ID = os.getenv("STRIPE_TERMINAL_LOCATION_ID", "")
+STRIPE_TERMINAL_CURRENCY = "usd"
+POS_TAX_RATE = "0.06"

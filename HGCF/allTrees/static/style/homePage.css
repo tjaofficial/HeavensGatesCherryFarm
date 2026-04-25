@@ -1,19 +1,9 @@
-/* .cropped {
-    width: 1205px;
-    height: 20rem;
-    text-align: center;
-    overflow: hidden;
-    margin: auto;
-}
+/* ================================
+   Slideshow Styles
+   Keep these if other pages still use the slideshow.
+================================ */
 
-.cropped img {
-    margin: -15rem 0px 0px 0px;
-    width: 1205px;
-} */
-
-
-  
-  .slideshow-container {
+.slideshow-container {
     position: relative;
     min-height: 300px;
     height: 587px;
@@ -27,20 +17,22 @@
     border-radius: 39px;
     overflow: hidden;
     max-width: 1295px;
-  }
-  
-  .mySlides {
+}
+
+.mySlides {
     display: none;
-    transition: opacity 0.6s ease-in-out; 
+    transition: opacity 0.6s ease-in-out;
     height: 100%;
-  }
-  
-  img {
+}
+
+.mySlides img {
     width: 100%;
     height: 100%;
-  }
-  
-  .prev, .next {
+    object-fit: cover;
+}
+
+.prev,
+.next {
     cursor: pointer;
     position: absolute;
     top: 50%;
@@ -53,126 +45,310 @@
     border: none;
     text-align: center;
     transition: background-color 0.2s ease-in-out;
-  }
-  .prev{
+}
+
+.prev {
     left: 0;
-  }
-  .next{
+}
+
+.next {
     right: 0;
-  }
-  
-  .prev:hover, .next:hover {
+}
+
+.prev:hover,
+.next:hover {
     background-color: rgba(0, 0, 0, 0.8);
-  }
-  
-  /* .fade {
-    animation: fade 5s infinite;
-  } */
-  
-  @keyframes fade {
-    from {opacity: .4}
-    to {opacity: 1}
-  }
-  
+}
 
+@keyframes fade {
+    from {
+        opacity: .4;
+    }
 
-  /* header {
-    color: white;
-    text-align: center;
-    padding: 1em;
-  } */
-  
-  #home{
+    to {
+        opacity: 1;
+    }
+}
+
+/* ================================
+   Home Trifold Section
+================================ */
+
+#home {
     padding: 20px;
     background-image: url(../images/wooden_banner4.png);
     background-position: center center;
     background-repeat: no-repeat;
     border-radius: 8px;
-    max-width: 1260px;
+    max-width: 1520px;
     width: 100%;
-    /* box-shadow: inset 0 0 93px 0px black; */
     background-size: 100% 90%;
     margin: auto;
     margin-top: -102px;
     position: relative;
     z-index: 1;
-  }
-  
-  
-  .crop {
+    box-sizing: border-box;
+}
+
+.crop {
     width: 100%;
     height: 100%;
     overflow: hidden;
-  }
-  .triFoldCont{
-    display: inline-flex;
+}
+
+.triFoldCont {
+    display: flex;
     margin: 64px 43px;
-    /* background: tan; */
-    /* height: 19rem; */
     justify-content: center;
     border: 4px solid black;
     box-shadow: 0 0 18px 7px black;
     border-radius: 9px;
-  }
-  .promo1, .promo2, .promo3{
+    overflow: hidden;
+}
+
+.promo-panel,
+.promo1,
+.promo2,
+.promo3 {
     width: 34%;
-  }
-  .promo1, .promo3{
-    display: inline-flex;
-  }
-  .promo1{
+    min-height: 310px;
+}
+
+.promo1,
+.promo3 {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.promo1 {
     background-image: url('../images/HGCFFlower.jpg');
-    background-size: auto 100%;
+    background-size: cover;
+    background-position: center;
     border-radius: 5px 0 0 5px;
-  }
-  .promo2{
+}
+
+.promo2 {
     background: #9b5833;
-  }
-  .promo3{
-    border-radius: 0 5px 5px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.promo3 {
     background-image: url('../images/egg-flower.jpg');
-    background-size: 100% auto;
-  }
-  .textCont2{
+    background-size: cover;
+    background-position: center;
+    border-radius: 0 5px 5px 0;
+}
+
+.textCont2 {
     padding: 45px;
     text-align: center;
-  }
-.promoHeader2{
+}
+
+.promoHeader2 {
     color: white;
     font-weight: bold;
     font-size: 34px;
     text-transform: uppercase;
     margin-bottom: 24px;
 }
-.textCont3{
-  margin-bottom: 40px;
-  color: white;
+
+.textCont3 {
+    margin-bottom: 40px;
+    color: white;
+    line-height: 1.55;
 }
-.promoLink2 a{
-  padding: 10px 15px;
-  text-decoration: none;
-  font-size: 20px;
+
+.textCont3 span {
+    color: orange;
 }
-.textCont3 span{
-  color: orange;
+
+.promoLink2 {
+    margin-top: 1rem;
 }
-.textCont{
+
+.promoLink2 a {
+    padding: 10px 15px;
+    text-decoration: none;
+    font-size: 20px;
+}
+
+.textCont {
     text-align: center;
     background: #f3d5ad;
-    width: 13rem;
+    width: 16rem;
+    max-width: calc(100% - 2rem);
     margin: auto;
     padding: 20px;
     text-transform: uppercase;
+    box-sizing: border-box;
 }
-hr{
-  color: black;
+
+hr {
+    color: black;
     border: solid 1px black;
 }
-.promoHeaderLittle{
-  font-size: 15px;
-  font-weight: bold;
+
+.promoHeaderLittle {
+    font-size: 15px;
+    font-weight: bold;
 }
-.promoHeader{
-  font-size: 25px;
-  font-weight: bold;
+
+.promoHeader {
+    font-size: 25px;
+    font-weight: bold;
+    line-height: 1.2;
+}
+
+/* ================================
+   Tablet Adjustments
+================================ */
+
+@media screen and (max-width: 1100px) {
+    #home {
+        margin-top: -70px;
+        padding: 18px;
+        background-size: cover;
+    }
+
+    .triFoldCont {
+        margin: 52px 30px;
+    }
+
+    .textCont2 {
+        padding: 32px 24px;
+    }
+
+    .promoHeader2 {
+        font-size: 28px;
+    }
+
+    .promoHeader {
+        font-size: 22px;
+    }
+}
+
+/* ================================
+   Mobile Trifold
+================================ */
+
+@media screen and (max-width: 820px) {
+    #home {
+        margin-top: -45px;
+        padding: 0;
+        background-image: none;
+        background: #7b380b;
+        border-radius: 0;
+        max-width: 100%;
+    }
+
+    .triFoldCont {
+        display: grid;
+        grid-template-columns: 1fr;
+        margin: 0;
+        border-left: none;
+        border-right: none;
+        border-radius: 0;
+        box-shadow: 0 0 18px 3px rgba(0, 0, 0, 0.65);
+    }
+
+    .promo-panel,
+    .promo1,
+    .promo2,
+    .promo3 {
+        width: 100%;
+        min-height: 320px;
+    }
+
+    .promo1 {
+        border-radius: 0;
+    }
+
+    .promo3 {
+        border-radius: 0;
+    }
+
+    .promo2 {
+        min-height: auto;
+        padding: 2rem 1rem;
+        box-sizing: border-box;
+    }
+
+    .textCont2 {
+        padding: 1.5rem;
+        max-width: 520px;
+    }
+
+    .promoHeader2 {
+        font-size: 2rem;
+    }
+
+    .textCont3 {
+        margin-bottom: 1.5rem;
+    }
+}
+
+/* ================================
+   Small Mobile
+================================ */
+
+@media screen and (max-width: 520px) {
+    .promo-panel,
+    .promo1,
+    .promo2,
+    .promo3 {
+        min-height: 280px;
+    }
+
+    .textCont {
+        width: min(16rem, calc(100% - 2rem));
+        padding: 1rem;
+    }
+
+    .promoHeader {
+        font-size: 1.45rem;
+    }
+
+    .promoHeaderLittle {
+        font-size: 0.9rem;
+    }
+
+    .promoHeader2 {
+        font-size: 1.75rem;
+    }
+
+    .textCont3 {
+        font-size: 0.95rem;
+    }
+
+    .promoLink2 a {
+        font-size: 1rem;
+    }
+}
+
+/* ================================
+   Very Small Phones
+================================ */
+
+@media screen and (max-width: 380px) {
+    .promo-panel,
+    .promo1,
+    .promo2,
+    .promo3 {
+        min-height: 250px;
+    }
+
+    .textCont {
+        padding: 0.85rem;
+    }
+
+    .promoHeader {
+        font-size: 1.25rem;
+    }
+
+    .promoHeader2 {
+        font-size: 1.5rem;
+    }
 }
