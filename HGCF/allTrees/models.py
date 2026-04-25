@@ -475,6 +475,13 @@ class cart_items(models.Model):
         blank=True
     )
 
+    session_key = models.CharField(
+        max_length=40,
+        null=True,
+        blank=True,
+        db_index=True
+    )
+
     product = models.ForeignKey(
         mainStore_products,
         on_delete=models.CASCADE,
@@ -497,20 +504,19 @@ class cart_items(models.Model):
     def get_item_name(self):
         if self.variant:
             return f"{self.product.product_name} - {self.variant.get_variant_label()}"
-
         return self.product.product_name
 
     def get_price(self):
         if self.variant:
             return self.variant.get_active_price()
-
         return self.product.get_active_price()
 
     def get_total(self):
         return self.get_price() * self.quantity
 
     def __str__(self):
-        return f"{self.user} - {self.get_item_name()} x {self.quantity}"
+        owner = self.user if self.user else f"Guest {self.session_key}"
+        return f"{owner} - {self.get_item_name()} x {self.quantity}"
     
 class valve_registration(models.Model):
     name = models.CharField(

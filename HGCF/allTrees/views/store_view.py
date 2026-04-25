@@ -3,12 +3,49 @@ from ..models import mainStore_products, cart_items
 from ..forms import mainStore_products_form, ProductVariantFormSet
 from django.http import JsonResponse #type: ignore
 import json
+from django.db.models import Q #type: ignore
 from decimal import Decimal
 from django.contrib.auth.decorators import login_required #type: ignore
 from django.views.decorators.http import require_http_methods #type: ignore
 from django.core.exceptions import ObjectDoesNotExist #type: ignore
 from ..models import mainStore_products, cart_items, mainStore_product_variants
 
+def get_or_create_cart_session_key(request):
+    """
+    Ensures guest users have a session key we can attach cart items to.
+    """
+    if not request.session.session_key:
+        request.session.create()
+
+    return request.session.session_key
+
+def get_cart_filter(request):
+    """
+    Returns the right cart filter depending on whether the customer is logged in.
+    """
+    if request.user.is_authenticated:
+        return {
+            "user": request.user
+        }
+
+    session_key = get_or_create_cart_session_key(request)
+
+    return {
+        "user__isnull": True,
+        "session_key": session_key
+    }
+
+def get_cart_items_for_request(request):
+    return cart_items.objects.filter(
+        **get_cart_filter(request)
+    ).select_related(
+        "product",
+        "variant"
+    )
+
+def get_cart_count(request):
+    items = get_cart_items_for_request(request)
+    return sum(item.quantity for item in items)
 
 @require_http_methods(["GET", "POST"])
 def store_view(request):
@@ -23,13 +60,6 @@ def store_view(request):
     ).order_by("store_display_order", "product_name")
 
     if request.method == "POST":
-        if not request.user.is_authenticated:
-            return JsonResponse({
-                "success": False,
-                "message": "You must be logged in to add items to your cart.",
-                "redirectUrl": "/login/"
-            }, status=401)
-
         try:
             json_data = json.loads(request.body.decode("utf-8"))
         except json.JSONDecodeError:
@@ -87,10 +117,19 @@ def store_view(request):
                     "message": "Selected size or option is not available."
                 }, status=404)
 
+        cart_owner = {}
+
+        if request.user.is_authenticated:
+            cart_owner["user"] = request.user
+            cart_owner["session_key"] = None
+        else:
+            cart_owner["user"] = None
+            cart_owner["session_key"] = get_or_create_cart_session_key(request)
+
         cart_item, item_created = cart_items.objects.get_or_create(
-            user=request.user,
             product=product,
             variant=variant,
+            **cart_owner,
             defaults={"quantity": 1}
         )
 
@@ -98,9 +137,7 @@ def store_view(request):
             cart_item.quantity += 1
             cart_item.save(update_fields=["quantity"])
 
-        cart_count = sum(
-            item.quantity for item in cart_items.objects.filter(user=request.user)
-        )
+        cart_count = get_cart_count(request)
 
         item_name = product.product_name
 
@@ -171,18 +208,12 @@ def addProduct_view(request):
         "variantFormset": variantFormset,
     })
 
-
 def cart_view(request):
     noFooter = False
     smallHeader = False
     sideBar = False
 
-    cartItems = cart_items.objects.filter(
-        user=request.user
-    ).select_related(
-        "product",
-        "variant"
-    ).order_by("-created_at")
+    cartItems = get_cart_items_for_request(request).order_by("-created_at")
 
     cart_subtotal = Decimal("0.00")
     cart_count = 0
@@ -199,8 +230,6 @@ def cart_view(request):
         "cart_subtotal": cart_subtotal,
         "cart_count": cart_count,
     })
-
-
 
 @require_http_methods(["POST"])
 def update_cart_item(request):
@@ -241,7 +270,7 @@ def update_cart_item(request):
             "variant"
         ).get(
             id=cart_item_id,
-            user=request.user
+            **get_cart_filter(request)
         )
     except cart_items.DoesNotExist:
         return JsonResponse({
@@ -252,7 +281,7 @@ def update_cart_item(request):
     cart_item.quantity = quantity
     cart_item.save(update_fields=["quantity"])
 
-    cartItems = cart_items.objects.filter(user=request.user)
+    cartItems = get_cart_items_for_request(request)
 
     cart_subtotal = Decimal("0.00")
     cart_count = 0
@@ -292,7 +321,7 @@ def remove_cart_item(request):
     try:
         cart_item = cart_items.objects.get(
             id=cart_item_id,
-            user=request.user
+            **get_cart_filter(request)
         )
     except cart_items.DoesNotExist:
         return JsonResponse({
@@ -302,7 +331,7 @@ def remove_cart_item(request):
 
     cart_item.delete()
 
-    cartItems = cart_items.objects.filter(user=request.user)
+    cartItems = get_cart_items_for_request(request)
 
     cart_subtotal = Decimal("0.00")
     cart_count = 0
