@@ -171,7 +171,7 @@ def addProduct_view(request):
         "variantFormset": variantFormset,
     })
 
-@login_required
+
 def cart_view(request):
     noFooter = False
     smallHeader = False
@@ -201,7 +201,7 @@ def cart_view(request):
     })
 
 
-@login_required
+
 @require_http_methods(["POST"])
 def update_cart_item(request):
     try:
@@ -270,7 +270,7 @@ def update_cart_item(request):
     })
 
 
-@login_required
+
 @require_http_methods(["POST"])
 def remove_cart_item(request):
     try:
