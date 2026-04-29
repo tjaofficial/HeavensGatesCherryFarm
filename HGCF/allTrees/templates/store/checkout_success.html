@@ -1,0 +1,77 @@
+{% extends "mainLayout.html" %}
+{% load static %}
+
+{% block list %}
+<link href="{% static 'style/cart.css' %}" rel="stylesheet" />
+
+{% include "components/spacer.html" with headerSpace='none' %}
+
+<div class="cart-page">
+    <section class="cart-hero">
+        <p class="cart-kicker">Heaven’s Gates Cherry Farm</p>
+        <h1>Payment Successful</h1>
+        <p>Thanks for your order. We received your payment through Stripe.</p>
+    </section>
+
+    <main class="success-card">
+        {% if order %}
+            <h2>Order #{{ order.id }}</h2>
+
+            <div class="summary-row">
+                <span>Status</span>
+                <strong>{{ order.get_status_display }}</strong>
+            </div>
+
+            <div class="summary-row">
+                <span>Total</span>
+                <strong>${{ order.total }}</strong>
+            </div>
+
+            {% if order.customer_email %}
+                <div class="summary-row">
+                    <span>Email</span>
+                    <strong>{{ order.customer_email }}</strong>
+                </div>
+            {% endif %}
+
+            <div class="summary-note">
+                Your order is confirmed. If this is a pickup order, please keep this confirmation available when you arrive.
+            </div>
+
+            <h3>Items</h3>
+
+            <div class="success-items">
+                {% for item in order.items.all %}
+                    <div class="success-item-row">
+                        <div>
+                            <strong>
+                                {{ item.product_name }}
+                                {% if item.variant_name %}
+                                    - {{ item.variant_name }}
+                                {% endif %}
+                            </strong>
+
+                            {% if item.unit_label %}
+                                <span>{{ item.unit_label }}</span>
+                            {% endif %}
+                        </div>
+
+                        <div>
+                            {{ item.quantity }} × ${{ item.unit_price }}
+                        </div>
+
+                        <strong>${{ item.line_total }}</strong>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <h2>Order Received</h2>
+            <p>Your payment was successful.</p>
+        {% endif %}
+
+        <a href="{% url 'store' %}" class="store-btn primary">
+            Back to Store
+        </a>
+    </main>
+</div>
+{% endblock %}

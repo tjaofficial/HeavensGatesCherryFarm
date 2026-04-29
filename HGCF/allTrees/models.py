@@ -1179,7 +1179,157 @@ class UPickReservation(models.Model):
     def __str__(self):
         return f"{self.full_name()} | {self.party_size} people | {self.time_slot}"
     
+class StoreOrder(models.Model):
+    STATUS_CHOICES = (
+        ("pending", "Pending"),
+        ("paid", "Paid"),
+        ("failed", "Failed"),
+        ("cancelled", "Cancelled"),
+        ("fulfilled", "Fulfilled"),
+        ("refunded", "Refunded"),
+    )
 
+    FULFILLMENT_CHOICES = (
+        ("pickup", "Farm Pickup"),
+        ("shipping", "Shipping"),
+        ("local_delivery", "Local Delivery"),
+    )
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+
+    session_key = models.CharField(
+        max_length=40,
+        null=True,
+        blank=True,
+        db_index=True
+    )
+
+    status = models.CharField(
+        max_length=30,
+        choices=STATUS_CHOICES,
+        default="pending"
+    )
+
+    fulfillment_type = models.CharField(
+        max_length=30,
+        choices=FULFILLMENT_CHOICES,
+        default="pickup"
+    )
+
+    customer_email = models.EmailField(null=True, blank=True)
+    customer_name = models.CharField(max_length=180, null=True, blank=True)
+
+    subtotal = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=Decimal("0.00")
+    )
+
+    tax_total = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=Decimal("0.00")
+    )
+
+    delivery_total = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=Decimal("0.00")
+    )
+
+    total = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=Decimal("0.00")
+    )
+
+    stripe_checkout_session_id = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+        db_index=True
+    )
+
+    stripe_payment_intent_id = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True
+    )
+
+    paid_at = models.DateTimeField(null=True, blank=True)
+
+    customer_note = models.TextField(null=True, blank=True)
+    internal_note = models.TextField(null=True, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def recalculate_totals(self):
+        subtotal = Decimal("0.00")
+
+        for item in self.items.all():
+            subtotal += item.line_total
+
+        self.subtotal = subtotal
+        self.total = self.subtotal + self.tax_total + self.delivery_total
+        self.save(update_fields=["subtotal", "total"])
+
+    def __str__(self):
+        return f"Order #{self.id} - {self.status} - ${self.total}"
+
+class StoreOrderItem(models.Model):
+    order = models.ForeignKey(
+        'StoreOrder',
+        on_delete=models.CASCADE,
+        related_name="items"
+    )
+
+    product = models.ForeignKey(
+        'mainStore_products',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+
+    variant = models.ForeignKey(
+        'mainStore_product_variants',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+
+    product_name = models.CharField(max_length=180)
+    variant_name = models.CharField(max_length=120, null=True, blank=True)
+
+    sku = models.CharField(max_length=100, null=True, blank=True)
+
+    unit_price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2
+    )
+
+    quantity = models.PositiveIntegerField(default=1)
+
+    line_total = models.DecimalField(
+        max_digits=10,
+        decimal_places=2
+    )
+
+    unit_label = models.CharField(
+        max_length=80,
+        null=True,
+        blank=True
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.product_name} x {self.quantity}"
 
 
 

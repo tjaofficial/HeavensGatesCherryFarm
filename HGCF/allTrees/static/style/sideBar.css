@@ -6,7 +6,7 @@
     top: 0;
     left: 0;
     bottom: 0;
-    width: 200px;
+    width: 160px;
     color: #fff;
     font-family: 'Segoe UI', sans-serif;
     box-shadow: 2px 0 12px rgba(0, 0, 0, 0.4);
@@ -30,6 +30,7 @@
     padding: 0;
     flex-grow: 1;
     overflow-y: auto;
+    margin-top: 82px;
 }
 
 .play li {

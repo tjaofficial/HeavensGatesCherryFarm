@@ -41,6 +41,11 @@ urlpatterns = [
     path("cart/", views.cart_view, name="cart"),
     path("cart/update/", views.update_cart_item, name="update_cart_item"),
     path("cart/remove/", views.remove_cart_item, name="remove_cart_item"),
+    path("checkout/create-session/", views.create_checkout_session_view, name="create_checkout_session"),
+    path("checkout/success/", views.checkout_success_view, name="checkout_success"),
+    path("checkout/create-session/", views.create_checkout_session_view, name="create_checkout_session"),
+    path("checkout/success/", views.checkout_success_view, name="checkout_success"),
+    path("stripe/webhook/", views.stripe_webhook_view, name="stripe_webhook"),
 
     # UPICK
     path("upick/", views.upick_landing_view, name="upick_landing"),

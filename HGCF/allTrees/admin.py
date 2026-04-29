@@ -160,7 +160,6 @@ class UPickTimeSlotAdmin(admin.ModelAdmin):
         "event__crop_name",
     )
 
-
 @admin.register(UPickReservation)
 class UPickReservationAdmin(admin.ModelAdmin):
     list_display = (
@@ -225,7 +224,6 @@ class POSSessionAdmin(admin.ModelAdmin):
         'closed_at',
     )
 
-
 @admin.register(POSSale)
 class POSSaleAdmin(admin.ModelAdmin):
     list_display = (
@@ -266,7 +264,6 @@ class POSSaleAdmin(admin.ModelAdmin):
 
     inlines = [POSSaleItemInline, POSPaymentEventInline]
 
-
 @admin.register(POSSaleItem)
 class POSSaleItemAdmin(admin.ModelAdmin):
     list_display = (
@@ -296,7 +293,6 @@ class POSSaleItemAdmin(admin.ModelAdmin):
         'created_at',
     )
 
-
 @admin.register(POSPaymentEvent)
 class POSPaymentEventAdmin(admin.ModelAdmin):
     list_display = (
@@ -323,3 +319,64 @@ class POSPaymentEventAdmin(admin.ModelAdmin):
     readonly_fields = (
         'created_at',
     )
+
+class StoreOrderItemInline(admin.TabularInline):
+    model = StoreOrderItem
+    extra = 0
+    readonly_fields = (
+        "product",
+        "variant",
+        "product_name",
+        "variant_name",
+        "sku",
+        "unit_price",
+        "quantity",
+        "line_total",
+        "unit_label",
+    )
+
+    can_delete = False
+
+@admin.register(StoreOrder)
+class StoreOrderAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "status",
+        "customer_email",
+        "customer_name",
+        "subtotal",
+        "tax_total",
+        "delivery_total",
+        "total",
+        "created_at",
+        "paid_at",
+    )
+
+    list_filter = (
+        "status",
+        "fulfillment_type",
+        "created_at",
+        "paid_at",
+    )
+
+    search_fields = (
+        "id",
+        "customer_email",
+        "customer_name",
+        "stripe_checkout_session_id",
+        "stripe_payment_intent_id",
+    )
+
+    readonly_fields = (
+        "stripe_checkout_session_id",
+        "stripe_payment_intent_id",
+        "paid_at",
+        "created_at",
+        "updated_at",
+    )
+
+    inlines = [StoreOrderItemInline]
+
+
+
+

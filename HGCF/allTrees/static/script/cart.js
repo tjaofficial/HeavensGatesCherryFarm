@@ -147,3 +147,28 @@ function showCartToast(message, isError = false) {
         toast.classList.remove("show");
     }, 2400);
 }
+
+async function startCheckout() {
+    try {
+        const response = await fetch("/checkout/create-session/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": getCSRFToken()
+            },
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            showCartToast(data.message || "Could not start checkout.", true);
+            return;
+        }
+
+        window.location.href = data.checkoutUrl;
+
+    } catch (error) {
+        console.error("Checkout error:", error);
+        showCartToast("Something went wrong starting checkout.", true);
+    }
+}
