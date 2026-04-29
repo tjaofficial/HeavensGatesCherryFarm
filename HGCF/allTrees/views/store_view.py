@@ -551,25 +551,58 @@ def stripe_webhook_view(request):
 
     return HttpResponse(status=200)
 
+def stripe_obj_get(obj, key, default=None):
+    """
+    Safely gets values from StripeObject or dict-like objects.
+    StripeObject does not always support .get().
+    """
+    try:
+        value = obj[key]
+    except (KeyError, TypeError, AttributeError):
+        value = getattr(obj, key, default)
+
+    if value is None:
+        return default
+
+    return value
+
+
 def handle_checkout_session_completed(session):
-    order_id = session.get("metadata", {}).get("order_id")
+    metadata = stripe_obj_get(session, "metadata", {}) or {}
+    order_id = stripe_obj_get(metadata, "order_id")
 
     if not order_id:
+        print("Stripe webhook completed but no order_id metadata found.")
         return
 
     try:
         order = StoreOrder.objects.get(id=order_id)
     except StoreOrder.DoesNotExist:
+        print(f"Stripe webhook completed but StoreOrder {order_id} was not found.")
         return
 
     if order.status == "paid":
+        print(f"Order {order.id} already marked paid. Skipping duplicate webhook.")
         return
+
+    customer_details = stripe_obj_get(session, "customer_details", {}) or {}
 
     order.status = "paid"
     order.paid_at = timezone.now()
-    order.customer_email = session.get("customer_details", {}).get("email") or session.get("customer_email")
-    order.customer_name = session.get("customer_details", {}).get("name")
-    order.stripe_payment_intent_id = session.get("payment_intent")
+    order.customer_email = (
+        stripe_obj_get(customer_details, "email")
+        or stripe_obj_get(session, "customer_email")
+        or order.customer_email
+    )
+    order.customer_name = (
+        stripe_obj_get(customer_details, "name")
+        or order.customer_name
+    )
+    order.stripe_payment_intent_id = (
+        stripe_obj_get(session, "payment_intent")
+        or order.stripe_payment_intent_id
+    )
+
     order.save(update_fields=[
         "status",
         "paid_at",
@@ -578,7 +611,6 @@ def handle_checkout_session_completed(session):
         "stripe_payment_intent_id",
     ])
 
-    # Clear the correct cart after payment.
     if order.user:
         cart_items.objects.filter(user=order.user).delete()
     elif order.session_key:
@@ -588,6 +620,8 @@ def handle_checkout_session_completed(session):
         ).delete()
 
     reduce_inventory_for_order(order)
+
+    print(f"Order {order.id} marked paid from Stripe webhook.")
 
 def reduce_inventory_for_order(order):
     for item in order.items.select_related("product", "variant"):
