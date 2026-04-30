@@ -15,6 +15,7 @@ from ..models import mainStore_products, cart_items, mainStore_product_variants,
 from django.db import transaction
 from django.http import HttpResponse
 from django.utils import timezone
+from django.core.mail import send_mail
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -736,7 +737,7 @@ def handle_checkout_session_completed(session):
         ).delete()
 
     reduce_inventory_for_order(order)
-
+    send_order_receipt_email(order)
     print(f"Order {order.id} marked paid from Stripe webhook.")
 
 def reduce_inventory_for_order(order):
@@ -757,4 +758,59 @@ def reduce_inventory_for_order(order):
 
             item.product.save(update_fields=["inventory_total"])
 
+def send_order_receipt_email(order):
+    if not order.customer_email:
+        print(f"Order {order.id} has no customer email. Receipt not sent.")
+        return
 
+    subject = f"Heaven’s Gates Cherry Farm Receipt - Order #{order.id}"
+
+    item_lines = []
+
+    for item in order.items.all():
+        item_name = item.product_name
+
+        if item.variant_name:
+            item_name += f" - {item.variant_name}"
+
+        item_lines.append(
+            f"{item_name}\n"
+            f"Qty: {item.quantity}\n"
+            f"Price: ${item.unit_price}\n"
+            f"Line Total: ${item.line_total}\n"
+        )
+
+    items_text = "\n".join(item_lines)
+
+    message = f"""
+        Thank you for your order from Heaven’s Gates Cherry Farm!
+
+        Order #{order.id}
+        Status: {order.get_status_display()}
+
+        Customer:
+        {order.customer_name or ""}
+        {order.customer_email}
+        {order.customer_phone or ""}
+
+        Items:
+        {items_text}
+
+        Subtotal: ${order.subtotal}
+        Tax: ${order.tax_total}
+        Delivery: ${order.delivery_total}
+        Total: ${order.total}
+
+        Pickup/Order Note:
+        If this is a pickup order, please keep this email available when you arrive.
+
+        Thank you for supporting Heaven’s Gates Cherry Farm!
+    """
+
+    send_mail(
+        subject,
+        message,
+        getattr(settings, "DEFAULT_FROM_EMAIL", "webmaster@localhost"),
+        [order.customer_email],
+        fail_silently=False,
+    )
