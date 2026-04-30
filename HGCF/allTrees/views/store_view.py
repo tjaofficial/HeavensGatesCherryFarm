@@ -481,7 +481,6 @@ def create_checkout_session_view(request):
         checkout_payload = {
             "mode": "payment",
             "line_items": line_items,
-            "payment_method_collection": "if_required",
 
             "customer_email": request.user.email if request.user.is_authenticated and request.user.email else None,
 
@@ -508,17 +507,20 @@ def create_checkout_session_view(request):
                 "cart_session_key": request.session.session_key or "",
                 "user_id": str(request.user.id) if request.user.is_authenticated else "",
             },
-
-            "payment_intent_data": {
-                "metadata": {
-                    "order_id": str(order.id),
-                }
-            }
         }
 
         if cart_requires_shipping(cartItems):
             checkout_payload["shipping_address_collection"] = {
                 "allowed_countries": ["US"],
+            }
+
+        # Only attach PaymentIntent metadata if there is an actual paid amount.
+        # For $0 orders, payment_intent can be null.
+        if order.total > Decimal("0.00"):
+            checkout_payload["payment_intent_data"] = {
+                "metadata": {
+                    "order_id": str(order.id),
+                }
             }
 
         checkout_session = stripe.checkout.Session.create(**checkout_payload)
