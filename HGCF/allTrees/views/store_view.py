@@ -445,6 +445,15 @@ def create_pending_order_from_cart(request, cartItems):
 
         return order
 
+def cart_requires_shipping(cartItems):
+    for item in cartItems:
+        fulfillment_type = getattr(item.product, "fulfillment_type", "")
+
+        if fulfillment_type in ["shipping_only", "pickup_or_shipping", "local_delivery"]:
+            return True
+
+    return False
+
 @require_POST
 def create_checkout_session_view(request):
     if not settings.STRIPE_SECRET_KEY:
@@ -469,26 +478,50 @@ def create_checkout_session_view(request):
     try:
         order = create_pending_order_from_cart(request, cartItems)
 
-        checkout_session = stripe.checkout.Session.create(
-            payment_method_types=["card"],
-            mode="payment",
-            line_items=line_items,
-            customer_email=request.user.email if request.user.is_authenticated and request.user.email else None,
-            success_url=request.build_absolute_uri(
+        checkout_payload = {
+            "mode": "payment",
+            "line_items": line_items,
+            "payment_method_collection": "if_required",
+
+            "customer_email": request.user.email if request.user.is_authenticated and request.user.email else None,
+
+            "name_collection": {
+                "individual": {
+                    "enabled": True,
+                    "optional": False,
+                },
+            },
+
+            "phone_number_collection": {
+                "enabled": True,
+            },
+
+            "billing_address_collection": "required",
+
+            "success_url": request.build_absolute_uri(
                 f"/checkout/success/?order_id={order.id}&session_id={{CHECKOUT_SESSION_ID}}"
             ),
-            cancel_url=request.build_absolute_uri("/cart/"),
-            metadata={
+            "cancel_url": request.build_absolute_uri("/cart/"),
+
+            "metadata": {
                 "order_id": str(order.id),
                 "cart_session_key": request.session.session_key or "",
                 "user_id": str(request.user.id) if request.user.is_authenticated else "",
             },
-            payment_intent_data={
+
+            "payment_intent_data": {
                 "metadata": {
                     "order_id": str(order.id),
                 }
             }
-        )
+        }
+
+        if cart_requires_shipping(cartItems):
+            checkout_payload["shipping_address_collection"] = {
+                "allowed_countries": ["US"],
+            }
+
+        checkout_session = stripe.checkout.Session.create(**checkout_payload)
 
         order.stripe_checkout_session_id = checkout_session.id
         order.save(update_fields=["stripe_checkout_session_id"])
@@ -567,6 +600,47 @@ def stripe_obj_get(obj, key, default=None):
     return value
 
 
+def split_name(full_name):
+    if not full_name:
+        return "", ""
+
+    parts = full_name.strip().split()
+
+    if len(parts) == 1:
+        return parts[0], ""
+
+    return parts[0], " ".join(parts[1:])
+
+
+def save_address_to_order(order, prefix, address_data, name=None):
+    if not address_data:
+        return []
+
+    update_fields = []
+
+    field_map = {
+        "line1": f"{prefix}_line1",
+        "line2": f"{prefix}_line2",
+        "city": f"{prefix}_city",
+        "state": f"{prefix}_state",
+        "postal_code": f"{prefix}_postal_code",
+        "country": f"{prefix}_country",
+    }
+
+    if name:
+        setattr(order, f"{prefix}_name", name)
+        update_fields.append(f"{prefix}_name")
+
+    for stripe_key, model_field in field_map.items():
+        value = stripe_obj_get(address_data, stripe_key)
+
+        if value:
+            setattr(order, model_field, value)
+            update_fields.append(model_field)
+
+    return update_fields
+
+
 def handle_checkout_session_completed(session):
     metadata = stripe_obj_get(session, "metadata", {}) or {}
     order_id = stripe_obj_get(metadata, "order_id")
@@ -587,29 +661,69 @@ def handle_checkout_session_completed(session):
 
     customer_details = stripe_obj_get(session, "customer_details", {}) or {}
 
-    order.status = "paid"
-    order.paid_at = timezone.now()
-    order.customer_email = (
+    customer_email = (
         stripe_obj_get(customer_details, "email")
         or stripe_obj_get(session, "customer_email")
         or order.customer_email
     )
-    order.customer_name = (
+
+    customer_name = (
         stripe_obj_get(customer_details, "name")
         or order.customer_name
     )
+
+    customer_phone = (
+        stripe_obj_get(customer_details, "phone")
+        or order.customer_phone
+    )
+
+    first_name, last_name = split_name(customer_name)
+
+    update_fields = [
+        "status",
+        "paid_at",
+        "customer_email",
+        "customer_name",
+        "customer_first_name",
+        "customer_last_name",
+        "customer_phone",
+        "stripe_payment_intent_id",
+    ]
+
+    order.status = "paid"
+    order.paid_at = timezone.now()
+    order.customer_email = customer_email
+    order.customer_name = customer_name
+    order.customer_first_name = first_name
+    order.customer_last_name = last_name
+    order.customer_phone = customer_phone
     order.stripe_payment_intent_id = (
         stripe_obj_get(session, "payment_intent")
         or order.stripe_payment_intent_id
     )
 
-    order.save(update_fields=[
-        "status",
-        "paid_at",
-        "customer_email",
-        "customer_name",
-        "stripe_payment_intent_id",
-    ])
+    # Billing address
+    billing_address = stripe_obj_get(customer_details, "address")
+    update_fields += save_address_to_order(
+        order,
+        "billing",
+        billing_address,
+        name=customer_name
+    )
+
+    # Shipping address
+    shipping_details = stripe_obj_get(session, "shipping_details", {}) or {}
+    shipping_address = stripe_obj_get(shipping_details, "address")
+    shipping_name = stripe_obj_get(shipping_details, "name")
+
+    update_fields += save_address_to_order(
+        order,
+        "shipping",
+        shipping_address,
+        name=shipping_name
+    )
+
+    order.save(update_fields=list(set(update_fields)))
 
     if order.user:
         cart_items.objects.filter(user=order.user).delete()

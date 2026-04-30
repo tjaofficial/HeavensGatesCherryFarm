@@ -344,6 +344,7 @@ class StoreOrderAdmin(admin.ModelAdmin):
         "status",
         "customer_email",
         "customer_name",
+        "customer_phone",
         "subtotal",
         "tax_total",
         "delivery_total",

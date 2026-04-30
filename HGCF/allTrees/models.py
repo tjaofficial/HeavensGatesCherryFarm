@@ -1269,6 +1269,27 @@ class StoreOrder(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    customer_first_name = models.CharField(max_length=100, null=True, blank=True)
+    customer_last_name = models.CharField(max_length=100, null=True, blank=True)
+
+    customer_phone = models.CharField(max_length=40, null=True, blank=True)
+
+    billing_name = models.CharField(max_length=180, null=True, blank=True)
+    billing_line1 = models.CharField(max_length=255, null=True, blank=True)
+    billing_line2 = models.CharField(max_length=255, null=True, blank=True)
+    billing_city = models.CharField(max_length=120, null=True, blank=True)
+    billing_state = models.CharField(max_length=120, null=True, blank=True)
+    billing_postal_code = models.CharField(max_length=40, null=True, blank=True)
+    billing_country = models.CharField(max_length=80, null=True, blank=True)
+
+    shipping_name = models.CharField(max_length=180, null=True, blank=True)
+    shipping_line1 = models.CharField(max_length=255, null=True, blank=True)
+    shipping_line2 = models.CharField(max_length=255, null=True, blank=True)
+    shipping_city = models.CharField(max_length=120, null=True, blank=True)
+    shipping_state = models.CharField(max_length=120, null=True, blank=True)
+    shipping_postal_code = models.CharField(max_length=40, null=True, blank=True)
+    shipping_country = models.CharField(max_length=80, null=True, blank=True)
+
     def recalculate_totals(self):
         subtotal = Decimal("0.00")
 
