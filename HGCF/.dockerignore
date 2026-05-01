@@ -1,22 +1,49 @@
-__pycache__
-*.pyc
+# Python junk
+__pycache__/
+*.py[cod]
 *.pyo
 *.pyd
 .Python
-env
-venv
-.venv
-HGCFvenv
-*.sqlite3-journal
 
-.git
+# Virtual environments
+HGCFvenv/
+venv/
+.venv/
+env/
+
+# Git
+.git/
 .gitignore
 
-.DS_Store
-
+# Secrets
 .env
-.env.prod
+.env.*
+!.env.example
 
-staticfiles
-media
-node_modules
+# SQLite / database files
+db.sqlite3
+*.sqlite3
+*.sqlite3-journal
+db_backup*.sqlite3
+*_backup*.sqlite3
+
+# Logs
+*.log
+irrigation_cron.log
+logs/
+*.pid
+
+# Static/media generated or uploaded files
+staticfiles/
+media/
+
+# OS / editor junk
+.DS_Store
+.vscode/
+.idea/
+
+# Node junk
+node_modules/
+
+# Docker local junk
+docker-compose.override.yml
