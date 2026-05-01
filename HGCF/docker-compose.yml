@@ -1,0 +1,35 @@
+version: "3.9"
+
+services:
+  web:
+    build: .
+    container_name: hgcf_web
+    restart: unless-stopped
+    command: gunicorn HGCF.wsgi:application --bind 0.0.0.0:8000 --workers 3 --worker-tmp-dir /dev/shm
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+      - hgcf_sqlite_data:/app/data
+      - hgcf_staticfiles:/app/staticfiles
+      - hgcf_media:/app/media
+    expose:
+      - "8000"
+
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: hgcf_nginx
+    restart: unless-stopped
+    depends_on:
+      - web
+    ports:
+      - "8000:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - hgcf_staticfiles:/app/staticfiles:ro
+      - hgcf_media:/app/media:ro
+
+volumes:
+  hgcf_sqlite_data:
+  hgcf_staticfiles:
+  hgcf_media:
