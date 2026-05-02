@@ -28,7 +28,14 @@ def login_view(request):
             login_error["message"] = 'Incorrect username or password'
 
     return render(request, 'treeSpace/treeSpace_login.html', {
+        "seo_title": "TreeSpace Login | Heaven's Gates Cherry Farm",
+        "seo_description": "Private TreeSpace login for Heaven's Gates Cherry Farm administration.",
+        "seo_robots": "noindex, nofollow",
 
+        "og_title": "TreeSpace Login | Heaven's Gates Cherry Farm",
+        "og_description": "Private farm administration portal.",
+        "twitter_title": "TreeSpace Login | Heaven's Gates Cherry Farm",
+        "twitter_description": "Private farm administration portal.",
     })
 
 def logout_view(request):

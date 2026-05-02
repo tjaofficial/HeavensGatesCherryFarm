@@ -4,10 +4,17 @@ from . import views
 urlpatterns = [
     path("", views.homePage_view, name="home"),
     path("dashboard", views.dashboard_view, name="dashboard"),
-    path("announcements", views.announcements_view, name="announcements"),
     path("login", views.login_view, name="login"),
     path("logout", views.logout_view, name="Logout"),
     path("addTree/<str:locationID2>/<str:areaID2>", views.addTree_view, name="addTree"),
+
+    # ---- Our Story -----------
+    path("our-story/", views.our_story_view, name="our_story"),
+    path("our-story/subscribe/", views.our_story_subscribe_view, name="our_story_subscribe"),
+
+    # ---- Announcements ------------
+    path("announcements/", views.announcements_view, name="announcements"),
+    path("announcements/<slug:slug>/", views.announcement_detail_view, name="announcement_detail"),
 
     # ---- Irrigation ----------
     path('irrigation/dashboard', views.irrigation_dashboard, name='irrigation_dashboard'),

@@ -205,7 +205,7 @@
 
     .main-nav {
         min-height: 0;
-        overflow: hidden;
+        /* overflow: hidden; */
         display: flex;
         flex-direction: column;
         align-items: stretch;
@@ -254,6 +254,7 @@
     .main-nav a,
     .wood-button {
         min-height: 44px;
-        font-size: 0.92rem;
+        font-size: 2.92rem;
+        height: 91px;
     }
 }

@@ -1,0 +1,295 @@
+{% extends "mainLayout.html" %}
+{% load static %}
+
+{% block list %}
+<link href="{% static 'style/our_story.css' %}" rel="stylesheet">
+<script defer src="{% static 'script/our_story.js' %}"></script>
+
+<div class="story-page">
+
+    <section class="story-hero">
+        <div class="story-hero-overlay"></div>
+
+        <div class="story-hero-inner">
+            <p class="story-kicker">Heaven’s Gates Cherry Farm</p>
+            <h1>Our Story</h1>
+            <p>
+                What started with 50 baby cherry trees and a dream has grown into a family farm
+                rooted in faith, grit, prayer, and a whole lot of Michigan weather.
+            </p>
+
+            <div class="story-hero-actions">
+                <a href="#storyTimeline" class="story-btn primary">Read the Story</a>
+                <a href="#visitUs" class="story-btn secondary">Plan a Visit</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="story-intro">
+        <div class="story-intro-card">
+            <span class="story-icon">🌱</span>
+            <h2>From 50 Trees to a Farm Full of Life</h2>
+            <p>
+                Over a decade ago, Heaven’s Gates Cherry Farm began with 50 baby cherry trees and a dream.
+                Through the years, the farm has seen highs and lows, triumphs and hardships, quiet prayers,
+                long days, and more than a few battles with unpredictable Michigan weather.
+            </p>
+        </div>
+
+        <div class="story-photo-stack">
+            <button class="story-photo active" type="button" data-story-photo="{% static 'images/dad_sign.jpg' %}">
+                <img src="{% static 'images/dad_sign.jpg' %}" alt="Heaven's Gates Cherry Farm logo">
+            </button>
+
+            <button class="story-photo" type="button" data-story-photo="{% static 'images/strawberries.jpg' %}">
+                <img src="{% static 'images/strawberries.jpg' %}" alt="Fresh strawberries at Heaven's Gates Cherry Farm">
+            </button>
+
+            <button class="story-photo" type="button" data-story-photo="{% static 'images/hgcf-og-home.png' %}">
+                <img src="{% static 'images/hgcf-og-home.png' %}" alt="Rustic farm background">
+            </button>
+        </div>
+    </section>
+
+    <section class="story-timeline-section" id="storyTimeline">
+        <div class="section-heading">
+            <p>The Journey</p>
+            <h2>Faith, Frost, Fallen Tunnels, and Fruit</h2>
+        </div>
+
+        <div class="story-timeline">
+
+            <article class="timeline-item">
+                <div class="timeline-dot">1</div>
+                <div class="timeline-card">
+                    <h3>It Started With 50 Baby Cherry Trees</h3>
+                    <p>
+                        Heaven’s Gates Cherry Farm began over a decade ago with 50 baby cherry trees and a dream.
+                        It was simple at first: plant something meaningful, work the land, and trust that with time,
+                        care, and faith, something beautiful would grow.
+                    </p>
+                </div>
+            </article>
+
+            <article class="timeline-item">
+                <div class="timeline-dot">2</div>
+                <div class="timeline-card">
+                    <h3>The Highs, the Lows, and the Late Spring Frost</h3>
+                    <p>
+                        Like any real farm story, the road was not smooth. Late spring frosts came through and killed
+                        buds on the trees before they ever had the chance to become fruit. Some years brought hope.
+                        Other years brought hard lessons.
+                    </p>
+                </div>
+            </article>
+
+            <article class="timeline-item">
+                <div class="timeline-dot">3</div>
+                <div class="timeline-card">
+                    <h3>High Tunnels Went Up</h3>
+                    <p>
+                        To protect the trees and push the farm forward, high tunnels were erected. They represented
+                        progress, protection, and a new chapter for the farm — proof that even after setbacks, we were
+                        still willing to build.
+                    </p>
+                </div>
+            </article>
+
+            <article class="timeline-item">
+                <div class="timeline-dot">4</div>
+                <div class="timeline-card">
+                    <h3>Then Michigan Snow Had Other Plans</h3>
+                    <p>
+                        Then came the kind of Michigan snow that does not ask permission. The weight collapsed the
+                        high tunnels and smashed most of the cherry trees. It was one of those moments where you either
+                        quit or you dig in deeper.
+                    </p>
+                </div>
+            </article>
+
+            <article class="timeline-item">
+                <div class="timeline-dot">5</div>
+                <div class="timeline-card">
+                    <h3>The Farm Kept Growing</h3>
+                    <p>
+                        Through it all, we kept moving. Apple trees were added. Nectarine trees were added. Thousands
+                        of Earliglow strawberry plants joined the farm. A beautiful garden began taking shape. What
+                        started as a dream slowly became a place filled with life.
+                    </p>
+                </div>
+            </article>
+
+            <article class="timeline-item">
+                <div class="timeline-dot">6</div>
+                <div class="timeline-card">
+                    <h3>Heads High, Prayers Strong, Bodies Working</h3>
+                    <p>
+                        We kept our heads high, prayers strong, and bodies working. Heaven’s Gates Cherry Farm has
+                        blossomed into what it is today because of faith, family, hard work, and the belief that good
+                        things can still grow after hard seasons.
+                    </p>
+                </div>
+            </article>
+
+        </div>
+    </section>
+
+    <section class="story-values">
+        <div class="value-card">
+            <span>🍓</span>
+            <h3>Fresh Harvests</h3>
+            <p>Seasonal fruit, strawberries, garden produce, and farm goods grown with care.</p>
+        </div>
+
+        <div class="value-card">
+            <span>🙏</span>
+            <h3>Faith & Family</h3>
+            <p>A farm built through prayer, patience, hard work, and a dream that refused to quit.</p>
+        </div>
+
+        <div class="value-card">
+            <span>🏡</span>
+            <h3>A Taste of Home</h3>
+            <p>A peaceful place where every visit feels personal, local, and rooted in something real.</p>
+        </div>
+    </section>
+
+    <section class="story-message">
+        <div class="story-message-content">
+            <p class="story-kicker">Come Visit Us</p>
+            <h2>Find peace and a little taste of home in everything we sell.</h2>
+            <p>
+                Whether you are stopping by for fresh strawberries, checking out what is growing, or just looking
+                for a quiet farm experience in Hale, Michigan, we would love to welcome you to Heaven’s Gates Cherry Farm.
+            </p>
+        </div>
+    </section>
+
+    <section class="visit-section" id="visitUs">
+        <div class="visit-info">
+            <p class="story-kicker">Visit the Farm</p>
+            <h2>Location, Hours & Contact</h2>
+
+            <div class="contact-panel">
+                <div class="contact-row">
+                    <span>📍</span>
+                    <div>
+                        <strong>Address</strong>
+                        <p>5675 Shellenbarger Rd, Hale, MI 48739</p>
+                    </div>
+                </div>
+
+                <div class="contact-row">
+                    <span>📞</span>
+                    <div>
+                        <strong>Phone</strong>
+                        <p><a href="tel:18103390427">(810) 339-0427</a></p>
+                    </div>
+                </div>
+
+                <div class="hours-box">
+                    <strong>Hours</strong>
+
+                    <div class="hours-row open">
+                        <span>Friday</span>
+                        <strong>10AM–6PM</strong>
+                    </div>
+
+                    <div class="hours-row open">
+                        <span>Saturday</span>
+                        <strong>10AM–6PM</strong>
+                    </div>
+
+                    <div class="hours-row open">
+                        <span>Sunday</span>
+                        <strong>10AM–6PM</strong>
+                    </div>
+
+                    <div class="hours-row">
+                        <span>Monday</span>
+                        <strong>Closed</strong>
+                    </div>
+
+                    <div class="hours-row">
+                        <span>Tuesday</span>
+                        <strong>Closed</strong>
+                    </div>
+
+                    <div class="hours-row">
+                        <span>Wednesday</span>
+                        <strong>Closed</strong>
+                    </div>
+
+                    <div class="hours-row">
+                        <span>Thursday</span>
+                        <strong>Closed</strong>
+                    </div>
+                </div>
+
+                <div class="social-links">
+                    <a href="https://www.facebook.com/HeavensGatesCherryFarm" target="_blank" rel="noopener">Facebook</a>
+                    <a href="https://www.instagram.com/larryackerman/" target="_blank" rel="noopener">Instagram</a>
+                    <a href="https://www.youtube.com/@HeavensGatesCherryFarm" target="_blank" rel="noopener">YouTube</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="map-card">
+            <iframe
+                title="Heaven's Gates Cherry Farm Map"
+                src="https://www.google.com/maps?q=5675%20Shellenbarger%20Rd%2C%20Hale%2C%20MI%2048739&output=embed"
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade">
+            </iframe>
+
+            <a
+                class="directions-btn"
+                href="https://www.google.com/maps/search/?api=1&query=5675%20Shellenbarger%20Rd%2C%20Hale%2C%20MI%2048739"
+                target="_blank"
+                rel="noopener">
+                Get Directions
+            </a>
+        </div>
+    </section>
+
+    <section class="newsletter-section">
+        <div class="newsletter-card">
+            <div>
+                <p class="story-kicker">Stay in the Loop</p>
+                <h2>Get harvest updates, U-pick announcements, and farm news.</h2>
+                <p>
+                    Subscribe and we’ll let you know when strawberries are ready, when U-pick opens,
+                    and what fresh goods are available.
+                </p>
+            </div>
+
+            <form id="storySubscribeForm" class="newsletter-form">
+                {% csrf_token %}
+
+                <input
+                    type="text"
+                    name="name"
+                    placeholder="Your name"
+                    autocomplete="name">
+
+                <input
+                    type="email"
+                    name="email"
+                    placeholder="Email address"
+                    autocomplete="email"
+                    required>
+
+                <button type="submit">Subscribe</button>
+
+                <p id="subscribeMessage" class="subscribe-message"></p>
+            </form>
+        </div>
+    </section>
+
+    <div class="story-photo-modal" id="storyPhotoModal">
+        <button type="button" class="story-photo-close" id="storyPhotoClose">&times;</button>
+        <img src="" alt="Farm photo preview" id="storyPhotoPreview">
+    </div>
+
+</div>
+{% endblock %}

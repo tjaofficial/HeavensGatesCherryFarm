@@ -1,0 +1,178 @@
+{% extends "mainLayout.html" %}
+{% load static %}
+
+{% block list %}
+<link href="{% static 'style/announcements.css' %}" rel="stylesheet">
+<script defer src="{% static 'script/announcements.js' %}"></script>
+
+<div class="announcements-page">
+
+    <section class="announcements-hero">
+        <div class="announcements-hero-overlay"></div>
+
+        <div class="announcements-hero-content">
+            <p class="farm-kicker">Heaven’s Gates Cherry Farm</p>
+            <h1>Farm News Board</h1>
+            <p>
+                Harvest updates, U-pick news, store announcements, weather notices, events,
+                and everything fresh happening around the farm.
+            </p>
+
+            <div class="hero-actions">
+                <a href="#announcementBoard" class="farm-btn primary">View Updates</a>
+                <a href="{% url 'store' %}" class="farm-btn secondary">Visit Store</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="announcement-filter-wrap" id="announcementBoard">
+        <div class="filter-header">
+            <div>
+                <p class="farm-kicker">Search the Board</p>
+                <h2>Latest Announcements</h2>
+            </div>
+
+            <a href="{% url 'announcements' %}" class="clear-filter-link">Clear Filters</a>
+        </div>
+
+        <form class="announcement-filter-form" method="GET">
+            <div class="filter-field search-field">
+                <label for="announcementSearch">Search</label>
+                <input
+                    id="announcementSearch"
+                    type="text"
+                    name="q"
+                    value="{{ search_query }}"
+                    placeholder="Search by title, harvest, U-pick..."
+                    autocomplete="off">
+            </div>
+
+            <div class="filter-field">
+                <label for="announcementType">Type</label>
+                <select id="announcementType" name="type">
+                    <option value="">All Types</option>
+                    {% for value, label in announcement_types %}
+                        <option value="{{ value }}" {% if selected_type == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filter-field">
+                <label for="announcementMonth">Month</label>
+                <select id="announcementMonth" name="month">
+                    <option value="">Any Month</option>
+                    {% for month in months %}
+                        <option value="{{ month.number }}" {% if selected_month == month.number %}selected{% endif %}>
+                            {{ month.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filter-field">
+                <label for="announcementYear">Year</label>
+                <select id="announcementYear" name="year">
+                    <option value="">Any Year</option>
+                    {% for year in available_years %}
+                        <option value="{{ year }}" {% if selected_year|stringformat:"s" == year|stringformat:"s" %}selected{% endif %}>
+                            {{ year }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <button class="filter-submit" type="submit">Filter</button>
+        </form>
+    </section>
+
+    <main class="announcement-board">
+        {% if announcements %}
+            <div class="announcement-grid">
+                {% for announcement in announcements %}
+                    <article class="announcement-card" data-announcement-card>
+                        <a href="{% url 'announcement_detail' announcement.slug %}" class="announcement-image-wrap">
+                            {% if announcement.featured_image %}
+                                <img
+                                    src="{{ announcement.featured_image.url }}"
+                                    alt="{{ announcement.image_alt_text|default:announcement.title }}">
+                            {% else %}
+                                <img
+                                    src="{% static 'images/HGCF-logo.png' %}"
+                                    alt="{{ announcement.title }}">
+                            {% endif %}
+
+                            {% if announcement.is_pinned %}
+                                <span class="pin-badge">Pinned</span>
+                            {% endif %}
+
+                            <span class="type-badge {{ announcement.announcement_type }}">
+                                {{ announcement.get_announcement_type_display }}
+                            </span>
+                        </a>
+
+                        <div class="announcement-content">
+                            <div class="announcement-date-row">
+                                <span>{{ announcement.publish_date|date:"M j, Y" }}</span>
+                                <span>{{ announcement.publish_date|date:"g:i A" }}</span>
+                            </div>
+
+                            <h3>
+                                <a href="{% url 'announcement_detail' announcement.slug %}">
+                                    {{ announcement.title }}
+                                </a>
+                            </h3>
+
+                            <p>{{ announcement.summary }}</p>
+
+                            <div class="announcement-card-footer">
+                                <a href="{% url 'announcement_detail' announcement.slug %}" class="read-more-link">
+                                    Read More
+                                    <span>→</span>
+                                </a>
+
+                                <button
+                                    type="button"
+                                    class="share-button"
+                                    data-share-title="{{ announcement.title }}"
+                                    data-share-url="{{ request.scheme }}://{{ request.get_host }}{% url 'announcement_detail' announcement.slug %}">
+                                    Share
+                                </button>
+                            </div>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <section class="empty-announcements">
+                <div class="empty-icon">🌾</div>
+                <h2>No announcements found.</h2>
+                <p>
+                    Try clearing your filters or checking back soon. The farm board is quiet right now,
+                    which usually means somebody is outside working.
+                </p>
+                <a href="{% url 'announcements' %}" class="farm-btn primary">Clear Filters</a>
+            </section>
+        {% endif %}
+    </main>
+
+    <section class="announcement-cta">
+        <div>
+            <p class="farm-kicker">Stay Updated</p>
+            <h2>Want harvest and U-pick updates first?</h2>
+            <p>
+                Keep an eye on this page for fresh announcements, seasonal changes, and farm news.
+                When strawberries are ready, this board will know before half the family group chat does.
+            </p>
+        </div>
+
+        <a href="{% url 'our_story' %}#storySubscribeForm" class="farm-btn primary">
+            Subscribe for Updates
+        </a>
+    </section>
+
+    <div id="announcementToast" class="announcement-toast"></div>
+
+</div>
+{% endblock %}

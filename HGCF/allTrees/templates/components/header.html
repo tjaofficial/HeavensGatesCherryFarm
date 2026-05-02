@@ -36,16 +36,16 @@
                 </li>
 
                 <li class="wood-button-gap">
-                    <a class="wood-button" href="#">Our Story</a>
+                    <a class="wood-button" href="{% url 'our_story' %}">Our Story</a>
                 </li>
 
                 <li class="wood-button-gap">
                     <a class="wood-button" href="{% url 'announcements' %}">Announcements</a>
                 </li>
 
-                <li class="wood-button-gap">
+                {% comment %} <li class="wood-button-gap">
                     <a class="wood-button" href="#">What's Fresh</a>
-                </li>
+                </li> {% endcomment %}
 
                 <li class="wood-button-gap">
                     <a class="wood-button youtube-button" href="https://www.youtube.com/channel/UCEq7svzVL36E3hsai-jmF_g" target="_blank" rel="noopener">
@@ -55,7 +55,7 @@
                 </li>
 
                 <li class="wood-button-gap">
-                    <a class="wood-button" href="{% url 'store' %}">Shop</a>
+                    <a class="wood-button" href="{% url 'store' %}">Store</a>
                 </li>
 
                 <li class="wood-button-gap">

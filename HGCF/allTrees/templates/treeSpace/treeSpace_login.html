@@ -1,21 +1,90 @@
-{% extends "mainLayout.html" %}{% load static %}{% block list%}
+{% extends "mainLayout.html" %}
+{% load static %}
+
+{% block list %}
 <link href="{% static 'style/login.css' %}" rel="stylesheet" />
-<div id='mainCont'>
-    <form id='signup' name="login" action="" method="POST">
-        {% csrf_token %}
-        <div class='regHeader'>
-            <h2 class='treeSpace' style='margin:auto; text-align: center; font-size: 47px;'>Tree Space</h2>
+<script defer src="{% static 'script/login.js' %}"></script>
+
+<div class="treespace-login-page">
+
+    <section class="treespace-login-hero">
+        <div class="treespace-bg-glow one"></div>
+        <div class="treespace-bg-glow two"></div>
+
+        <div class="treespace-login-shell">
+            <form id="signup" class="treespace-login-card" name="login" action="" method="POST">
+                {% csrf_token %}
+
+                <div class="login-logo-wrap">
+                    <img src="{% static 'images/HGCF-logo.png' %}" alt="Heaven's Gates Cherry Farm Logo">
+                </div>
+
+                <div class="login-heading">
+                    <p>Welcome Back</p>
+                    <h2>Log in to TreeSpace</h2>
+                </div>
+
+                {% if login_error.error %}
+                    <div class="login__error">
+                        <span>⚠️</span>
+                        <p>{{ login_error.message }}</p>
+                    </div>
+                {% endif %}
+
+                <div class="login-field">
+                    <label for="username">Username</label>
+                    <div class="input-wrap">
+                        <span>👤</span>
+                        <input
+                            id="username"
+                            type="text"
+                            name="username"
+                            placeholder="Enter your username"
+                            autocomplete="username"
+                            required>
+                    </div>
+                </div>
+
+                <div class="login-field">
+                    <label for="password">Password</label>
+                    <div class="input-wrap">
+                        <span>🔒</span>
+                        <input
+                            id="password"
+                            type="password"
+                            name="password"
+                            placeholder="Enter your password"
+                            autocomplete="current-password"
+                            required>
+
+                        <button
+                            type="button"
+                            class="password-toggle"
+                            id="passwordToggle"
+                            aria-label="Show password">
+                            Show
+                        </button>
+                    </div>
+                </div>
+
+                <button id="submit" class="login-submit" type="submit">
+                    <span>Enter TreeSpace</span>
+                    <strong>→</strong>
+                </button>
+
+                <p class="login-note">
+                    Don’t have an account?
+                    <a href="#">Ask the farm admin for access</a>
+                </p>
+
+                <div class="login-security-note">
+                    <span>🛡️</span>
+                    <p>Private access for Heaven’s Gates Cherry Farm operations.</p>
+                </div>
+            </form>
+
         </div>
-        <div class='regBody'>
-        {% if login_error.error %}
-            <div class="login__error">{{ login_error.message }}</div>
-        {% endif %}
-            <input id="username" type="text" name="username" placeholder='Username'><br>
-            <input  id="password" type="password" name="password" placeholder='Password'><br>
-            
-            <input id="submit" type="submit" value="Login">
-        </div>
-        <p style='text-align:center;'>Don't have an account? <a href="#">Sign up</a></p>
-    </form>
+    </section>
+
 </div>
 {% endblock %}

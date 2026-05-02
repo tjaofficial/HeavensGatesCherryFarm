@@ -8,6 +8,8 @@ from decimal import Decimal
 from django.conf import settings # type: ignore
 from django.core.validators import MinValueValidator, MaxValueValidator # type: ignore
 from django.utils import timezone # type: ignore
+from django.urls import reverse
+from django.utils.text import slugify
 
 meal_type_choices = (
     ('dessert', 'Dessert'),
@@ -1352,5 +1354,121 @@ class StoreOrderItem(models.Model):
     def __str__(self):
         return f"{self.product_name} x {self.quantity}"
 
+class FarmNewsletterSubscriber(models.Model):
+    email = models.EmailField(unique=True)
+    name = models.CharField(max_length=120, blank=True, null=True)
+    source = models.CharField(max_length=80, default="our_story_page")
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = "Farm Newsletter Subscriber"
+        verbose_name_plural = "Farm Newsletter Subscribers"
 
+    def __str__(self):
+        return self.email
+
+class FarmAnnouncement(models.Model):
+    ANNOUNCEMENT_TYPE_CHOICES = (
+        ("general", "General Update"),
+        ("harvest", "Harvest Update"),
+        ("upick", "U-Pick Update"),
+        ("store", "Store Update"),
+        ("event", "Event"),
+        ("weather", "Weather Notice"),
+        ("closed", "Closure Notice"),
+        ("garden", "Garden Update"),
+        ("other", "Other"),
+    )
+
+    STATUS_CHOICES = (
+        ("draft", "Draft"),
+        ("published", "Published"),
+        ("archived", "Archived"),
+    )
+
+    title = models.CharField(max_length=180)
+    slug = models.SlugField(max_length=220, unique=True, blank=True)
+
+    announcement_type = models.CharField(
+        max_length=30,
+        choices=ANNOUNCEMENT_TYPE_CHOICES,
+        default="general"
+    )
+
+    summary = models.CharField(
+        max_length=280,
+        help_text="Short preview text shown on the announcements page."
+    )
+
+    body = models.TextField(
+        help_text="Full announcement/news post content."
+    )
+
+    featured_image = models.ImageField(
+        upload_to="announcement_images/",
+        null=True,
+        blank=True
+    )
+
+    image_alt_text = models.CharField(
+        max_length=180,
+        blank=True,
+        null=True
+    )
+
+    is_pinned = models.BooleanField(
+        default=False,
+        help_text="Pinned announcements appear before regular posts."
+    )
+
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default="draft"
+    )
+
+    publish_date = models.DateTimeField(
+        help_text="Date/time this announcement should appear as published."
+    )
+
+    meta_title = models.CharField(
+        max_length=160,
+        blank=True,
+        null=True
+    )
+
+    meta_description = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-is_pinned", "-publish_date"]
+        verbose_name = "Farm Announcement"
+        verbose_name_plural = "Farm Announcements"
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            base_slug = slugify(self.title)
+            slug = base_slug
+            counter = 1
+
+            while FarmAnnouncement.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+
+            self.slug = slug
+
+        super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse("announcement_detail", kwargs={"slug": self.slug})
+
+    def __str__(self):
+        return self.title

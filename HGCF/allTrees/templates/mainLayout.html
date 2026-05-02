@@ -19,13 +19,23 @@
         <meta property="og:description" content="{{ og_description|default:"Heaven's Gates Cherry Farm is a family-owned cherry and strawberry farm in Hale, Michigan offering fresh fruit, seasonal produce, U-pick experiences, and local farm products." }}">
         <meta property="og:url" content="{{ og_url|default:request.build_absolute_uri }}">
         <meta property="og:site_name" content="Heaven's Gates Cherry Farm">
-        <meta property="og:image" content="{{ og_image|default:request.scheme }}://{{ request.get_host }}{% static 'images/HGCF-logo.png' %}">
+        {% if og_image %}
+            <meta property="og:image" content="{{ og_image }}">
+        {% else %}
+            <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'images/HGCF-logo.png' %}">
+        {% endif %}
         <meta property="og:image:alt" content="{{ og_image_alt|default:"Heaven's Gates Cherry Farm logo" }}">
 
         <meta name="twitter:card" content="summary_large_image">
         <meta name="twitter:title" content="{{ twitter_title|default:"Heaven's Gates Cherry Farm | Hale, Michigan Fruit Farm" }}">
         <meta name="twitter:description" content="{{ twitter_description|default:"Heaven's Gates Cherry Farm is a family-owned cherry and strawberry farm in Hale, Michigan offering fresh fruit, seasonal produce, U-pick experiences, and local farm products." }}">
-        <meta name="twitter:image" content="{{ twitter_image|default:request.scheme }}://{{ request.get_host }}{% static 'images/HGCF-logo.png' %}">
+        {% if twitter_image %}
+            <meta name="twitter:image" content="{{ twitter_image }}">
+        {% elif og_image %}
+            <meta name="twitter:image" content="{{ og_image }}">
+        {% else %}
+            <meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'images/HGCF-logo.png' %}">
+        {% endif %}
 
         <meta name="theme-color" content="#7a1022">
 
@@ -35,22 +45,22 @@
         <script defer src="{% static 'script/header.js' %}"></script>
 
         {% block structured_data %}
-        <script type="application/ld+json">
-        {
-            "@context": "https://schema.org",
-            "@type": "Farm",
-            "name": "Heaven's Gates Cherry Farm",
-            "url": "{{ request.scheme }}://{{ request.get_host }}",
-            "image": "{{ request.scheme }}://{{ request.get_host }}{% static 'images/HGCF-logo.png' %}",
-            "description": "Family-owned cherry and strawberry farm in Hale, Michigan offering fresh fruit, seasonal produce, and farm experiences.",
-            "address": {
-                "@type": "PostalAddress",
-                "addressLocality": "Hale",
-                "addressRegion": "MI",
-                "addressCountry": "US"
-            }
-        }
-        </script>
+            <script type="application/ld+json">
+                {
+                    "@context": "https://schema.org",
+                    "@type": "Farm",
+                    "name": "Heaven's Gates Cherry Farm",
+                    "url": "{{ request.scheme }}://{{ request.get_host }}",
+                    "image": "{{ request.scheme }}://{{ request.get_host }}{% static 'images/HGCF-logo.png' %}",
+                    "description": "Family-owned cherry and strawberry farm in Hale, Michigan offering fresh fruit, seasonal produce, and farm experiences.",
+                    "address": {
+                        "@type": "PostalAddress",
+                        "addressLocality": "Hale",
+                        "addressRegion": "MI",
+                        "addressCountry": "US"
+                    }
+                }
+            </script>
         {% endblock %}
 
         {% block extra_head %}{% endblock %}
@@ -66,8 +76,76 @@
         </main>
     </body>
     {% if not noFooter %}
-        <footer>
-            <p>&copy; 2023 Heaven's Gates Cherry Farm</p>
+        <footer class="site-footer">
+            <div class="footer-top">
+                <div class="footer-brand">
+                    <div class="footer-logo-wrap">
+                        {% load static %}
+                        <img src="{% static 'images/HGCF-logo.png' %}" alt="Heaven's Gates Cherry Farm Logo">
+                    </div>
+
+                    <div>
+                        <h2>Heaven’s Gates Cherry Farm</h2>
+                        <p>
+                            A family-owned farm in Hale, Michigan offering fresh seasonal fruit,
+                            U-pick experiences, farm goods, and a little taste of home.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="footer-column">
+                    <h3>Explore</h3>
+                    <a href="{% url 'home' %}">Home</a>
+                    <a href="{% url 'our_story' %}">Our Story</a>
+                    <a href="{% url 'announcements' %}">Announcements</a>
+                    <a href="{% url 'store' %}">Store</a>
+                    <a href="{% url 'upick_landing' %}">U-Pick</a>
+                </div>
+
+                <div class="footer-column">
+                    <h3>Visit Us</h3>
+
+                    <p class="footer-info">
+                        <strong>Address:</strong><br>
+                        5675 Shellenbarger Rd<br>
+                        Hale, MI 48739
+                    </p>
+
+                    <p class="footer-info">
+                        <strong>Phone:</strong><br>
+                        <a href="tel:18103390427">(810) 339-0427</a>
+                    </p>
+                </div>
+
+                <div class="footer-column">
+                    <h3>Hours</h3>
+
+                    <div class="footer-hours">
+                        <div><span>Friday</span><strong>10AM–6PM</strong></div>
+                        <div><span>Saturday</span><strong>10AM–6PM</strong></div>
+                        <div><span>Sunday</span><strong>10AM–6PM</strong></div>
+                        <div><span>Mon–Thu</span><strong>Closed</strong></div>
+                        Pre-Season Hours
+                    </div>
+
+                    <div class="footer-socials">
+                        <a href="https://www.facebook.com/HeavensGatesCherryFarm" target="_blank" rel="noopener" aria-label="Facebook">Facebook</a>
+                        <a href="https://www.instagram.com/larryackerman/" target="_blank" rel="noopener" aria-label="Instagram">Instagram</a>
+                        <a href="https://www.youtube.com/@HeavensGatesCherryFarm" target="_blank" rel="noopener" aria-label="YouTube">YouTube</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; {% now "Y" %} Heaven’s Gates Cherry Farm. All rights reserved.</p>
+
+                <p>
+                    Website by
+                    <a href="https://www.instagram.com/voxoluniverse/" target="_blank" rel="noopener">
+                        Voxol Universe
+                    </a>
+                </p>
+            </div>
         </footer>
     {% endif %}
 </html>

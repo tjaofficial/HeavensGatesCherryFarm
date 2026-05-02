@@ -378,6 +378,39 @@ class StoreOrderAdmin(admin.ModelAdmin):
 
     inlines = [StoreOrderItemInline]
 
+@admin.register(FarmNewsletterSubscriber)
+class FarmNewsletterSubscriberAdmin(admin.ModelAdmin):
+    list_display = ("email", "name", "source", "is_active", "created_at")
+    list_filter = ("is_active", "source", "created_at")
+    search_fields = ("email", "name")
+    ordering = ("-created_at",)
 
-
+@admin.register(FarmAnnouncement)
+class FarmAnnouncementAdmin(admin.ModelAdmin):
+    list_display = (
+        "title",
+        "announcement_type",
+        "status",
+        "is_pinned",
+        "publish_date",
+        "created_at",
+    )
+    list_filter = (
+        "status",
+        "announcement_type",
+        "is_pinned",
+        "publish_date",
+    )
+    search_fields = (
+        "title",
+        "summary",
+        "body",
+    )
+    prepopulated_fields = {
+        "slug": ("title",)
+    }
+    ordering = (
+        "-is_pinned",
+        "-publish_date",
+    )
 

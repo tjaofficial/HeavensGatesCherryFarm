@@ -3,7 +3,7 @@ from ..models import mainStore_products, cart_items
 from ..forms import mainStore_products_form, ProductVariantFormSet
 from django.http import JsonResponse #type: ignore
 import json
-import stripe
+import stripe #type: ignore
 from django.conf import settings
 from django.db.models import Q #type: ignore
 from decimal import Decimal, ROUND_HALF_UP
@@ -183,6 +183,22 @@ def store_view(request):
         "sideBar": sideBar,
         "allProducts": allProducts,
         "cart_count": cart_count,
+        "seo_title": "Farm Store | Heaven's Gates Cherry Farm",
+        "seo_description": "Shop fresh organic seasonal produce, Earliglow strawberries, farm goods, merch, and local products from Heaven's Gates Cherry Farm in Hale, Michigan.",
+        "seo_keywords": "Heaven's Gates Cherry Farm store, Michigan farm store, Hale Michigan produce, fresh organic strawberries, Organic Earliglow strawberries, farm goods, local produce, farm merch",
+        "seo_robots": "index, follow",
+        "seo_canonical": request.build_absolute_uri(),
+
+        "og_type": "website",
+        "og_title": "Shop Heaven's Gates Cherry Farm",
+        "og_description": "Browse fresh organic seasonal produce, Earliglow strawberries, farm goods, and merch from Heaven's Gates Cherry Farm in Hale, Michigan.",
+        "og_url": request.build_absolute_uri(),
+        "og_image": request.build_absolute_uri("/static/images/strawberries.jpg"),
+        "og_image_alt": "Heaven's Gates Cherry Farm farm store",
+
+        "twitter_title": "Shop Heaven's Gates Cherry Farm",
+        "twitter_description": "Browse fresh organic seasonal produce, Earliglow strawberries, farm goods, and merch from Heaven's Gates Cherry Farm in Hale, Michigan.",
+        "twitter_image": request.build_absolute_uri("/static/images/strawberries.jpg"),
     })
 
 @require_http_methods(["GET", "POST"])

@@ -1,0 +1,98 @@
+{% extends "mainLayout.html" %}
+{% load static %}
+
+{% block list %}
+<link href="{% static 'style/announcements.css' %}" rel="stylesheet">
+<script defer src="{% static 'script/announcements.js' %}"></script>
+
+<div class="announcement-detail-page">
+
+    <section class="announcement-detail-hero">
+        <div class="detail-hero-image">
+            {% if announcement.featured_image %}
+                <img
+                    src="{{ announcement.featured_image.url }}"
+                    alt="{{ announcement.image_alt_text|default:announcement.title }}">
+            {% else %}
+                <img
+                    src="{% static 'images/HGCF-logo.png' %}"
+                    alt="{{ announcement.title }}">
+            {% endif %}
+        </div>
+
+        <div class="detail-hero-content">
+            <a href="{% url 'announcements' %}" class="back-link">← Back to Announcements</a>
+
+            <div class="detail-badges">
+                {% if announcement.is_pinned %}
+                    <span class="pin-badge detail">Pinned</span>
+                {% endif %}
+
+                <span class="type-badge {{ announcement.announcement_type }}">
+                    {{ announcement.get_announcement_type_display }}
+                </span>
+            </div>
+
+            <h1>{{ announcement.title }}</h1>
+
+            <p class="detail-summary">{{ announcement.summary }}</p>
+
+            <div class="detail-meta">
+                <span>Published {{ announcement.publish_date|date:"F j, Y" }}</span>
+                <span>{{ announcement.publish_date|date:"g:i A" }}</span>
+            </div>
+
+            <button
+                type="button"
+                class="share-button detail-share"
+                data-share-title="{{ announcement.title }}"
+                data-share-url="{{ request.build_absolute_uri }}">
+                Share This Update
+            </button>
+        </div>
+    </section>
+
+    <main class="announcement-detail-main">
+        <article class="announcement-body-card">
+            {{ announcement.body|linebreaks }}
+        </article>
+
+        <aside class="recent-announcements-panel">
+            <h2>More Farm Updates</h2>
+
+            {% if recent_announcements %}
+                <div class="recent-list">
+                    {% for recent in recent_announcements %}
+                        <a href="{% url 'announcement_detail' recent.slug %}" class="recent-item">
+                            <span>{{ recent.publish_date|date:"M j, Y" }}</span>
+                            <strong>{{ recent.title }}</strong>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>No other announcements yet.</p>
+            {% endif %}
+
+            <a href="{% url 'announcements' %}" class="farm-btn secondary full">View All Announcements</a>
+        </aside>
+    </main>
+
+    <section class="announcement-cta detail-bottom">
+        <div>
+            <p class="farm-kicker">Visit the Farm</p>
+            <h2>Come see what’s fresh at Heaven’s Gates.</h2>
+            <p>
+                Check the store, U-pick updates, and latest announcements before heading out.
+            </p>
+        </div>
+
+        <div class="detail-cta-actions">
+            <a href="{% url 'store' %}" class="farm-btn primary">Visit Store</a>
+            <a href="{% url 'announcements' %}" class="farm-btn secondary">Farm News Board</a>
+        </div>
+    </section>
+
+    <div id="announcementToast" class="announcement-toast"></div>
+
+</div>
+{% endblock %}

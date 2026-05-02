@@ -34,6 +34,22 @@ def upick_landing_view(request):
         "noFooter": noFooter,
         "sideBar": sideBar,
         "events": events,
+        "seo_title": "U-Pick Organic Strawberries & Fruit | Heaven's Gates Cherry Farm",
+        "seo_description": "Plan your U-Pick visit to Heaven's Gates Cherry Farm in Hale, Michigan. Pick fresh organic seasonal strawberries and fruit, check availability, and enjoy a family-friendly farm experience.",
+        "seo_keywords": "U-pick organic strawberries Michigan, U-pick organic fruit Hale Michigan, Heaven's Gates Cherry Farm U-pick organic, Michigan organic strawberry picking, Hale Michigan organic farm, family farm experience, fresh fruit picking, northern Michigan U-pick",
+        "seo_robots": "index, follow",
+        "seo_canonical": request.build_absolute_uri(),
+
+        "og_type": "website",
+        "og_title": "U-Pick at Heaven's Gates Cherry Farm",
+        "og_description": "Visit Heaven's Gates Cherry Farm in Hale, Michigan for a seasonal U-Pick experience with fresh organic strawberries, fruit, and family-friendly farm fun.",
+        "og_url": request.build_absolute_uri(),
+        "og_image": request.build_absolute_uri("/static/images/strawberries.jpg"),
+        "og_image_alt": "Fresh organic strawberries available for U-Pick at Heaven's Gates Cherry Farm",
+
+        "twitter_title": "U-Pick at Heaven's Gates Cherry Farm",
+        "twitter_description": "Plan your U-Pick visit to Heaven's Gates Cherry Farm in Hale, Michigan for fresh seasonal organic strawberries and fruit.",
+        "twitter_image": request.build_absolute_uri("/static/images/strawberries.jpg"),
     })
 
 def upick_day_view(request, event_id):

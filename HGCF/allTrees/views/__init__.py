@@ -12,3 +12,5 @@ from .irrigation_core import *
 from .views_pos import *
 from .upick_view import *
 from .upick_dashboard_view import *
+from .our_story_view import *
+from .announcements_view import *
