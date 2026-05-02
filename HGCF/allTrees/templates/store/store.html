@@ -46,12 +46,18 @@
         {% if allProducts %}
             <div class="product-grid">
                 {% for product in allProducts %}
-                    <article class="product-card" data-product-name="{{ product.product_name|lower }}" data-product-id="{{ product.id }}">
+                    <article class="product-card" data-product-name="{{ product.product_name|lower }}"  data-product-id="{{ product.id }}">
                         <div class="product-image-wrap">
                             {% if product.mainImage %}
-                                <img src="{{ product.mainImage.url }}" alt="{{ product.product_name }}">
+                                <img src="{{ product.mainImage.url }}" alt="{{ product.alt_text|default:product.product_name }}">
                             {% else %}
-                                <img src="{% static 'images/default-product.png' %}" alt="{{ product.product_name }}">
+                                <img src="{% static 'images/default-product.jpg' %}" alt="{{ product.product_name }}">
+                            {% endif %}
+
+                            {% if product.ribbon %}
+                                <span class="product-ribbon">{{ product.ribbon }}</span>
+                            {% elif product.is_seasonal %}
+                                <span class="product-ribbon seasonal">Seasonal</span>
                             {% endif %}
 
                             <button 
@@ -64,25 +70,109 @@
                         </div>
 
                         <div class="product-info">
-                            <h3>{{ product.product_name }}</h3>
+                            <div class="product-title-row">
+                                <h3>{{ product.product_name }}</h3>
 
-                            <p class="product-description-preview">
-                                {{ product.description|truncatechars:90 }}
-                            </p>
+                                <span class="stock-badge {{ product.inventory_status }}">
+                                    {{ product.get_inventory_status_display }}
+                                </span>
+                            </div>
+
+                            {% if product.short_description %}
+                                <p class="product-description-preview">
+                                    {{ product.short_description }}
+                                </p>
+                            {% else %}
+                                <p class="product-description-preview">
+                                    {{ product.description|truncatechars:90 }}
+                                </p>
+                            {% endif %}
+
+                            <div class="product-meta-grid">
+                                {% if product.sku %}
+                                    <div class="product-meta-item">
+                                        <span>SKU</span>
+                                        <strong>{{ product.sku }}</strong>
+                                    </div>
+                                {% endif %}
+
+                                {% if product.track_inventory and product.inventory_total %}
+                                    <div class="product-meta-item">
+                                        <span>Stock</span>
+                                        <strong>{{ product.inventory_total|floatformat:"-2" }} {{ product.get_unit_display_label }}</strong>
+                                    </div>
+                                {% endif %}
+
+                                {% if product.harvest_date %}
+                                    <div class="product-meta-item">
+                                        <span>Harvest</span>
+                                        <strong>{{ product.harvest_date|date:"M j, Y" }}</strong>
+                                    </div>
+                                {% endif %}
+
+                                {% if product.season_start and product.season_end %}
+                                    <div class="product-meta-item full">
+                                        <span>Season</span>
+                                        <strong>{{ product.season_start|date:"M j" }} – {{ product.season_end|date:"M j, Y" }}</strong>
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            {% if product.pre_order and product.pre_order_message %}
+                                <p class="preorder-message">{{ product.pre_order_message }}</p>
+                            {% endif %}
 
                             <div class="product-footer">
                                 <span class="product-price">
                                     ${{ product.get_active_price }}
                                     <small>{{ product.get_unit_display_label }}</small>
                                 </span>
-                                
-                                <button 
-                                    class="add-cart-mini" 
-                                    type="button"
-                                    onclick="addToCart('{{ product.id }}')"
-                                >
-                                    Add
-                                </button>
+
+                                <div class="product-cart-controls">
+                                    <div class="qty-control">
+                                        <button 
+                                            type="button" 
+                                            onclick="changeProductQty('card', '{{ product.id }}', -1)"
+                                        >
+                                            −
+                                        </button>
+
+                                        <input 
+                                            type="number" 
+                                            id="qty-card-{{ product.id }}"
+                                            value="1"
+                                            min="1"
+                                            {% if product.limit_per_order and product.limit_number %}
+                                                max="{{ product.limit_number }}"
+                                            {% endif %}
+                                        >
+
+                                        <button 
+                                            type="button" 
+                                            onclick="changeProductQty('card', '{{ product.id }}', 1)"
+                                        >
+                                            +
+                                        </button>
+                                    </div>
+
+                                    {% if product.has_variants %}
+                                        <button 
+                                            class="add-cart-mini" 
+                                            type="button"
+                                            onclick="openQuickView('{{ product.id }}')"
+                                        >
+                                            Choose
+                                        </button>
+                                    {% else %}
+                                        <button 
+                                            class="add-cart-mini" 
+                                            type="button"
+                                            onclick="addToCart('{{ product.id }}', 'card')"
+                                        >
+                                            Add
+                                        </button>
+                                    {% endif %}
+                                </div>
                             </div>
                         </div>
                     </article>
@@ -105,14 +195,84 @@
 
                             <div class="quick-view-details">
                                 <p class="quick-label">Heaven’s Gates Cherry Farm</p>
-                                <h2>{{ product.product_name }}</h2>
-                                <p class="quick-price">${{ product.price }}</p>
+
+                                <div class="quick-title-row">
+                                    <h2>{{ product.product_name }}</h2>
+
+                                    <span class="stock-badge {{ product.inventory_status }}">
+                                        {{ product.get_inventory_status_display }}
+                                    </span>
+                                </div>
+
+                                <p class="quick-price">
+                                    ${{ product.get_active_price }}
+                                    <small>{{ product.get_unit_display_label }}</small>
+                                </p>
+
+                                {% if product.short_description %}
+                                    <p class="quick-short-description">{{ product.short_description }}</p>
+                                {% endif %}
+
                                 <p class="quick-description">{{ product.description }}</p>
+
+                                <div class="quick-meta-panel">
+                                    {% if product.sku %}
+                                        <div>
+                                            <span>SKU</span>
+                                            <strong>{{ product.sku }}</strong>
+                                        </div>
+                                    {% endif %}
+
+                                    <div>
+                                        <span>Product Type</span>
+                                        <strong>{{ product.get_product_type_display }}</strong>
+                                    </div>
+
+                                    <div>
+                                        <span>Fulfillment</span>
+                                        <strong>{{ product.get_fulfillment_type_display }}</strong>
+                                    </div>
+
+                                    {% if product.track_inventory and product.inventory_total %}
+                                        <div>
+                                            <span>Available Stock</span>
+                                            <strong>{{ product.inventory_total|floatformat:"-2" }} {{ product.get_unit_display_label }}</strong>
+                                        </div>
+                                    {% endif %}
+
+                                    {% if product.harvest_date %}
+                                        <div>
+                                            <span>Harvest Date</span>
+                                            <strong>{{ product.harvest_date|date:"M j, Y" }}</strong>
+                                        </div>
+                                    {% endif %}
+
+                                    {% if product.season_start and product.season_end %}
+                                        <div>
+                                            <span>Season Window</span>
+                                            <strong>{{ product.season_start|date:"M j" }} – {{ product.season_end|date:"M j, Y" }}</strong>
+                                        </div>
+                                    {% endif %}
+
+                                    {% if product.limit_per_order and product.limit_number %}
+                                        <div>
+                                            <span>Limit Per Order</span>
+                                            <strong>{{ product.limit_number }}</strong>
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                {% if product.pre_order and product.pre_order_message %}
+                                    <div class="quick-alert">
+                                        {{ product.pre_order_message }}
+                                    </div>
+                                {% endif %}
 
                                 <form class="cart-form">
                                     {% csrf_token %}
                                     <input type="hidden" name="product_id" value="{{ product.id }}">
                                 </form>
+
                                 {% if product.has_variants %}
                                     <label class="variant-label" for="variant-{{ product.id }}">Choose Option</label>
                                     <select class="variant-select" id="variant-{{ product.id }}">
@@ -124,7 +284,40 @@
                                         {% endfor %}
                                     </select>
                                 {% endif %}
-                                <button class="store-btn primary full" type="button" onclick="addToCart('{{ product.id }}')">
+
+                                <label class="variant-label">Quantity</label>
+
+                                <div class="qty-control modal-qty">
+                                    <button 
+                                        type="button" 
+                                        onclick="changeProductQty('modal', '{{ product.id }}', -1)"
+                                    >
+                                        −
+                                    </button>
+
+                                    <input 
+                                        type="number" 
+                                        id="qty-modal-{{ product.id }}"
+                                        value="1"
+                                        min="1"
+                                        {% if product.limit_per_order and product.limit_number %}
+                                            max="{{ product.limit_number }}"
+                                        {% endif %}
+                                    >
+
+                                    <button 
+                                        type="button" 
+                                        onclick="changeProductQty('modal', '{{ product.id }}', 1)"
+                                    >
+                                        +
+                                    </button>
+                                </div>
+
+                                <button 
+                                    class="store-btn primary full" 
+                                    type="button" 
+                                    onclick="addToCart('{{ product.id }}', 'modal')"
+                                >
                                     Add to Cart
                                 </button>
                             </div>

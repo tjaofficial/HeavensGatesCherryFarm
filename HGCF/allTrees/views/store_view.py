@@ -79,6 +79,15 @@ def store_view(request):
 
         product_id = json_data.get("product_id")
         variant_id = json_data.get("variant_id")
+        quantity = json_data.get("quantity", 1)
+
+        try:
+            quantity = int(quantity)
+        except (TypeError, ValueError):
+            quantity = 1
+
+        if quantity < 1:
+            quantity = 1
 
         if not product_id:
             return JsonResponse({
@@ -139,11 +148,11 @@ def store_view(request):
             product=product,
             variant=variant,
             **cart_owner,
-            defaults={"quantity": 1}
+            defaults={"quantity": quantity}
         )
 
         if not item_created:
-            cart_item.quantity += 1
+            cart_item.quantity += quantity
             cart_item.save(update_fields=["quantity"])
 
         cart_count = get_cart_count(request)
@@ -155,7 +164,7 @@ def store_view(request):
 
         return JsonResponse({
             "success": True,
-            "message": f"{item_name} added to your cart.",
+            "message": f"{quantity} × {item_name} added to your cart.",
             "cartCount": cart_count,
             "productId": product.id,
             "variantId": variant.id if variant else None
