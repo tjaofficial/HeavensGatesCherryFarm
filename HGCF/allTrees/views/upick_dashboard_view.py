@@ -79,7 +79,7 @@ def treespace_upick_dashboard_view(request):
 
         spots_remaining = max(total_capacity - total_reserved, 0)
 
-    return render(request, "treespace/upick_dashboard.html", {
+    return render(request, "treeSpace/upick_dashboard.html", {
         "smallHeader": smallHeader,
         "noFooter": noFooter,
         "sideBar": sideBar,
