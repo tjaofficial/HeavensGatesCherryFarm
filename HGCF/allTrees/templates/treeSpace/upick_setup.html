@@ -1,0 +1,122 @@
+{% extends "mainLayout.html" %}
+{% load static %}
+
+{% block list %}
+<link href="{% static 'style/upick.css' %}" rel="stylesheet" />
+<div class="treespace-page">
+    <div class="treespace-card">
+        <h1>Set Up U-Pick Day</h1>
+        <p>Create a day customers can reserve strawberry picking times.</p>
+
+        {% if messages %}
+            <div class="message-list">
+                {% for message in messages %}
+                    <div class="message {{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <form method="POST" class="upick-setup-form">
+            {% csrf_token %}
+
+            <label>Title</label>
+            <input 
+                type="text" 
+                name="title" 
+                placeholder="Example: Saturday Strawberry U-Pick"
+                required
+            >
+
+            <label>Date</label>
+            <input 
+                type="date" 
+                name="date" 
+                required
+            >
+
+            <label>Description</label>
+            <textarea 
+                name="description" 
+                placeholder="Example: Fresh strawberries available while supplies last."
+            ></textarea>
+
+            <label>Total Daily Capacity</label>
+            <input 
+                type="number" 
+                name="total_capacity" 
+                value="100"
+                min="0"
+            >
+
+            <hr>
+
+            <h2>Auto-Create Time Slots</h2>
+
+            <label>Start Time</label>
+            <input 
+                type="time" 
+                name="start_time" 
+                value="09:00"
+            >
+
+            <label>End Time</label>
+            <input 
+                type="time" 
+                name="end_time" 
+                value="15:00"
+            >
+
+            <label>Slot Length</label>
+            <select name="slot_length_minutes">
+                <option value="30">30 minutes</option>
+                <option value="60">1 hour</option>
+                <option value="90">1.5 hours</option>
+                <option value="120">2 hours</option>
+            </select>
+
+            <label>Capacity Per Slot</label>
+            <input 
+                type="number" 
+                name="slot_capacity" 
+                value="10"
+                min="1"
+            >
+
+            <button type="submit" class="primary-btn">
+                Create U-Pick Day
+            </button>
+        </form>
+    </div>
+
+    <div class="treespace-card">
+        <h2>Existing U-Pick Days</h2>
+
+        {% if events %}
+            <div class="upick-event-list">
+                {% for event in events %}
+                    <div class="upick-event-row">
+                        <div>
+                            <strong>{{ event.title }}</strong>
+                            <br>
+                            <span>{{ event.date }}</span>
+                        </div>
+
+                        <div>
+                            {% if event.is_active %}
+                                <span class="status active">Active</span>
+                            {% else %}
+                                <span class="status inactive">Inactive</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>No U-Pick days created yet.</p>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

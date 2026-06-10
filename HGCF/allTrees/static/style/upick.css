@@ -355,3 +355,296 @@
         padding-inline: 0.85rem;
     }
 }
+
+
+
+
+/* ================================
+   Dad-Friendly U-Pick Setup Page
+================================ */
+
+.treespace-page {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 45px 20px 80px;
+}
+
+/* Big readable white cards */
+.treespace-card {
+    background: #fffaf3;
+    border: 3px solid #dba37d;
+    border-radius: 24px;
+    padding: 36px;
+    margin-bottom: 30px;
+    box-shadow: 0 14px 35px rgba(0, 0, 0, 0.22);
+}
+
+/* Headings */
+.treespace-card h1 {
+    margin: 0 0 18px;
+    font-size: 42px;
+    line-height: 1.1;
+    color: #4f2307;
+    font-weight: 900;
+}
+
+.treespace-card h2 {
+    margin: 30px 0 18px;
+    font-size: 28px;
+    color: #7b380b;
+    border-bottom: 3px solid #dba37d;
+    padding-bottom: 8px;
+}
+
+.treespace-card p {
+    font-size: 20px;
+    line-height: 1.5;
+    color: #2d1b12;
+    margin-bottom: 28px;
+}
+
+/* Make form simple: one field per row */
+.upick-setup-form {
+    display: block;
+}
+
+/* Labels */
+.upick-setup-form label {
+    display: block;
+    margin: 22px 0 8px;
+    font-size: 20px;
+    font-weight: 800;
+    color: #2d1b12;
+}
+
+/* Inputs */
+.upick-setup-form input,
+.upick-setup-form textarea,
+.upick-setup-form select {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+
+    background: #ffffff;
+    border: 3px solid #b98a65;
+    border-radius: 14px;
+
+    padding: 16px 18px;
+    font-size: 20px;
+    color: #1f140f;
+
+    outline: none;
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.06);
+}
+
+/* Placeholder text */
+.upick-setup-form input::placeholder,
+.upick-setup-form textarea::placeholder {
+    color: #6f625b;
+}
+
+/* Bigger text areas */
+.upick-setup-form textarea {
+    min-height: 130px;
+    resize: vertical;
+    line-height: 1.45;
+}
+
+.upick-setup-form textarea[name="rules_text"] {
+    min-height: 220px;
+}
+
+/* Focus state: obvious */
+.upick-setup-form input:focus,
+.upick-setup-form textarea:focus,
+.upick-setup-form select:focus {
+    border-color: #ca5d63;
+    background: #fff;
+    box-shadow: 0 0 0 5px rgba(202, 93, 99, 0.22);
+}
+
+/* Section dividers */
+.upick-setup-form hr {
+    border: none;
+    border-top: 4px solid #dba37d;
+    margin: 34px 0 20px;
+}
+
+/* Checkbox area */
+.checkbox-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 24px;
+}
+
+.checkbox-row label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    background: #ffffff;
+    border: 3px solid #b98a65;
+    border-radius: 16px;
+
+    padding: 16px 20px;
+    margin: 0;
+
+    font-size: 20px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.checkbox-row input {
+    width: 24px;
+    height: 24px;
+    margin: 0;
+    accent-color: #7b380b;
+}
+
+/* Main button */
+.primary-btn {
+    display: block;
+    width: 100%;
+
+    margin-top: 32px;
+    padding: 20px 24px;
+
+    border: none;
+    border-radius: 18px;
+
+    background: #7b380b;
+    color: #ffffff;
+
+    font-size: 24px;
+    font-weight: 900;
+    cursor: pointer;
+
+    box-shadow: 0 8px 0 #4f2307;
+}
+
+.primary-btn:hover {
+    background: #5f2b08;
+}
+
+.primary-btn:active {
+    transform: translateY(4px);
+    box-shadow: 0 4px 0 #4f2307;
+}
+
+/* Messages */
+.message-list {
+    margin-bottom: 26px;
+}
+
+.message {
+    padding: 18px 20px;
+    border-radius: 14px;
+    margin-bottom: 14px;
+    font-size: 19px;
+    font-weight: 800;
+}
+
+.message.success {
+    background: #e8f8e6;
+    color: #1f6b2d;
+    border: 3px solid #66a763;
+}
+
+.message.error {
+    background: #ffe7e7;
+    color: #8a1f1f;
+    border: 3px solid #ca5d63;
+}
+
+/* Existing U-Pick Days */
+.upick-event-list {
+    display: grid;
+    gap: 18px;
+}
+
+.upick-event-row {
+    background: #ffffff;
+    border: 3px solid #dba37d;
+    border-radius: 18px;
+    padding: 20px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.upick-event-row strong {
+    display: block;
+    font-size: 22px;
+    color: #4f2307;
+    margin-bottom: 6px;
+}
+
+.upick-event-row span,
+.upick-event-row small {
+    font-size: 17px;
+    color: #3d2b22;
+}
+
+/* Status badges */
+.status {
+    display: inline-block;
+    padding: 9px 14px;
+    border-radius: 999px;
+    margin: 4px;
+    font-size: 14px;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.status.active {
+    background: #dff5dc;
+    color: #1f6b2d;
+    border: 2px solid #66a763;
+}
+
+.status.inactive {
+    background: #eeeeee;
+    color: #555;
+    border: 2px solid #aaa;
+}
+
+/* Mobile/tablet friendly */
+@media (max-width: 700px) {
+    .treespace-page {
+        padding: 24px 12px 60px;
+    }
+
+    .treespace-card {
+        padding: 24px 18px;
+        border-radius: 20px;
+    }
+
+    .treespace-card h1 {
+        font-size: 32px;
+    }
+
+    .treespace-card h2 {
+        font-size: 24px;
+    }
+
+    .treespace-card p,
+    .upick-setup-form label,
+    .upick-setup-form input,
+    .upick-setup-form textarea,
+    .upick-setup-form select {
+        font-size: 18px;
+    }
+
+    .primary-btn {
+        font-size: 21px;
+    }
+
+    .upick-event-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

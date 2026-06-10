@@ -61,6 +61,7 @@ urlpatterns = [
     path("upick/success/<int:reservation_id>/", views.upick_success_view, name="upick_success"),
     path("treespace/upick/", views.treespace_upick_dashboard_view, name="treespace_upick_dashboard"),
     path("treespace/upick/reservation/status/", views.treespace_upick_update_reservation_status, name="treespace_upick_update_reservation_status"),
+    path("treespace/upick/setup/", views.treespace_upick_setup_view, name="treespace_upick_setup"),
 
     # ---- POS ----------
     path("pos/", views.pos_terminal_page, name="pos_terminal_page"),

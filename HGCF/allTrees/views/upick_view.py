@@ -1,8 +1,10 @@
-from datetime import date
+from datetime import date, datetime, timedelta
 from django.shortcuts import render, redirect, get_object_or_404 #type: ignore
 from django.db.models import Prefetch #type: ignore
 from django.contrib import messages #type: ignore
 from django.views.decorators.http import require_http_methods #type: ignore
+from django.contrib.auth.decorators import login_required
+
 
 from ..models import UPickEvent, UPickTimeSlot, UPickReservation
 from ..forms import UPickReservationForm
@@ -171,4 +173,89 @@ def upick_success_view(request, reservation_id):
         "noFooter": noFooter,
         "sideBar": sideBar,
         "reservation": reservation,
+    })
+
+@login_required
+def treespace_upick_setup_view(request):
+    smallHeader = True
+    noFooter = True
+    sideBar = True
+
+    events = (
+        UPickEvent.objects
+        .prefetch_related("time_slots")
+        .all()
+        .order_by("-date", "title")
+    )
+
+    if request.method == "POST":
+        crop_name = request.POST.get("crop_name", "Strawberries").strip()
+        title = request.POST.get("title", "U-Pick Strawberries").strip()
+        description = request.POST.get("description", "").strip()
+        date = request.POST.get("date")
+
+        weather_note = request.POST.get("weather_note", "").strip()
+        field_note = request.POST.get("field_note", "").strip()
+        rules_text = request.POST.get("rules_text", "").strip()
+
+        default_slot_capacity = int(request.POST.get("default_slot_capacity") or 10)
+        default_slot_minutes = int(request.POST.get("default_slot_minutes") or 60)
+        grace_period_minutes = int(request.POST.get("grace_period_minutes") or 15)
+
+        start_time = request.POST.get("start_time")
+        end_time = request.POST.get("end_time")
+
+        is_public = request.POST.get("is_public") == "on"
+        is_active = request.POST.get("is_active") == "on"
+
+        if not date:
+            messages.error(request, "Please choose a date for the U-Pick day.")
+            return redirect("treespace_upick_setup")
+
+        event = UPickEvent.objects.create(
+            crop_name=crop_name,
+            title=title,
+            description=description,
+            date=date,
+            is_active=is_active,
+            is_public=is_public,
+            default_slot_capacity=default_slot_capacity,
+            default_slot_minutes=default_slot_minutes,
+            grace_period_minutes=grace_period_minutes,
+            weather_note=weather_note,
+            field_note=field_note,
+            rules_text=rules_text or None,
+        )
+
+        if start_time and end_time:
+            start_dt = datetime.strptime(f"{date} {start_time}", "%Y-%m-%d %H:%M")
+            end_dt = datetime.strptime(f"{date} {end_time}", "%Y-%m-%d %H:%M")
+
+            current = start_dt
+
+            while current < end_dt:
+                slot_end = current + timedelta(minutes=default_slot_minutes)
+
+                if slot_end > end_dt:
+                    break
+
+                UPickTimeSlot.objects.create(
+                    event=event,
+                    start_time=current.time(),
+                    end_time=slot_end.time(),
+                    capacity=default_slot_capacity,
+                    is_active=True,
+                    is_walk_in_available=True,
+                )
+
+                current = slot_end
+
+        messages.success(request, "U-Pick day created successfully.")
+        return redirect("treespace_upick_setup")
+
+    return render(request, "treeSpace/upick_setup.html", {
+        "smallHeader": smallHeader,
+        "noFooter": noFooter,
+        "sideBar": sideBar,
+        "events": events,
     })
