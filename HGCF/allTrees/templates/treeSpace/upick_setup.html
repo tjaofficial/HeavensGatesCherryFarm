@@ -46,8 +46,7 @@
             <input 
                 type="number" 
                 name="total_capacity" 
-                value="100"
-                min="0"
+                min="1"
             >
 
             <hr>
@@ -58,18 +57,17 @@
             <input 
                 type="time" 
                 name="start_time" 
-                value="09:00"
             >
 
             <label>End Time</label>
             <input 
                 type="time" 
                 name="end_time" 
-                value="15:00"
             >
 
             <label>Slot Length</label>
             <select name="slot_length_minutes">
+                <option value="">--SELECT--</option>
                 <option value="30">30 minutes</option>
                 <option value="60">1 hour</option>
                 <option value="90">1.5 hours</option>

@@ -6,8 +6,9 @@ from django.shortcuts import render, get_object_or_404, redirect # type: ignore
 from django.views.decorators.http import require_http_methods # type: ignore
 from django.db.models import Sum # type: ignore
 from ..models import UPickEvent, UPickTimeSlot, UPickReservation
+from django.contrib.auth.decorators import login_required
 
-@staff_member_required
+@login_required
 def treespace_upick_dashboard_view(request):
     noFooter = True
     smallHeader = True
@@ -98,7 +99,7 @@ def treespace_upick_dashboard_view(request):
         "spots_remaining": spots_remaining,
     })
 
-@staff_member_required
+@login_required
 @require_http_methods(["POST"])
 def treespace_upick_update_reservation_status(request):
     try:
