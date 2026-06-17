@@ -23,43 +23,43 @@
 
     <ul>
         <li>YouTube API</li>
-
         <li>
             <a href="{% url 'location_list' %}">Trees</a>
         </li>
-
         <li>
             <a href="{% url 'irrigation_dashboard' %}">Irrigation</a>
         </li>
-
         <li>
             <a href="{% url 'treespace_upick_dashboard' %}">U-Pick</a>
         </li>
-
         <li>
             <a href="{% url 'recipeForm' %}">Recipes</a>
         </li>
-
         <li>
             <a href="{% url 'weatherDash' %}">Weather</a>
         </li>
-
-        <li>
-            <a href="{% url 'addProduct' %}">Products</a>
+        <li style="padding-bottom: 0px">
+            <h4 style="margin:0pc;">Store</h4>
+            <ul class="innerList" style="margin: 0px;">
+                <li style="font-weight: unset;
+                    font-size: 0.9rem;
+                    background: unset;
+                    letter-spacing: 1px;
+                    text-transform: unset;">
+                    <a href="{% url 'pos_products_list_page' %}">Products List</a>
+                </li>
+                <li>
+                    <a href="{% url 'addProduct' %}">Add Products</a>
+                </li>
+                <li>
+                    <a href="{% url 'pos_terminal_page' %}">POS</a>
+                </li>
+            </ul>
         </li>
-
-        <li>
-            <a href="{% url 'store' %}">Store</a>
-        </li>
-
-        <li>
-            <a href="{% url 'pos_terminal_page' %}">POS</a>
-        </li>
-
+        
         <li>
             <a href="#">Add News</a>
         </li>
-
         <li>
             <a href="{% url 'Logout' %}">Logout</a>
         </li>

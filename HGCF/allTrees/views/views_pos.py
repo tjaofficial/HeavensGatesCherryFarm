@@ -3,19 +3,17 @@ import json
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
 from django.utils import timezone
 from django.views.decorators.http import require_GET, require_POST
 import stripe # type: ignore
 from django.conf import settings
+from django.db.models import Q, Count
 from django.views.decorators.csrf import csrf_exempt
-from ..models import (
-    mainStore_products,
-    POSSession,
-    POSSale,
-    POSSaleItem,
-    POSPaymentEvent
-)
+from ..models import (mainStore_products, POSSession, POSSale,POSSaleItem,POSPaymentEvent,UPickReservation,)
+from ..forms import POSProductEditForm
+from django.contrib import messages
+
 
 TAX_RATE = Decimal("0.06")
 stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -58,6 +56,24 @@ def _serialize_product(product):
         "allow_custom_price": product.allow_custom_price,
         "pos_display_order": product.pos_display_order,
         "mainImage": product.mainImage.url if product.mainImage else None,
+    }
+
+def _serialize_reservation(reservation):
+    return {
+        "id": reservation.id,
+        "first_name": reservation.first_name,
+        "last_name": reservation.last_name,
+        "full_name": reservation.full_name(),
+        "email": reservation.email,
+        "phone": reservation.phone,
+        "party_size": reservation.party_size,
+        "status": reservation.status,
+        "time_slot_id": reservation.time_slot.id,
+        "event_id": reservation.time_slot.event.id,
+        "event_date": reservation.time_slot.event.date.isoformat(),
+        "slot_label": reservation.time_slot.get_slot_label(),
+        "start_time": reservation.time_slot.start_time.strftime("%I:%M %p").lstrip("0"),
+        "end_time": reservation.time_slot.end_time.strftime("%I:%M %p").lstrip("0"),
     }
 
 def _get_or_create_open_session(user):
@@ -208,19 +224,242 @@ def _sync_sale_from_payment_intent(sale, intent):
 
 @login_required
 @require_GET
-def pos_terminal_page(request):
-    session = _get_or_create_open_session(request.user)
+def pos_products_list_page(request):
     noFooter = True
     smallHeader = True
     sideBar = True
+
+    search_query = request.GET.get("q", "").strip()
+    inventory_status = request.GET.get("inventory_status", "").strip()
+    product_type = request.GET.get("product_type", "").strip()
+    active_filter = request.GET.get("active", "").strip()
+    offline_filter = request.GET.get("offline", "").strip()
+    online_filter = request.GET.get("online", "").strip()
+    show_store_filter = request.GET.get("show_store", "").strip()
+
+    products = mainStore_products.objects.all()
+
+    if search_query:
+        products = products.filter(
+            Q(product_name__icontains=search_query) |
+            Q(sku__icontains=search_query) |
+            Q(short_description__icontains=search_query) |
+            Q(description__icontains=search_query)
+        )
+
+    if inventory_status:
+        products = products.filter(inventory_status=inventory_status)
+
+    if product_type:
+        products = products.filter(product_type=product_type)
+
+    if active_filter == "active":
+        products = products.filter(is_active=True)
+    elif active_filter == "inactive":
+        products = products.filter(is_active=False)
+
+    if offline_filter == "active":
+        products = products.filter(is_active_offline=True)
+    elif offline_filter == "inactive":
+        products = products.filter(is_active_offline=False)
+
+    if online_filter == "active":
+        products = products.filter(is_active_online=True)
+    elif online_filter == "inactive":
+        products = products.filter(is_active_online=False)
+
+    if show_store_filter == "yes":
+        products = products.filter(show_in_store=True)
+    elif show_store_filter == "no":
+        products = products.filter(show_in_store=False)
+
+    products = products.order_by("pos_display_order", "store_display_order", "product_name")
+
+    total_products = mainStore_products.objects.count()
+    filtered_count = products.count()
+
+    pos_ready_count = mainStore_products.objects.filter(
+        is_active=True,
+        is_active_offline=True
+    ).exclude(
+        inventory_status="out_of_stock"
+    ).count()
+
+    return render(request, "pos/pos_products_list.html", {
+        "page_title": "POS Products",
+        "products": products,
+        "total_products": total_products,
+        "filtered_count": filtered_count,
+        "pos_ready_count": pos_ready_count,
+
+        "search_query": search_query,
+        "selected_inventory_status": inventory_status,
+        "selected_product_type": product_type,
+        "selected_active": active_filter,
+        "selected_offline": offline_filter,
+        "selected_online": online_filter,
+        "selected_show_store": show_store_filter,
+
+        "inventory_choices": mainStore_products.INVENTORY_CHOICES,
+        "product_type_choices": mainStore_products.PRODUCT_TYPE_CHOICES,
+
+        "noFooter": noFooter,
+        "smallHeader": smallHeader,
+        "sideBar": sideBar,
+    })
+
+@login_required
+@require_GET
+def pos_sales_list_page(request):
+    noFooter = True
+    smallHeader = True
+    sideBar = True
+
+    search_query = request.GET.get("q", "").strip()
+    status_filter = request.GET.get("status", "").strip()
+    payment_method_filter = request.GET.get("payment_method", "").strip()
+    date_from = request.GET.get("date_from", "").strip()
+    date_to = request.GET.get("date_to", "").strip()
+
+    sales = (
+        POSSale.objects
+        .select_related("session", "created_by")
+        .annotate(item_count=Count("items"))
+        .order_by("-created_at")
+    )
+
+    if search_query:
+        sales = sales.filter(
+            Q(sale_number__icontains=search_query) |
+            Q(customer_name__icontains=search_query) |
+            Q(customer_email__icontains=search_query) |
+            Q(notes__icontains=search_query)
+        )
+
+    if status_filter:
+        sales = sales.filter(status=status_filter)
+
+    if payment_method_filter:
+        sales = sales.filter(payment_method=payment_method_filter)
+
+    if date_from:
+        sales = sales.filter(created_at__date__gte=date_from)
+
+    if date_to:
+        sales = sales.filter(created_at__date__lte=date_to)
+
+    sales = sales[:250]
+
+    return render(request, "pos/pos_sales_list.html", {
+        "page_title": "POS Sales",
+        "sales": sales,
+
+        "search_query": search_query,
+        "selected_status": status_filter,
+        "selected_payment_method": payment_method_filter,
+        "date_from": date_from,
+        "date_to": date_to,
+
+        "sale_status_choices": POSSale.saleStatusChoices,
+        "payment_method_choices": POSSale.paymentMethodChoices,
+
+        "noFooter": noFooter,
+        "smallHeader": smallHeader,
+        "sideBar": sideBar,
+    })
+
+@login_required
+@require_GET
+def pos_product_edit_page_get(request, product_id):
+    noFooter = True
+    smallHeader = True
+    sideBar = True
+
+    product = get_object_or_404(mainStore_products, id=product_id)
+    form = POSProductEditForm(instance=product)
+
+    return render(request, "pos/pos_product_edit.html", {
+        "page_title": f"Edit {product.product_name}",
+        "product": product,
+        "form": form,
+        "noFooter": noFooter,
+        "smallHeader": smallHeader,
+        "sideBar": sideBar,
+    })
+
+
+@login_required
+@require_POST
+def pos_product_edit_page_post(request, product_id):
+    product = get_object_or_404(mainStore_products, id=product_id)
+
+    form = POSProductEditForm(
+        request.POST,
+        request.FILES,
+        instance=product
+    )
+
+    if form.is_valid():
+        form.save()
+        messages.success(request, "Product updated successfully.")
+        return redirect("pos_product_edit_page", product_id=product.id)
+
+    noFooter = True
+    smallHeader = True
+    sideBar = True
+
+    messages.error(request, "Please fix the errors below.")
+
+    return render(request, "pos/pos_product_edit.html", {
+        "page_title": f"Edit {product.product_name}",
+        "product": product,
+        "form": form,
+        "noFooter": noFooter,
+        "smallHeader": smallHeader,
+        "sideBar": sideBar,
+    })
+
+
+@login_required
+def pos_product_edit_page(request, product_id):
+    if request.method == "POST":
+        return pos_product_edit_page_post(request, product_id)
+
+    return pos_product_edit_page_get(request, product_id)
+
+@login_required
+@require_GET
+def pos_terminal_page(request):
+    session = _get_or_create_open_session(request.user)
+    today = timezone.localdate()
+
+    noFooter = True
+    smallHeader = True
+    sideBar = True
+
+    today_reservations = (
+        UPickReservation.objects
+        .filter(
+            time_slot__event__date=today,
+            status__in=["confirmed", "checked_in"]
+        )
+        .select_related("time_slot", "time_slot__event")
+        .order_by("time_slot__start_time", "last_name", "first_name")
+    )
 
     return render(request, "pos/pos_terminal.html", {
         "page_title": "Farm POS",
         "tax_rate": str(TAX_RATE),
         "open_session": session,
-        'noFooter': noFooter, 
-        'smallHeader': smallHeader,
-        'sideBar': sideBar,
+        "today": today,
+        "today_reservations": today_reservations,
+        "today_reservations_json": [
+            _serialize_reservation(reservation)
+            for reservation in today_reservations
+        ],
+        "noFooter": noFooter,
+        "smallHeader": smallHeader,
+        "sideBar": sideBar,
     })
 
 @login_required
@@ -228,13 +467,39 @@ def pos_terminal_page(request):
 def pos_products_api(request):
     products = mainStore_products.objects.filter(
         is_active=True,
-        is_active_offline=True
+        is_active_offline=True,
+    ).exclude(
+        inventory_status="out_of_stock"
     ).order_by("pos_display_order", "product_name")
 
     data = [_serialize_product(product) for product in products]
+
     return JsonResponse({
         "success": True,
         "products": data,
+    })
+
+@login_required
+@require_GET
+def pos_today_reservations_api(request):
+    today = timezone.localdate()
+
+    reservations = (
+        UPickReservation.objects
+        .filter(
+            time_slot__event__date=today,
+            status__in=["confirmed", "checked_in"]
+        )
+        .select_related("time_slot", "time_slot__event")
+        .order_by("time_slot__start_time", "last_name", "first_name")
+    )
+
+    data = [_serialize_reservation(reservation) for reservation in reservations]
+
+    return JsonResponse({
+        "success": True,
+        "date": today.isoformat(),
+        "reservations": data,
     })
 
 @login_required
@@ -291,10 +556,28 @@ def pos_calculate_totals_api(request):
 def pos_create_sale_api(request):
     try:
         payload = json.loads(request.body)
+
         items = payload.get("items", [])
-        customer_name = payload.get("customer_name")
-        customer_email = payload.get("customer_email")
+        customer_name = (payload.get("customer_name") or "").strip()
+        customer_email = (payload.get("customer_email") or "").strip()
         notes = payload.get("notes")
+
+        upick_reservation_id = payload.get("upick_reservation_id")
+        upick_reservation = None
+
+        if upick_reservation_id not in [None, ""]:
+            upick_reservation = UPickReservation.objects.filter(
+                id=upick_reservation_id
+            ).select_related("time_slot", "time_slot__event").first()
+
+            if not upick_reservation:
+                return JsonResponse({
+                    "success": False,
+                    "message": "Selected U-Pick reservation could not be found."
+                }, status=400)
+
+            customer_name = upick_reservation.full_name()
+            customer_email = upick_reservation.email
 
         if not items:
             return JsonResponse({
@@ -314,6 +597,7 @@ def pos_create_sale_api(request):
             total=totals["total"],
             customer_name=customer_name,
             customer_email=customer_email,
+            upick_reservation=upick_reservation,
             notes=notes,
             created_by=request.user,
         )
@@ -338,6 +622,9 @@ def pos_create_sale_api(request):
             "subtotal": str(sale.subtotal),
             "tax_amount": str(sale.tax_amount),
             "total": str(sale.total),
+            "customer_name": sale.customer_name,
+            "customer_email": sale.customer_email,
+            "upick_reservation_id": sale.upick_reservation.id if sale.upick_reservation else None,
             "message": "Sale created successfully.",
         })
 
@@ -386,6 +673,9 @@ def pos_sale_detail_api(request, sale_id):
             "cash_change": str(sale.cash_change) if sale.cash_change is not None else None,
             "customer_name": sale.customer_name,
             "customer_email": sale.customer_email,
+            "upick_reservation_id": sale.upick_reservation.id if sale.upick_reservation else None,
+            "upick_reservation_name": sale.upick_reservation.full_name() if sale.upick_reservation else None,
+            "upick_reservation_slot": sale.upick_reservation.time_slot.get_slot_label() if sale.upick_reservation else None,
             "notes": sale.notes,
             "created_at": sale.created_at.isoformat() if sale.created_at else None,
             "completed_at": sale.completed_at.isoformat() if sale.completed_at else None,

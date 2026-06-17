@@ -75,4 +75,8 @@ urlpatterns = [
     path("pos/api/sale/<int:sale_id>/card-payment-status/", views.pos_card_payment_status_api, name="pos_card_payment_status_api"),
     path("pos/api/sale/<int:sale_id>/cancel-card-payment/", views.pos_cancel_card_payment_api, name="pos_cancel_card_payment_api"),
     path("pos/stripe/webhook/", views.stripe_terminal_webhook, name="stripe_terminal_webhook"),
+    path("pos/api/today-reservations/", views.pos_today_reservations_api, name="pos_today_reservations_api"),
+    path("pos/products/", views.pos_products_list_page, name="pos_products_list_page"),
+    path("pos/products/<int:product_id>/edit/", views.pos_product_edit_page, name="pos_product_edit_page"),
+    path("pos/sales/", views.pos_sales_list_page, name="pos_sales_list_page"),
 ]

@@ -1,8 +1,9 @@
 {% extends "mainLayout.html" %}
 {% load static %}
 {% block extra_head %}
+    <meta name="csrf-token" content="{{ csrf_token }}">
     <link rel="stylesheet" href="{% static 'style/pos_terminal.css' %}">
-    <script src="{% static 'script/pos_terminal.js' %}"></script>
+    <script defer src="{% static 'script/pos_terminal.js' %}"></script>
 {% endblock %}
 {% block list %}
     <div class="posShell">
@@ -42,8 +43,22 @@
                 </div>
 
                 <div class="customerFields">
+                    <div class="customerModeBox">
+                        <label for="reservationCustomerSelect">Reservation Customer</label>
+
+                        <select id="reservationCustomerSelect" class="customerSelect">
+                            <option value="">Walk-in / Type Manually</option>
+                        </select>
+
+                        <small class="customerHelp">
+                            Choose from today’s U-Pick reservations, or leave this as walk-in and type the name manually.
+                        </small>
+                    </div>
+
                     <input type="text" id="customerName" placeholder="Customer name (optional)">
                     <input type="email" id="customerEmail" placeholder="Customer email (optional)">
+                    <input type="text" id="customerPhone" placeholder="Customer phone (optional)" readonly>
+
                     <textarea id="saleNotes" placeholder="Notes (optional)"></textarea>
                 </div>
 
@@ -157,6 +172,7 @@
     <script>
         window.POS_CONFIG = {
             productsUrl: "{% url 'pos_products_api' %}",
+            todayReservationsUrl: "{% url 'pos_today_reservations_api' %}",
             calculateTotalsUrl: "{% url 'pos_calculate_totals_api' %}",
             createSaleUrl: "{% url 'pos_create_sale_api' %}",
             readersUrl: "{% url 'pos_terminal_readers_api' %}",

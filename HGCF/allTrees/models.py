@@ -749,6 +749,14 @@ class POSSale(models.Model):
         blank=True
     )
 
+    upick_reservation = models.ForeignKey(
+        "UPickReservation",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="pos_sales"
+    )
+
     notes = models.TextField(
         null=True,
         blank=True

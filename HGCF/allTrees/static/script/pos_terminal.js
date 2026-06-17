@@ -1,9 +1,11 @@
 const state = {
     products: [],
     filteredProducts: [],
+    reservations: [],
     cart: [],
     currentSaleId: null,
     currentSaleNumber: null,
+    selectedReservationId: null,
     readers: [],
     cardPollInterval: null,
     pendingResetAfterReceipt: false,
@@ -22,9 +24,13 @@ const els = {
     cancelCardPaymentBtn: document.getElementById("cancelCardPaymentBtn"),
     clearCartBtn: document.getElementById("clearCartBtn"),
     saleStatusBox: document.getElementById("saleStatusBox"),
+
+    reservationCustomerSelect: document.getElementById("reservationCustomerSelect"),
     customerName: document.getElementById("customerName"),
     customerEmail: document.getElementById("customerEmail"),
+    customerPhone: document.getElementById("customerPhone"),
     saleNotes: document.getElementById("saleNotes"),
+
     readerSelect: document.getElementById("readerSelect"),
     refreshReadersBtn: document.getElementById("refreshReadersBtn"),
     receiptModal: document.getElementById("receiptModal"),
@@ -45,9 +51,28 @@ const els = {
     receiptStripeLink: document.getElementById("receiptStripeLink"),
 };
 
+function getCookie(name) {
+    const cookies = document.cookie ? document.cookie.split(";") : [];
+
+    for (let cookie of cookies) {
+        cookie = cookie.trim();
+
+        if (cookie.startsWith(name + "=")) {
+            return decodeURIComponent(cookie.substring(name.length + 1));
+        }
+    }
+
+    return "";
+}
+
 function getCSRFToken() {
     const tokenTag = document.querySelector('meta[name="csrf-token"]');
-    return tokenTag ? tokenTag.getAttribute("content") : "";
+
+    if (tokenTag && tokenTag.getAttribute("content")) {
+        return tokenTag.getAttribute("content");
+    }
+
+    return getCookie("csrftoken");
 }
 
 function money(value) {
@@ -69,6 +94,16 @@ function clearStatus() {
     els.saleStatusBox.classList.add("hidden");
     els.saleStatusBox.classList.remove("success", "error");
     els.saleStatusBox.textContent = "";
+}
+
+function setVisible(element, shouldShow) {
+    if (!element) return;
+    element.classList.toggle("hidden", !shouldShow);
+}
+
+function setDisabled(element, shouldDisable) {
+    if (!element) return;
+    element.disabled = shouldDisable;
 }
 
 function formatPaymentMethod(value) {
@@ -131,6 +166,79 @@ async function fetchProducts() {
     renderProducts();
 }
 
+async function fetchTodayReservations() {
+    if (!window.POS_CONFIG.todayReservationsUrl) return;
+
+    try {
+        const response = await fetch(window.POS_CONFIG.todayReservationsUrl);
+        const data = await response.json();
+
+        if (!data.success) {
+            showStatus(data.message || "Could not load today's reservations.", "error");
+            return;
+        }
+
+        state.reservations = data.reservations || [];
+        renderReservationOptions();
+    } catch (error) {
+        showStatus("Error loading today's reservations.", "error");
+    }
+}
+
+function renderReservationOptions() {
+    if (!els.reservationCustomerSelect) return;
+
+    const options = [
+        `<option value="">Walk-in / Type Manually</option>`
+    ];
+
+    state.reservations.forEach(reservation => {
+        const label = `${reservation.slot_label} — ${reservation.full_name} — Party of ${reservation.party_size}`;
+        const status = reservation.status ? ` (${reservation.status})` : "";
+
+        options.push(`
+            <option value="${reservation.id}">
+                ${escapeHtml(label + status)}
+            </option>
+        `);
+    });
+
+    els.reservationCustomerSelect.innerHTML = options.join("");
+}
+
+function handleReservationCustomerChange() {
+    if (!els.reservationCustomerSelect) return;
+
+    const reservationId = els.reservationCustomerSelect.value;
+
+    if (!reservationId) {
+        state.selectedReservationId = null;
+
+        if (els.customerPhone) {
+            els.customerPhone.value = "";
+        }
+
+        return;
+    }
+
+    const reservation = state.reservations.find(item => String(item.id) === String(reservationId));
+
+    if (!reservation) {
+        state.selectedReservationId = null;
+        return;
+    }
+
+    state.selectedReservationId = reservation.id;
+    els.customerName.value = reservation.full_name || "";
+    els.customerEmail.value = reservation.email || "";
+
+    if (els.customerPhone) {
+        els.customerPhone.value = reservation.phone || "";
+    }
+
+    showStatus(`Reservation selected: ${reservation.full_name}`, "success");
+}
+
 async function fetchReaders() {
     try {
         const response = await fetch(window.POS_CONFIG.readersUrl);
@@ -162,22 +270,70 @@ function renderReaders() {
     els.readerSelect.innerHTML = options.join("");
 }
 
+function getUnitLabel(product) {
+    const labels = {
+        each: "Each",
+        lb: "Per lb",
+        oz: "Per oz",
+        quart: "Per quart",
+        pint: "Per pint",
+        half_pint: "Per half pint",
+        bushel: "Per bushel",
+        bunch: "Per bunch",
+        bag: "Per bag",
+        box: "Per box",
+        jar: "Per jar",
+        bundle: "Per bundle",
+        custom: "Custom",
+    };
+
+    return labels[product.unit_type] || product.unit_type || "Each";
+}
+
 function renderProducts() {
     if (!state.filteredProducts.length) {
         els.productGrid.innerHTML = `<div class="emptyState">No POS products found.</div>`;
         return;
     }
 
-    els.productGrid.innerHTML = state.filteredProducts.map(product => `
-        <div class="productCard" data-product-id="${product.id}">
-            <h3>${escapeHtml(product.product_name)}</h3>
-            <p>${escapeHtml(product.description || "No description")}</p>
-            <div class="productMeta">
-                <span class="priceTag">${money(product.price)}</span>
-                <span class="unitBadge">${product.unit_type === "weight" ? "By Weight" : "Each"}</span>
-            </div>
-        </div>
-    `).join("");
+    els.productGrid.innerHTML = state.filteredProducts.map(product => {
+        const imageHtml = product.mainImage
+            ? `<img class="productImage" src="${escapeHtml(product.mainImage)}" alt="${escapeHtml(product.product_name)}">`
+            : `<div class="productImagePlaceholder">🍓</div>`;
+
+        const saleHtml = product.on_sale
+            ? `<span class="saleBadge">Sale</span>`
+            : "";
+
+        const stockHtml = product.inventory_status
+            ? `<span class="stockBadge ${escapeHtml(product.inventory_status)}">${escapeHtml(product.inventory_status.replaceAll("_", " "))}</span>`
+            : "";
+
+        return `
+            <button type="button" class="productCard" data-product-id="${product.id}">
+                <div class="productImageWrap">
+                    ${imageHtml}
+                    ${saleHtml}
+                </div>
+
+                <div class="productCardBody">
+                    <h3>${escapeHtml(product.product_name)}</h3>
+
+                    <p>${escapeHtml(product.description || "Farm product")}</p>
+
+                    <div class="productMeta">
+                        <span class="priceTag">${money(product.price)}</span>
+                        <span class="unitBadge">${escapeHtml(getUnitLabel(product))}</span>
+                    </div>
+
+                    <div class="productBottomMeta">
+                        ${product.sku ? `<small>SKU: ${escapeHtml(product.sku)}</small>` : `<small>No SKU</small>`}
+                        ${stockHtml}
+                    </div>
+                </div>
+            </button>
+        `;
+    }).join("");
 
     document.querySelectorAll(".productCard").forEach(card => {
         card.addEventListener("click", () => {
@@ -407,11 +563,31 @@ function updateButtons() {
     const hasReader = !!(els.readerSelect && els.readerSelect.value);
     const receiptOpen = isReceiptOpen();
 
-    els.createSaleBtn.disabled = receiptOpen || !hasCart;
-    els.cashSaleBtn.disabled = receiptOpen || !hasSale;
-    els.cardSaleBtn.disabled = receiptOpen || !(hasSale && hasReader);
-    els.cancelCardPaymentBtn.disabled = receiptOpen || !hasSale;
-    els.clearCartBtn.disabled = receiptOpen;
+    /*
+        Step 1:
+        No sale created yet. Show only Start Checkout.
+    */
+    setVisible(els.createSaleBtn, !hasSale);
+    setDisabled(els.createSaleBtn, receiptOpen || !hasCart);
+
+    /*
+        Step 2:
+        Sale has been created. Hide Start Checkout.
+        Now show payment options.
+    */
+    setVisible(els.cashSaleBtn, hasSale);
+    setVisible(els.cardSaleBtn, hasSale);
+    setVisible(els.cancelCardPaymentBtn, hasSale);
+
+    setDisabled(els.cashSaleBtn, receiptOpen || !hasSale);
+    setDisabled(els.cardSaleBtn, receiptOpen || !(hasSale && hasReader));
+    setDisabled(els.cancelCardPaymentBtn, receiptOpen || !hasSale);
+
+    /*
+        Once a sale exists, do not let them clear/change the ticket casually.
+        That prevents accidentally changing the cart after the sale was saved.
+    */
+    setDisabled(els.clearCartBtn, receiptOpen || hasSale);
 }
 
 async function createSale() {
@@ -433,6 +609,7 @@ async function createSale() {
                 items: state.cart,
                 customer_name: els.customerName.value.trim(),
                 customer_email: els.customerEmail.value.trim(),
+                upick_reservation_id: state.selectedReservationId,
                 notes: els.saleNotes.value.trim(),
             }),
         });
@@ -446,8 +623,11 @@ async function createSale() {
 
         state.currentSaleId = data.sale_id;
         state.currentSaleNumber = data.sale_number;
+
         updateButtons();
-        showStatus(`Sale ${data.sale_number} created. Ready for payment.`, "success");
+
+        const customerText = data.customer_name ? ` for ${data.customer_name}` : "";
+        showStatus(`Ticket ${data.sale_number} started. Choose cash or card payment.`, "success");
     } catch (error) {
         showStatus("Error creating sale.", "error");
     }
@@ -606,6 +786,7 @@ function resetPOS() {
     state.cart = [];
     state.currentSaleId = null;
     state.currentSaleNumber = null;
+    state.selectedReservationId = null;
     state.pendingResetAfterReceipt = false;
 
     if (state.cardPollInterval) {
@@ -613,8 +794,17 @@ function resetPOS() {
         state.cardPollInterval = null;
     }
 
+    if (els.reservationCustomerSelect) {
+        els.reservationCustomerSelect.value = "";
+    }
+
     els.customerName.value = "";
     els.customerEmail.value = "";
+
+    if (els.customerPhone) {
+        els.customerPhone.value = "";
+    }
+
     els.saleNotes.value = "";
 
     renderCart();
@@ -641,6 +831,10 @@ function filterProducts() {
 
 function bindEvents() {
     els.productSearch.addEventListener("input", filterProducts);
+
+    if (els.reservationCustomerSelect) {
+        els.reservationCustomerSelect.addEventListener("change", handleReservationCustomerChange);
+    }
 
     els.clearCartBtn.addEventListener("click", () => {
         state.cart = [];
@@ -680,6 +874,8 @@ function bindEvents() {
 async function initPOS() {
     bindEvents();
     renderCart();
+
+    await fetchTodayReservations();
     await fetchProducts();
     await fetchReaders();
     await calculateTotals();

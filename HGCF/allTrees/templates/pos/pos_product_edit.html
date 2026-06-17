@@ -1,0 +1,385 @@
+{% extends "mainLayout.html" %}
+{% load static %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'style/pos_products_list.css' %}">
+<link rel="stylesheet" href="{% static 'style/pos_product_edit.css' %}">
+{% endblock %}
+
+{% block list %}
+
+<div class="productEditShell">
+
+    <header class="productEditHeader">
+        <div>
+            <p class="eyebrow">Product Manager</p>
+            <h1>Edit Product</h1>
+            <p class="subText">
+                Update product details, pricing, inventory, and POS visibility.
+            </p>
+        </div>
+
+        <div class="headerActions">
+            <a href="{% url 'pos_products_list_page' %}" class="ghostBtn">Back to Products</a>
+            <a href="{% url 'pos_terminal_page' %}" class="darkBtn">Back to POS</a>
+        </div>
+    </header>
+
+    {% if messages %}
+        <div class="messageStack">
+            {% for message in messages %}
+                <div class="messageBox {{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <form method="POST" enctype="multipart/form-data" class="productEditForm">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="messageBox error">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <section class="editCard">
+            <div class="editCardHead">
+                <h2>Basic Info</h2>
+                <p>Name, SKU, type, and customer-facing description.</p>
+            </div>
+
+            <div class="formGrid twoCol">
+                <div class="formField">
+                    <label for="{{ form.product_name.id_for_label }}">Product Name</label>
+                    {{ form.product_name }}
+                    {{ form.product_name.errors }}
+                </div>
+
+                <div class="formField">
+                    <label for="{{ form.sku.id_for_label }}">SKU</label>
+                    {{ form.sku }}
+                    {{ form.sku.errors }}
+                </div>
+
+                <div class="formField">
+                    <label for="{{ form.product_type.id_for_label }}">Product Type</label>
+                    {{ form.product_type }}
+                    {{ form.product_type.errors }}
+                </div>
+
+                <div class="formField">
+                    <label for="{{ form.ribbon.id_for_label }}">Ribbon</label>
+                    {{ form.ribbon }}
+                    {{ form.ribbon.errors }}
+                </div>
+
+                <div class="formField full">
+                    <label for="{{ form.short_description.id_for_label }}">Short Description</label>
+                    {{ form.short_description }}
+                    {{ form.short_description.errors }}
+                </div>
+
+                <div class="formField full">
+                    <label for="{{ form.description.id_for_label }}">Description</label>
+                    {{ form.description }}
+                    {{ form.description.errors }}
+                </div>
+            </div>
+        </section>
+
+        <section class="editCard">
+            <div class="editCardHead">
+                <h2>Pricing & Unit</h2>
+                <p>Set the regular price, sale price, and how the item is sold.</p>
+            </div>
+
+            <div class="formGrid threeCol">
+                <div class="formField">
+                    <label for="{{ form.price.id_for_label }}">Price</label>
+                    {{ form.price }}
+                    {{ form.price.errors }}
+                </div>
+
+                <div class="formField">
+                    <label for="{{ form.unit_type.id_for_label }}">Unit Type</label>
+                    {{ form.unit_type }}
+                    {{ form.unit_type.errors }}
+                </div>
+
+                <div class="formField">
+                    <label for="{{ form.unit_label.id_for_label }}">Unit Label</label>
+                    {{ form.unit_label }}
+                    {{ form.unit_label.errors }}
+                </div>
+
+                <div class="checkField">
+                    <label>
+                        {{ form.on_sale }}
+                        On Sale
+                    </label>
+                    {{ form.on_sale.errors }}
+                </div>
+
+                <div class="formField">
+                    <label for="{{ form.sale_percentage.id_for_label }}">Sale Percentage</label>
+                    {{ form.sale_percentage }}
+                    {{ form.sale_percentage.errors }}
+                </div>
+
+                <div class="formField">
+                    <label for="{{ form.sale_price.id_for_label }}">Sale Price</label>
+                    {{ form.sale_price }}
+                    {{ form.sale_price.errors }}
+                </div>
+
+                <div class="checkField">
+                    <label>
+                        {{ form.allow_custom_price }}
+                        Allow Custom POS Price
+                    </label>
+                    {{ form.allow_custom_price.errors }}
+                </div>
+
+                <div class="checkField">
+                    <label>
+                        {{ form.taxable }}
+                        Taxable
+                    </label>
+                    {{ form.taxable.errors }}
+                </div>
+            </div>
+        </section>
+
+        <section class="editCard">
+            <div class="editCardHead">
+                <h2>Inventory</h2>
+                <p>Control stock, inventory status, backorders, and preorder messaging.</p>
+            </div>
+
+            <div class="formGrid threeCol">
+                <div class="checkField">
+                    <label>
+                        {{ form.track_inventory }}
+                        Track Inventory
+                    </label>
+                    {{ form.track_inventory.errors }}
+                </div>
+
+                <div class="formField">
+                    <label for="{{ form.inventory_status.id_for_label }}">Inventory Status</label>
+                    {{ form.inventory_status }}
+                    {{ form.inventory_status.errors }}
+                </div>
+
+                <div class="formField">
+                    <label for="{{ form.inventory_total.id_for_label }}">Inventory Total</label>
+                    {{ form.inventory_total }}
+                    {{ form.inventory_total.errors }}
+                </div>
+
+                <div class="checkField">
+                    <label>
+                        {{ form.allow_backorder }}
+                        Allow Backorder
+                    </label>
+                    {{ form.allow_backorder.errors }}
+                </div>
+
+                <div class="checkField">
+                    <label>
+                        {{ form.pre_order }}
+                        Pre Order
+                    </label>
+                    {{ form.pre_order.errors }}
+                </div>
+
+                <div class="formField full">
+                    <label for="{{ form.pre_order_message.id_for_label }}">Pre Order Message</label>
+                    {{ form.pre_order_message }}
+                    {{ form.pre_order_message.errors }}
+                </div>
+            </div>
+        </section>
+
+        <section class="editCard">
+            <div class="editCardHead">
+                <h2>Season & Limits</h2>
+                <p>Use these for seasonal produce, harvest windows, and order limits.</p>
+            </div>
+
+            <div class="formGrid threeCol">
+                <div class="formField">
+                    <label for="{{ form.harvest_date.id_for_label }}">Harvest Date</label>
+                    {{ form.harvest_date }}
+                    {{ form.harvest_date.errors }}
+                </div>
+
+                <div class="formField">
+                    <label for="{{ form.season_start.id_for_label }}">Season Start</label>
+                    {{ form.season_start }}
+                    {{ form.season_start.errors }}
+                </div>
+
+                <div class="formField">
+                    <label for="{{ form.season_end.id_for_label }}">Season End</label>
+                    {{ form.season_end }}
+                    {{ form.season_end.errors }}
+                </div>
+
+                <div class="checkField">
+                    <label>
+                        {{ form.is_seasonal }}
+                        Seasonal Product
+                    </label>
+                    {{ form.is_seasonal.errors }}
+                </div>
+
+                <div class="checkField">
+                    <label>
+                        {{ form.limit_per_order }}
+                        Limit Per Order
+                    </label>
+                    {{ form.limit_per_order.errors }}
+                </div>
+
+                <div class="formField">
+                    <label for="{{ form.limit_number.id_for_label }}">Limit Number</label>
+                    {{ form.limit_number }}
+                    {{ form.limit_number.errors }}
+                </div>
+            </div>
+        </section>
+
+        <section class="editCard">
+            <div class="editCardHead">
+                <h2>Visibility</h2>
+                <p>This is the important stuff for POS. If POS Active is off, it will not show in the POS.</p>
+            </div>
+
+            <div class="formGrid threeCol">
+                <div class="checkField important">
+                    <label>
+                        {{ form.is_active }}
+                        Active
+                    </label>
+                    {{ form.is_active.errors }}
+                </div>
+
+                <div class="checkField important">
+                    <label>
+                        {{ form.is_active_offline }}
+                        Active for POS / Offline
+                    </label>
+                    {{ form.is_active_offline.errors }}
+                </div>
+
+                <div class="checkField">
+                    <label>
+                        {{ form.is_active_online }}
+                        Active Online
+                    </label>
+                    {{ form.is_active_online.errors }}
+                </div>
+
+                <div class="checkField">
+                    <label>
+                        {{ form.show_in_store }}
+                        Show in Store
+                    </label>
+                    {{ form.show_in_store.errors }}
+                </div>
+
+                <div class="formField">
+                    <label for="{{ form.pos_display_order.id_for_label }}">POS Display Order</label>
+                    {{ form.pos_display_order }}
+                    {{ form.pos_display_order.errors }}
+                </div>
+
+                <div class="formField">
+                    <label for="{{ form.store_display_order.id_for_label }}">Store Display Order</label>
+                    {{ form.store_display_order }}
+                    {{ form.store_display_order.errors }}
+                </div>
+            </div>
+        </section>
+
+        <section class="editCard">
+            <div class="editCardHead">
+                <h2>Fulfillment & Shipping</h2>
+                <p>How customers can receive this product.</p>
+            </div>
+
+            <div class="formGrid twoCol">
+                <div class="formField">
+                    <label for="{{ form.fulfillment_type.id_for_label }}">Fulfillment Type</label>
+                    {{ form.fulfillment_type }}
+                    {{ form.fulfillment_type.errors }}
+                </div>
+
+                <div class="formField">
+                    <label for="{{ form.shipping_weight.id_for_label }}">Shipping Weight</label>
+                    {{ form.shipping_weight }}
+                    {{ form.shipping_weight.errors }}
+                </div>
+            </div>
+        </section>
+
+        <section class="editCard">
+            <div class="editCardHead">
+                <h2>Image & SEO</h2>
+                <p>Product image and search/display metadata.</p>
+            </div>
+
+            {% if product.mainImage %}
+                <div class="currentImageBox">
+                    <span>Current Image</span>
+                    <img src="{{ product.mainImage.url }}" alt="{{ product.alt_text|default:product.product_name }}">
+                </div>
+            {% endif %}
+
+            <div class="formGrid twoCol">
+                <div class="formField full">
+                    <label for="{{ form.mainImage.id_for_label }}">Product Image</label>
+                    {{ form.mainImage }}
+                    {{ form.mainImage.errors }}
+                </div>
+
+                <div class="formField">
+                    <label for="{{ form.alt_text.id_for_label }}">Alt Text</label>
+                    {{ form.alt_text }}
+                    {{ form.alt_text.errors }}
+                </div>
+
+                <div class="formField">
+                    <label for="{{ form.meta_title.id_for_label }}">Meta Title</label>
+                    {{ form.meta_title }}
+                    {{ form.meta_title.errors }}
+                </div>
+
+                <div class="formField full">
+                    <label for="{{ form.meta_description.id_for_label }}">Meta Description</label>
+                    {{ form.meta_description }}
+                    {{ form.meta_description.errors }}
+                </div>
+            </div>
+        </section>
+
+        <div class="stickySaveBar">
+            <div>
+                <strong>{{ product.product_name }}</strong>
+                <span>Save changes before leaving this page.</span>
+            </div>
+
+            <div class="saveActions">
+                <a href="{% url 'pos_products_list_page' %}" class="ghostBtn">Cancel</a>
+                <button type="submit" class="primaryBtn">Save Product</button>
+            </div>
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}

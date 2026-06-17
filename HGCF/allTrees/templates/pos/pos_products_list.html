@@ -1,0 +1,249 @@
+{% extends "mainLayout.html" %}
+{% load static %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'style/pos_products_list.css' %}">
+{% endblock %}
+
+{% block list %}
+
+<div class="productListShell">
+
+    <header class="productListHeader">
+        <div>
+            <p class="eyebrow">Heavens Gates Cherry Farm</p>
+            <h1>POS Product List</h1>
+            <p class="subText">
+                View, search, and filter products to see what is available for the POS system.
+            </p>
+        </div>
+
+        <div class="headerActions">
+            <a href="{% url 'pos_terminal_page' %}" class="darkBtn">Back to POS</a>
+        </div>
+    </header>
+
+    <section class="statsGrid">
+        <div class="statCard">
+            <span>Total Products</span>
+            <strong>{{ total_products }}</strong>
+        </div>
+
+        <div class="statCard">
+            <span>Filtered Results</span>
+            <strong>{{ filtered_count }}</strong>
+        </div>
+
+        <div class="statCard">
+            <span>POS Ready</span>
+            <strong>{{ pos_ready_count }}</strong>
+        </div>
+    </section>
+
+    <section class="filterCard">
+        <form method="GET" class="filterForm">
+
+            <div class="filterField searchField">
+                <label for="q">Search</label>
+                <input 
+                    type="text" 
+                    id="q" 
+                    name="q" 
+                    value="{{ search_query }}" 
+                    placeholder="Search by name, SKU, or description..."
+                >
+            </div>
+
+            <div class="filterField">
+                <label for="inventory_status">Inventory</label>
+                <select id="inventory_status" name="inventory_status">
+                    <option value="">All</option>
+                    {% for value, label in inventory_choices %}
+                        <option value="{{ value }}" {% if selected_inventory_status == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filterField">
+                <label for="product_type">Type</label>
+                <select id="product_type" name="product_type">
+                    <option value="">All</option>
+                    {% for value, label in product_type_choices %}
+                        <option value="{{ value }}" {% if selected_product_type == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filterField">
+                <label for="active">Active</label>
+                <select id="active" name="active">
+                    <option value="">All</option>
+                    <option value="active" {% if selected_active == "active" %}selected{% endif %}>Active</option>
+                    <option value="inactive" {% if selected_active == "inactive" %}selected{% endif %}>Inactive</option>
+                </select>
+            </div>
+
+            <div class="filterField">
+                <label for="offline">POS / Offline</label>
+                <select id="offline" name="offline">
+                    <option value="">All</option>
+                    <option value="active" {% if selected_offline == "active" %}selected{% endif %}>Active for POS</option>
+                    <option value="inactive" {% if selected_offline == "inactive" %}selected{% endif %}>Not POS Active</option>
+                </select>
+            </div>
+
+            <div class="filterField">
+                <label for="online">Online</label>
+                <select id="online" name="online">
+                    <option value="">All</option>
+                    <option value="active" {% if selected_online == "active" %}selected{% endif %}>Online Active</option>
+                    <option value="inactive" {% if selected_online == "inactive" %}selected{% endif %}>Not Online Active</option>
+                </select>
+            </div>
+
+            <div class="filterField">
+                <label for="show_store">Show in Store</label>
+                <select id="show_store" name="show_store">
+                    <option value="">All</option>
+                    <option value="yes" {% if selected_show_store == "yes" %}selected{% endif %}>Yes</option>
+                    <option value="no" {% if selected_show_store == "no" %}selected{% endif %}>No</option>
+                </select>
+            </div>
+
+            <div class="filterActions">
+                <button type="submit" class="primaryBtn">Filter</button>
+                <a href="{% url 'pos_products_list_page' %}" class="ghostBtn">Reset</a>
+            </div>
+
+        </form>
+    </section>
+
+    <section class="tableCard">
+        {% if products %}
+            <div class="tableWrap">
+                <table class="productTable">
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Product</th>
+                            <th>SKU</th>
+                            <th>Type</th>
+                            <th>Price</th>
+                            <th>Unit</th>
+                            <th>Inventory</th>
+                            <th>POS Ready?</th>
+                            <th>Flags</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for product in products %}
+                            <tr>
+                                <td>
+                                    {% if product.mainImage %}
+                                        <img 
+                                            src="{{ product.mainImage.url }}" 
+                                            alt="{{ product.alt_text|default:product.product_name }}" 
+                                            class="productThumb"
+                                        >
+                                    {% else %}
+                                        <div class="productThumbPlaceholder">🍓</div>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    <strong>{{ product.product_name }}</strong>
+                                    {% if product.short_description %}
+                                        <small>{{ product.short_description }}</small>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if product.sku %}
+                                        {{ product.sku }}
+                                    {% else %}
+                                        <span class="muted">No SKU</span>
+                                    {% endif %}
+                                </td>
+
+                                <td>{{ product.get_product_type_display }}</td>
+
+                                <td>
+                                    <strong>${{ product.get_active_price }}</strong>
+                                    {% if product.on_sale %}
+                                        <span class="saleBadge">Sale</span>
+                                    {% endif %}
+                                </td>
+
+                                <td>{{ product.get_unit_display_label|default:product.get_unit_type_display }}</td>
+
+                                <td>
+                                    <span class="statusPill inventory-{{ product.inventory_status }}">
+                                        {{ product.get_inventory_status_display }}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    {% if product.is_active and product.is_active_offline and product.inventory_status != "out_of_stock" %}
+                                        <span class="statusPill good">Yes</span>
+                                    {% else %}
+                                        <span class="statusPill bad">No</span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    <div class="flagStack">
+                                        {% if product.is_active %}
+                                            <span class="miniPill good">Active</span>
+                                        {% else %}
+                                            <span class="miniPill bad">Inactive</span>
+                                        {% endif %}
+
+                                        {% if product.is_active_offline %}
+                                            <span class="miniPill good">POS</span>
+                                        {% else %}
+                                            <span class="miniPill bad">No POS</span>
+                                        {% endif %}
+
+                                        {% if product.is_active_online %}
+                                            <span class="miniPill good">Online</span>
+                                        {% else %}
+                                            <span class="miniPill bad">No Online</span>
+                                        {% endif %}
+
+                                        {% if product.show_in_store %}
+                                            <span class="miniPill good">Store</span>
+                                        {% else %}
+                                            <span class="miniPill warn">Hidden</span>
+                                        {% endif %}
+
+                                        {% if product.allow_custom_price %}
+                                            <span class="miniPill warn">Custom Price</span>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td>
+                                    <a href="{% url 'pos_product_edit_page' product.id %}" class="editProductBtn">
+                                        Edit
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="emptyState">
+                No products found with those filters.
+            </div>
+        {% endif %}
+    </section>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,356 @@
+{% extends "mainLayout.html" %}
+{% load static %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'style/pos_sales_list.css' %}">
+{% endblock %}
+
+{% block list %}
+
+<div class="salesShell">
+
+    <header class="salesHeader">
+        <div>
+            <p class="eyebrow">Heavens Gates Cherry Farm</p>
+            <h1>POS Sales</h1>
+            <p class="subText">
+                View completed, open, voided, and refunded POS sales.
+            </p>
+        </div>
+
+        <div class="headerActions">
+            <a href="{% url 'pos_sales_list_page' %}" class="darkBtn">Sales</a>
+            <a href="{% url 'pos_terminal_page' %}" class="darkBtn">Back to POS</a>
+        </div>
+    </header>
+
+    <section class="filterCard">
+        <form method="GET" class="filterForm">
+
+            <div class="filterField searchField">
+                <label for="q">Search</label>
+                <input 
+                    type="text" 
+                    id="q" 
+                    name="q" 
+                    value="{{ search_query }}" 
+                    placeholder="Sale #, customer, email, or notes..."
+                >
+            </div>
+
+            <div class="filterField">
+                <label for="status">Status</label>
+                <select id="status" name="status">
+                    <option value="">All</option>
+                    {% for value, label in sale_status_choices %}
+                        <option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filterField">
+                <label for="payment_method">Payment</label>
+                <select id="payment_method" name="payment_method">
+                    <option value="">All</option>
+                    {% for value, label in payment_method_choices %}
+                        <option value="{{ value }}" {% if selected_payment_method == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filterField">
+                <label for="date_from">From</label>
+                <input type="date" id="date_from" name="date_from" value="{{ date_from }}">
+            </div>
+
+            <div class="filterField">
+                <label for="date_to">To</label>
+                <input type="date" id="date_to" name="date_to" value="{{ date_to }}">
+            </div>
+
+            <div class="filterActions">
+                <button type="submit" class="primaryBtn">Filter</button>
+                <a href="{% url 'pos_sales_list_page' %}" class="ghostBtn">Reset</a>
+            </div>
+
+        </form>
+    </section>
+
+    <section class="tableCard">
+        {% if sales %}
+            <div class="tableWrap">
+                <table class="salesTable">
+                    <thead>
+                        <tr>
+                            <th>Sale #</th>
+                            <th>Date</th>
+                            <th>Customer</th>
+                            <th>Status</th>
+                            <th>Payment</th>
+                            <th>Items</th>
+                            <th>Subtotal</th>
+                            <th>Tax</th>
+                            <th>Total</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for sale in sales %}
+                            <tr>
+                                <td>
+                                    <strong>{{ sale.sale_number }}</strong>
+                                </td>
+
+                                <td>
+                                    {{ sale.created_at|date:"M j, Y" }}
+                                    <small>{{ sale.created_at|time:"g:i A" }}</small>
+                                </td>
+
+                                <td>
+                                    {% if sale.customer_name %}
+                                        <strong>{{ sale.customer_name }}</strong>
+                                    {% else %}
+                                        <span class="muted">Walk-in Customer</span>
+                                    {% endif %}
+
+                                    {% if sale.customer_email %}
+                                        <small>{{ sale.customer_email }}</small>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    <span class="statusPill status-{{ sale.status }}">
+                                        {{ sale.get_status_display }}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    {% if sale.payment_method %}
+                                        {{ sale.get_payment_method_display }}
+                                    {% else %}
+                                        <span class="muted">Pending</span>
+                                    {% endif %}
+                                </td>
+
+                                <td>{{ sale.item_count }}</td>
+
+                                <td>${{ sale.subtotal }}</td>
+                                <td>${{ sale.tax_amount }}</td>
+
+                                <td>
+                                    <strong>${{ sale.total }}</strong>
+                                </td>
+
+                                <td>
+                                    <button 
+                                        type="button" 
+                                        class="viewSaleBtn"
+                                        data-sale-id="{{ sale.id }}"
+                                    >
+                                        View
+                                    </button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="emptyState">
+                No sales found.
+            </div>
+        {% endif %}
+    </section>
+
+</div>
+
+<div id="saleModal" class="saleModal hidden">
+    <div class="saleModalBackdrop" id="saleModalBackdrop"></div>
+
+    <div class="saleModalDialog">
+        <div class="saleModalHead">
+            <div>
+                <p class="eyebrow">Sale Details</p>
+                <h2 id="modalSaleNumber">Sale</h2>
+            </div>
+
+            <button type="button" id="closeSaleModalBtn" class="ghostBtn">
+                Close
+            </button>
+        </div>
+
+        <div id="saleModalContent" class="saleModalContent">
+            Loading...
+        </div>
+    </div>
+</div>
+
+<script>
+    window.SALES_CONFIG = {
+        saleDetailUrlBase: "/pos/api/sale/",
+    };
+
+    function money(value) {
+        const num = Number(value || 0);
+        return `$${num.toFixed(2)}`;
+    }
+
+    function escapeHtml(value) {
+        return String(value || "")
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+    }
+
+    function formatDateTime(value) {
+        if (!value) return "—";
+
+        try {
+            return new Date(value).toLocaleString();
+        } catch (e) {
+            return value;
+        }
+    }
+
+    function openSaleModal() {
+        document.getElementById("saleModal").classList.remove("hidden");
+    }
+
+    function closeSaleModal() {
+        document.getElementById("saleModal").classList.add("hidden");
+    }
+
+    async function loadSaleDetails(saleId) {
+        const modalSaleNumber = document.getElementById("modalSaleNumber");
+        const modalContent = document.getElementById("saleModalContent");
+
+        modalSaleNumber.textContent = "Loading...";
+        modalContent.innerHTML = `<div class="emptyState">Loading sale details...</div>`;
+
+        openSaleModal();
+
+        try {
+            const response = await fetch(`${window.SALES_CONFIG.saleDetailUrlBase}${saleId}/`);
+            const data = await response.json();
+
+            if (!data.success || !data.sale) {
+                modalContent.innerHTML = `<div class="emptyState error">Could not load sale details.</div>`;
+                return;
+            }
+
+            const sale = data.sale;
+
+            modalSaleNumber.textContent = sale.sale_number || "Sale";
+
+            const itemsHtml = sale.items && sale.items.length
+                ? sale.items.map(item => `
+                    <div class="modalItem">
+                        <div>
+                            <strong>${escapeHtml(item.product_name)}</strong>
+                            <small>SKU: ${escapeHtml(item.sku || "No SKU")}</small>
+                        </div>
+
+                        <div class="modalItemRight">
+                            <span>Qty: ${escapeHtml(item.weight_amount || item.quantity || "1")}</span>
+                            <span>Unit: ${money(item.unit_price)}</span>
+                            <strong>${money(item.line_subtotal)}</strong>
+                        </div>
+                    </div>
+                `).join("")
+                : `<div class="emptyState">No items found.</div>`;
+
+            modalContent.innerHTML = `
+                <div class="modalGrid">
+                    <div class="modalInfoCard">
+                        <span>Status</span>
+                        <strong>${escapeHtml(sale.status || "—")}</strong>
+                    </div>
+
+                    <div class="modalInfoCard">
+                        <span>Payment</span>
+                        <strong>${escapeHtml(sale.payment_method || "Pending")}</strong>
+                    </div>
+
+                    <div class="modalInfoCard">
+                        <span>Customer</span>
+                        <strong>${escapeHtml(sale.customer_name || "Walk-in Customer")}</strong>
+                        <small>${escapeHtml(sale.customer_email || "")}</small>
+                    </div>
+
+                    <div class="modalInfoCard">
+                        <span>Created</span>
+                        <strong>${formatDateTime(sale.created_at)}</strong>
+                    </div>
+
+                    <div class="modalInfoCard">
+                        <span>Completed</span>
+                        <strong>${formatDateTime(sale.completed_at)}</strong>
+                    </div>
+                </div>
+
+                <div class="modalSection">
+                    <h3>Items</h3>
+                    ${itemsHtml}
+                </div>
+
+                <div class="modalTotals">
+                    <div>
+                        <span>Subtotal</span>
+                        <strong>${money(sale.subtotal)}</strong>
+                    </div>
+
+                    <div>
+                        <span>Tax</span>
+                        <strong>${money(sale.tax_amount)}</strong>
+                    </div>
+
+                    <div class="grand">
+                        <span>Total</span>
+                        <strong>${money(sale.total)}</strong>
+                    </div>
+
+                    <div>
+                        <span>Cash Received</span>
+                        <strong>${sale.cash_received ? money(sale.cash_received) : "—"}</strong>
+                    </div>
+
+                    <div>
+                        <span>Change</span>
+                        <strong>${sale.cash_change ? money(sale.cash_change) : "—"}</strong>
+                    </div>
+                </div>
+
+                ${
+                    sale.notes
+                    ? `
+                    <div class="modalSection">
+                        <h3>Notes</h3>
+                        <p>${escapeHtml(sale.notes)}</p>
+                    </div>
+                    `
+                    : ""
+                }
+            `;
+        } catch (error) {
+            modalContent.innerHTML = `<div class="emptyState error">Error loading sale details.</div>`;
+        }
+    }
+
+    document.querySelectorAll(".viewSaleBtn").forEach(button => {
+        button.addEventListener("click", () => {
+            loadSaleDetails(button.dataset.saleId);
+        });
+    });
+
+    document.getElementById("closeSaleModalBtn").addEventListener("click", closeSaleModal);
+    document.getElementById("saleModalBackdrop").addEventListener("click", closeSaleModal);
+</script>
+
+{% endblock %}

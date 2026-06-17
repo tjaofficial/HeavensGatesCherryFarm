@@ -265,6 +265,101 @@ class UPickReservationForm(forms.ModelForm):
 
         return agreed
     
+class POSProductEditForm(forms.ModelForm):
+    class Meta:
+        model = mainStore_products
+
+        fields = [
+            "product_name",
+            "sku",
+            "product_type",
+            "ribbon",
+            "short_description",
+            "description",
+
+            "price",
+            "unit_type",
+            "unit_label",
+
+            "on_sale",
+            "sale_percentage",
+            "sale_price",
+
+            "track_inventory",
+            "inventory_status",
+            "inventory_total",
+            "allow_backorder",
+
+            "pre_order",
+            "pre_order_message",
+
+            "harvest_date",
+            "season_start",
+            "season_end",
+            "is_seasonal",
+
+            "limit_per_order",
+            "limit_number",
+
+            "fulfillment_type",
+            "shipping_weight",
+            "taxable",
+
+            "show_in_store",
+            "is_active",
+            "is_active_online",
+            "is_active_offline",
+            "allow_custom_price",
+
+            "pos_display_order",
+            "store_display_order",
+
+            "mainImage",
+            "alt_text",
+            "meta_title",
+            "meta_description",
+        ]
+
+        widgets = {
+            "product_name": forms.TextInput(attrs={"class": "formInput"}),
+            "sku": forms.TextInput(attrs={"class": "formInput"}),
+            "product_type": forms.Select(attrs={"class": "formInput"}),
+            "ribbon": forms.TextInput(attrs={"class": "formInput"}),
+            "short_description": forms.TextInput(attrs={"class": "formInput"}),
+            "description": forms.Textarea(attrs={"class": "formInput", "rows": 5}),
+
+            "price": forms.NumberInput(attrs={"class": "formInput", "step": "0.01"}),
+            "unit_type": forms.Select(attrs={"class": "formInput"}),
+            "unit_label": forms.TextInput(attrs={"class": "formInput"}),
+
+            "sale_percentage": forms.NumberInput(attrs={"class": "formInput", "min": "1", "max": "100"}),
+            "sale_price": forms.NumberInput(attrs={"class": "formInput", "step": "0.01"}),
+
+            "inventory_status": forms.Select(attrs={"class": "formInput"}),
+            "inventory_total": forms.NumberInput(attrs={"class": "formInput", "step": "0.01"}),
+
+            "pre_order_message": forms.TextInput(attrs={"class": "formInput"}),
+
+            "harvest_date": forms.DateInput(attrs={"class": "formInput", "type": "date"}),
+            "season_start": forms.DateInput(attrs={"class": "formInput", "type": "date"}),
+            "season_end": forms.DateInput(attrs={"class": "formInput", "type": "date"}),
+
+            "limit_number": forms.NumberInput(attrs={"class": "formInput", "min": "1"}),
+
+            "fulfillment_type": forms.Select(attrs={"class": "formInput"}),
+            "shipping_weight": forms.NumberInput(attrs={"class": "formInput", "step": "0.01"}),
+
+            "pos_display_order": forms.NumberInput(attrs={"class": "formInput", "min": "0"}),
+            "store_display_order": forms.NumberInput(attrs={"class": "formInput", "min": "0"}),
+
+            "mainImage": forms.ClearableFileInput(attrs={"class": "formInput"}),
+            "alt_text": forms.TextInput(attrs={"class": "formInput"}),
+            "meta_title": forms.TextInput(attrs={"class": "formInput"}),
+            "meta_description": forms.TextInput(attrs={"class": "formInput"}),
+        }
+
+
+
 
 
     
