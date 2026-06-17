@@ -84,7 +84,7 @@ footer {
    Mobile Sidebar
 ================================ */
 
-@media screen and (max-width: 900px) {
+@media screen and (max-width: 1024px) {
     .sidebar-toggle {
         display: inline-flex;
         align-items: center;
@@ -202,5 +202,21 @@ footer {
 
     .play li {
         padding: 14px 16px;
+    }
+}
+
+@media screen and (max-width: 1024px) {
+    body::before {
+        content: "MOBILE CSS ACTIVE";
+        position: fixed;
+        top: 8px;
+        left: 8px;
+        z-index: 999999;
+        background: red;
+        color: white;
+        padding: 8px 12px;
+        font-size: 14px;
+        font-weight: bold;
+        border-radius: 8px;
     }
 }
