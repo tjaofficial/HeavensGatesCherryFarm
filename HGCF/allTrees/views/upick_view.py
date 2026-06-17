@@ -1,5 +1,6 @@
 from datetime import date, datetime, timedelta
 from django.shortcuts import render, redirect, get_object_or_404 #type: ignore
+from django.db import transaction
 from django.db.models import Prefetch #type: ignore
 from django.contrib import messages #type: ignore
 from django.views.decorators.http import require_http_methods #type: ignore
@@ -8,6 +9,7 @@ from django.contrib.auth.decorators import login_required
 
 from ..models import UPickEvent, UPickTimeSlot, UPickReservation
 from ..forms import UPickReservationForm
+from ..utils import send_upick_reservation_confirmation
 
 
 def get_client_ip(request):
@@ -133,6 +135,10 @@ def upick_reserve_view(request, slot_id):
 
                     reservation.status = "confirmed"
                     reservation.save()
+
+                    transaction.on_commit(
+                        lambda: send_upick_reservation_confirmation(reservation)
+                    )
 
                     return redirect("upick_success", reservation_id=reservation.id)
     else:
