@@ -1,4 +1,12 @@
-function getStoryCSRFToken() {
+function getStoryCSRFToken(form = null) {
+    if (form) {
+        const csrfInput = form.querySelector("input[name='csrfmiddlewaretoken']");
+
+        if (csrfInput) {
+            return csrfInput.value;
+        }
+    }
+
     const csrfInput = document.querySelector("input[name='csrfmiddlewaretoken']");
 
     if (csrfInput) {
@@ -76,9 +84,9 @@ function setupStoryPhotoModal() {
     });
 }
 
-function setupNewsletterForm() {
-    const form = document.getElementById("storySubscribeForm");
-    const message = document.getElementById("subscribeMessage");
+function setupNewsletterFormById(options) {
+    const form = document.getElementById(options.formId);
+    const message = document.getElementById(options.messageId);
 
     if (!form) return;
 
@@ -88,9 +96,16 @@ function setupNewsletterForm() {
         const submitButton = form.querySelector("button[type='submit']");
         const formData = new FormData(form);
 
+        const firstName = (formData.get("first_name") || "").trim();
+        const lastName = (formData.get("last_name") || "").trim();
+        const email = (formData.get("email") || "").trim();
+        const source = (formData.get("source") || options.defaultSource || "farm_subscribe").trim();
+
         const payload = {
-            name: formData.get("name"),
-            email: formData.get("email")
+            first_name: firstName,
+            last_name: lastName,
+            email: email,
+            source: source
         };
 
         if (message) {
@@ -100,14 +115,17 @@ function setupNewsletterForm() {
 
         if (submitButton) {
             submitButton.disabled = true;
+            submitButton.dataset.originalText = submitButton.textContent;
             submitButton.textContent = "Subscribing...";
         }
 
-        fetch("/our-story/subscribe/", {
+        const subscribeUrl = window.FARM_SUBSCRIBE_URL || "/our-story/subscribe/";
+
+        fetch(subscribeUrl, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "X-CSRFToken": getStoryCSRFToken()
+                "X-CSRFToken": getStoryCSRFToken(form)
             },
             body: JSON.stringify(payload)
         })
@@ -136,9 +154,25 @@ function setupNewsletterForm() {
         .finally(() => {
             if (submitButton) {
                 submitButton.disabled = false;
-                submitButton.textContent = "Subscribe";
+                submitButton.textContent = submitButton.dataset.originalText || options.defaultButtonText || "Subscribe";
             }
         });
+    });
+}
+
+function setupNewsletterForms() {
+    setupNewsletterFormById({
+        formId: "storySubscribeForm",
+        messageId: "subscribeMessage",
+        defaultSource: "our_story_page",
+        defaultButtonText: "Subscribe"
+    });
+
+    setupNewsletterFormById({
+        formId: "farmSubscribeForm",
+        messageId: "farmSubscribeMessage",
+        defaultSource: "farm_subscription_page",
+        defaultButtonText: "Subscribe to Farm Updates"
     });
 }
 
@@ -156,6 +190,6 @@ function setupHeroParallax() {
 document.addEventListener("DOMContentLoaded", function () {
     setupStoryTimelineReveal();
     setupStoryPhotoModal();
-    setupNewsletterForm();
+    setupNewsletterForms();
     setupHeroParallax();
 });

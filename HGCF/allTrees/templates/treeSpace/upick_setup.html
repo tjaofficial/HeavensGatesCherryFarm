@@ -1,120 +1,317 @@
 {% extends "mainLayout.html" %}
 {% load static %}
 
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'style/upick.css' %}">
+{% endblock %}
+
 {% block list %}
-<link href="{% static 'style/upick.css' %}" rel="stylesheet" />
-<div class="treespace-page">
-    <div class="treespace-card">
-        <h1>Set Up U-Pick Day</h1>
-        <p>Create a day customers can reserve strawberry picking times.</p>
 
-        {% if messages %}
-            <div class="message-list">
-                {% for message in messages %}
-                    <div class="message {{ message.tags }}">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            </div>
-        {% endif %}
+<div class="upickSetupPage">
 
-        <form method="POST" class="upick-setup-form">
+    <header class="upickSetupHeader">
+        <div>
+            <p class="eyebrow">TreeSpace Admin</p>
+            <h1>U-Pick Setup</h1>
+            <p class="headerText">
+                Create public U-Pick days, set reservation time slots, and add weather notes, field notes, and visitor rules.
+            </p>
+        </div>
+
+        <div class="headerActions">
+            <a href="{% url 'upick_landing' %}" class="ghostBtn">View Public U-Pick Page</a>
+        </div>
+    </header>
+
+    {% if messages %}
+        <div class="messageStack">
+            {% for message in messages %}
+                <div class="messageBox {{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <section class="setupCard">
+        <div class="cardHeader">
+            <h2>Create U-Pick Day</h2>
+            <p>
+                Fill this out once for each public picking day. The system will automatically create time slots between the start and end time.
+            </p>
+        </div>
+
+        <form method="POST" class="upickSetupForm">
             {% csrf_token %}
 
-            <label>Title</label>
-            <input 
-                type="text" 
-                name="title" 
-                placeholder="Example: Saturday Strawberry U-Pick"
-                required
-            >
+            <div class="formSection">
+                <div class="sectionTitle">
+                    <h3>Basic Event Info</h3>
+                    <p>What customers will see when they choose a U-Pick day.</p>
+                </div>
 
-            <label>Date</label>
-            <input 
-                type="date" 
-                name="date" 
-                required
-            >
+                <div class="formGrid twoCol">
+                    <div class="formField">
+                        <label for="crop_name">Crop Name</label>
+                        <input 
+                            type="text" 
+                            id="crop_name" 
+                            name="crop_name" 
+                            value="Strawberries"
+                            autocomplete="off"
+                        >
+                    </div>
 
-            <label>Description</label>
-            <textarea 
-                name="description" 
-                placeholder="Example: Fresh strawberries available while supplies last."
-            ></textarea>
+                    <div class="formField">
+                        <label for="title">Public Title</label>
+                        <input 
+                            type="text" 
+                            id="title" 
+                            name="title" 
+                            value="U-Pick Strawberries"
+                            autocomplete="off"
+                        >
+                    </div>
 
-            <label>Total Daily Capacity</label>
-            <input 
-                type="number" 
-                name="total_capacity" 
-                min="1"
-            >
+                    <div class="formField">
+                        <label for="date">U-Pick Date</label>
+                        <input 
+                            type="date" 
+                            id="date" 
+                            name="date" 
+                            required
+                        >
+                    </div>
 
-            <hr>
+                    <div class="formField checkboxField">
+                        <span class="labelText">Visibility</span>
 
-            <h2>Auto-Create Time Slots</h2>
+                        <label class="checkRow">
+                            <input type="checkbox" name="is_active" checked>
+                            <span>Active in system</span>
+                        </label>
 
-            <label>Start Time</label>
-            <input 
-                type="time" 
-                name="start_time" 
-            >
+                        <label class="checkRow">
+                            <input type="checkbox" name="is_public" checked>
+                            <span>Public on website</span>
+                        </label>
+                    </div>
 
-            <label>End Time</label>
-            <input 
-                type="time" 
-                name="end_time" 
-            >
+                    <div class="formField full">
+                        <label for="description">Description</label>
+                        <textarea 
+                            id="description" 
+                            name="description" 
+                            rows="4"
+                            placeholder="Example: Come pick fresh organic strawberries at Heaven's Gates Cherry Farm. Please reserve a time slot before arriving."
+                        ></textarea>
+                    </div>
+                </div>
+            </div>
 
-            <label>Slot Length</label>
-            <select name="slot_length_minutes">
-                <option value="">--SELECT--</option>
-                <option value="30">30 minutes</option>
-                <option value="60">1 hour</option>
-                <option value="90">1.5 hours</option>
-                <option value="120">2 hours</option>
-            </select>
+            <div class="formSection">
+                <div class="sectionTitle">
+                    <h3>Reservation Time Slots</h3>
+                    <p>These settings control the arrival windows customers can reserve.</p>
+                </div>
 
-            <label>Capacity Per Slot</label>
-            <input 
-                type="number" 
-                name="slot_capacity" 
-                value="10"
-                min="1"
-            >
+                <div class="formGrid threeCol">
+                    <div class="formField">
+                        <label for="start_time">Start Time</label>
+                        <input 
+                            type="time" 
+                            id="start_time" 
+                            name="start_time" 
+                            required
+                        >
+                    </div>
 
-            <button type="submit" class="primary-btn">
-                Create U-Pick Day
-            </button>
+                    <div class="formField">
+                        <label for="end_time">End Time</label>
+                        <input 
+                            type="time" 
+                            id="end_time" 
+                            name="end_time" 
+                            required
+                        >
+                    </div>
+
+                    <div class="formField">
+                        <label for="default_slot_minutes">Slot Length</label>
+                        <select id="default_slot_minutes" name="default_slot_minutes">
+                            <option value="30">30 minutes</option>
+                            <option value="45">45 minutes</option>
+                            <option value="60" selected>60 minutes</option>
+                            <option value="90">90 minutes</option>
+                            <option value="120">120 minutes</option>
+                        </select>
+                    </div>
+
+                    <div class="formField">
+                        <label for="default_slot_capacity">Capacity Per Slot</label>
+                        <input 
+                            type="number" 
+                            id="default_slot_capacity" 
+                            name="default_slot_capacity" 
+                            value="10"
+                            min="1"
+                            inputmode="numeric"
+                            required
+                        >
+                        <small>How many people can reserve each time slot.</small>
+                    </div>
+
+                    <div class="formField">
+                        <label for="grace_period_minutes">Grace Period</label>
+                        <input 
+                            type="number" 
+                            id="grace_period_minutes" 
+                            name="grace_period_minutes" 
+                            value="15"
+                            min="0"
+                            inputmode="numeric"
+                        >
+                        <small>Minutes late before the reservation may be released.</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="formSection importantSection">
+                <div class="sectionTitle">
+                    <h3>Customer Notes & Rules</h3>
+                    <p>These appear in the reservation confirmation email and help customers know what to expect.</p>
+                </div>
+
+                <div class="formGrid">
+                    <div class="formField full">
+                        <label for="weather_note">Weather Notes</label>
+                        <textarea 
+                            id="weather_note" 
+                            name="weather_note" 
+                            rows="3"
+                            placeholder="Example: U-Pick may be delayed or cancelled if heavy rain or storms move through the area."
+                        ></textarea>
+                    </div>
+
+                    <div class="formField full">
+                        <label for="field_note">Field Notes</label>
+                        <textarea 
+                            id="field_note" 
+                            name="field_note" 
+                            rows="3"
+                            placeholder="Example: Field rows may be muddy. Closed-toe shoes are recommended."
+                        ></textarea>
+                    </div>
+
+                    <div class="formField full">
+                        <label for="rules_text">Rules Text</label>
+                        <textarea 
+                            id="rules_text" 
+                            name="rules_text" 
+                            rows="15"
+                        >{{ default_rules_text }}</textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stickySubmitBar">
+                <div>
+                    <strong>Ready to create this U-Pick day?</strong>
+                    <span>The time slots will be generated automatically.</span>
+                </div>
+
+                <button type="submit" class="primaryBtn">
+                    Create U-Pick Day
+                </button>
+            </div>
         </form>
-    </div>
+    </section>
 
-    <div class="treespace-card">
-        <h2>Existing U-Pick Days</h2>
+    <section class="existingCard">
+        <div class="cardHeader">
+            <h2>Existing U-Pick Days</h2>
+            <p>Current and previous U-Pick events.</p>
+        </div>
 
         {% if events %}
-            <div class="upick-event-list">
+            <div class="eventList">
                 {% for event in events %}
-                    <div class="upick-event-row">
-                        <div>
-                            <strong>{{ event.title }}</strong>
-                            <br>
-                            <span>{{ event.date }}</span>
+                    <article class="eventItem">
+                        <div class="eventMain">
+                            <div>
+                                <p class="eventDate">{{ event.date|date:"l, F j, Y" }}</p>
+                                <h3>{{ event.title }}</h3>
+                                <p class="eventCrop">{{ event.crop_name }}</p>
+                            </div>
+
+                            <div class="eventBadges">
+                                {% if event.is_active %}
+                                    <span class="badge good">Active</span>
+                                {% else %}
+                                    <span class="badge bad">Inactive</span>
+                                {% endif %}
+
+                                {% if event.is_public %}
+                                    <span class="badge good">Public</span>
+                                {% else %}
+                                    <span class="badge warn">Hidden</span>
+                                {% endif %}
+                            </div>
                         </div>
 
-                        <div>
-                            {% if event.is_active %}
-                                <span class="status active">Active</span>
-                            {% else %}
-                                <span class="status inactive">Inactive</span>
-                            {% endif %}
+                        <div class="eventStats">
+                            <div>
+                                <span>Slots</span>
+                                <strong>{{ event.time_slots.count }}</strong>
+                            </div>
+
+                            <div>
+                                <span>Capacity/Slot</span>
+                                <strong>{{ event.default_slot_capacity }}</strong>
+                            </div>
+
+                            <div>
+                                <span>Slot Length</span>
+                                <strong>{{ event.default_slot_minutes }} min</strong>
+                            </div>
                         </div>
-                    </div>
+
+                        {% if event.weather_note or event.field_note or event.rules_text %}
+                            <details class="eventDetails">
+                                <summary>View notes and rules</summary>
+
+                                {% if event.weather_note %}
+                                    <div class="noteBlock">
+                                        <strong>Weather Notes</strong>
+                                        <p>{{ event.weather_note }}</p>
+                                    </div>
+                                {% endif %}
+
+                                {% if event.field_note %}
+                                    <div class="noteBlock">
+                                        <strong>Field Notes</strong>
+                                        <p>{{ event.field_note }}</p>
+                                    </div>
+                                {% endif %}
+
+                                {% if event.rules_text %}
+                                    <div class="noteBlock">
+                                        <strong>Rules</strong>
+                                        <p>{{ event.rules_text|linebreaksbr }}</p>
+                                    </div>
+                                {% endif %}
+                            </details>
+                        {% endif %}
+                    </article>
                 {% endfor %}
             </div>
         {% else %}
-            <p>No U-Pick days created yet.</p>
+            <div class="emptyState">
+                No U-Pick days have been created yet.
+            </div>
         {% endif %}
-    </div>
+    </section>
+
 </div>
 
 {% endblock %}

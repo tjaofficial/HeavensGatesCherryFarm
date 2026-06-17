@@ -1,0 +1,32 @@
+Hi {{ reservation.first_name }},
+
+Your U-Pick reservation at Heaven's Gates Cherry Farm is confirmed.
+
+Reservation Details:
+Crop: {{ event.crop_name }}
+Date: {{ event_date }}
+Time: {{ slot_label }}
+Party Size: {{ reservation.party_size }}
+Name: {{ reservation.full_name }}
+Email: {{ reservation.email }}
+Phone: {{ reservation.phone|default:"Not provided" }}
+
+{% if event.field_note %}
+Field Notes:
+{{ event.field_note }}
+{% endif %}
+
+{% if event.weather_note %}
+Weather Notes:
+{{ event.weather_note }}
+{% endif %}
+
+{% if event.rules_text %}
+U-Pick Rules:
+{{ event.rules_text }}
+{% endif %}
+
+Please check your phone or email before heading to the farm in case conditions, weather, or crop availability have changed.
+
+Thank you,
+Heaven's Gates Cherry Farm

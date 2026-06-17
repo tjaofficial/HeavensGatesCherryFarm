@@ -11,6 +11,7 @@ urlpatterns = [
     # ---- Our Story -----------
     path("our-story/", views.our_story_view, name="our_story"),
     path("our-story/subscribe/", views.our_story_subscribe_view, name="our_story_subscribe"),
+    path("subscribe/", views.farm_subscribe_view, name="farm_subscribe"),
 
     # ---- Announcements ------------
     path("announcements/", views.announcements_view, name="announcements"),

@@ -93,10 +93,21 @@
                 </div>
 
                 <div class="actionStack">
-                    <button id="createSaleBtn" class="primaryBtn" type="button">Create Sale</button>
-                    <button id="cashSaleBtn" class="secondaryBtn" type="button" disabled>Complete Cash Sale</button>
-                    <button id="cardSaleBtn" class="darkBtn" type="button" disabled>Card / Tap Payment</button>
-                    <button id="cancelCardPaymentBtn" class="ghostDangerBtn" type="button" disabled>Cancel Card Payment</button>
+                    <button id="createSaleBtn" class="primaryBtn" type="button">
+                        Start Checkout
+                    </button>
+
+                    <button id="cashSaleBtn" class="secondaryBtn hidden" type="button" disabled>
+                        Complete Cash Sale
+                    </button>
+
+                    <button id="cardSaleBtn" class="darkBtn hidden" type="button" disabled>
+                        Card / Tap Payment
+                    </button>
+
+                    <button id="cancelCardPaymentBtn" class="ghostDangerBtn hidden" type="button" disabled>
+                        Cancel Card Payment
+                    </button>
                 </div>
 
                 <div id="saleStatusBox" class="saleStatusBox hidden"></div>

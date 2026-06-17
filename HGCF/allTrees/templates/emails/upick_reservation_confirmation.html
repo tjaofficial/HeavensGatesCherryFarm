@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Your U-Pick Reservation is Confirmed</title>
+</head>
+
+<body style="margin:0; padding:0; background:#fff8ef; font-family:Arial, Helvetica, sans-serif; color:#2d1b12;">
+
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:#fff8ef; padding:24px 12px;">
+        <tr>
+            <td align="center">
+
+                <table width="100%" cellpadding="0" cellspacing="0" style="max-width:640px; background:#ffffff; border-radius:18px; overflow:hidden; border:1px solid #ead8c8;">
+
+                    <tr>
+                        <td style="background:#7b380b; padding:28px 24px; text-align:center;">
+                            <h1 style="margin:0; color:#ffffff; font-size:28px; line-height:1.2;">
+                                Heaven's Gates Cherry Farm
+                            </h1>
+                            <p style="margin:10px 0 0; color:#f8e3d2; font-size:16px;">
+                                Your U-Pick reservation is confirmed
+                            </p>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="padding:28px 24px;">
+
+                            <p style="font-size:18px; line-height:1.5; margin:0 0 18px;">
+                                Hi {{ reservation.first_name }},
+                            </p>
+
+                            <p style="font-size:16px; line-height:1.6; margin:0 0 22px;">
+                                Thank you for reserving a U-Pick time at Heaven's Gates Cherry Farm. We are excited to have you visit.
+                            </p>
+
+                            <div style="background:#fff8ef; border:1px solid #dba37d; border-radius:14px; padding:18px; margin-bottom:24px;">
+                                <h2 style="margin:0 0 14px; color:#4f2307; font-size:22px;">
+                                    Reservation Details
+                                </h2>
+
+                                <table width="100%" cellpadding="0" cellspacing="0">
+                                    <tr>
+                                        <td style="padding:8px 0; font-weight:bold; color:#4f2307;">Crop</td>
+                                        <td style="padding:8px 0; text-align:right;">{{ event.crop_name }}</td>
+                                    </tr>
+
+                                    <tr>
+                                        <td style="padding:8px 0; font-weight:bold; color:#4f2307;">Date</td>
+                                        <td style="padding:8px 0; text-align:right;">{{ event_date }}</td>
+                                    </tr>
+
+                                    <tr>
+                                        <td style="padding:8px 0; font-weight:bold; color:#4f2307;">Time</td>
+                                        <td style="padding:8px 0; text-align:right;">{{ slot_label }}</td>
+                                    </tr>
+
+                                    <tr>
+                                        <td style="padding:8px 0; font-weight:bold; color:#4f2307;">Party Size</td>
+                                        <td style="padding:8px 0; text-align:right;">{{ reservation.party_size }}</td>
+                                    </tr>
+
+                                    <tr>
+                                        <td style="padding:8px 0; font-weight:bold; color:#4f2307;">Name</td>
+                                        <td style="padding:8px 0; text-align:right;">{{ reservation.full_name }}</td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            {% if event.field_note %}
+                                <div style="background:#fffaf3; border-left:5px solid #ca5d63; padding:16px; margin-bottom:18px; border-radius:10px;">
+                                    <h3 style="margin:0 0 8px; color:#4f2307; font-size:18px;">
+                                        Field Notes
+                                    </h3>
+                                    <p style="margin:0; line-height:1.6; font-size:15px;">
+                                        {{ event.field_note }}
+                                    </p>
+                                </div>
+                            {% endif %}
+
+                            {% if event.weather_note %}
+                                <div style="background:#fffaf3; border-left:5px solid #dba37d; padding:16px; margin-bottom:18px; border-radius:10px;">
+                                    <h3 style="margin:0 0 8px; color:#4f2307; font-size:18px;">
+                                        Weather Notes
+                                    </h3>
+                                    <p style="margin:0; line-height:1.6; font-size:15px;">
+                                        {{ event.weather_note }}
+                                    </p>
+                                </div>
+                            {% endif %}
+
+                            {% if event.rules_text %}
+                                <div style="background:#ffffff; border:1px solid #ead8c8; border-radius:14px; padding:18px; margin-bottom:24px;">
+                                    <h3 style="margin:0 0 12px; color:#4f2307; font-size:20px;">
+                                        U-Pick Rules
+                                    </h3>
+
+                                    <div style="margin:0; line-height:1.65; font-size:15px; white-space:pre-line;">
+                                        {{ event.rules_text|linebreaksbr }}
+                                    </div>
+                                </div>
+                            {% endif %}
+
+                            <div style="background:#ffeecf; border:1px solid #dba37d; border-radius:14px; padding:16px; margin-bottom:24px;">
+                                <p style="margin:0; font-size:16px; line-height:1.6; font-weight:bold; color:#4f2307;">
+                                    Please check your phone or email before heading to the farm in case conditions, weather, or crop availability have changed.
+                                </p>
+                            </div>
+
+                            <p style="font-size:16px; line-height:1.6; margin:0 0 8px;">
+                                Thank you,
+                            </p>
+
+                            <p style="font-size:16px; line-height:1.6; margin:0; font-weight:bold; color:#4f2307;">
+                                Heaven's Gates Cherry Farm
+                            </p>
+
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="background:#fff8ef; padding:18px 24px; text-align:center; border-top:1px solid #ead8c8;">
+                            <p style="margin:0; color:#6f625b; font-size:13px; line-height:1.5;">
+                                This email confirms your U-Pick reservation. Please keep it for your records.
+                            </p>
+                        </td>
+                    </tr>
+
+                </table>
+
+            </td>
+        </tr>
+    </table>
+
+</body>
+</html>

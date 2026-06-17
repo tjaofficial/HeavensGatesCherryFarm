@@ -261,16 +261,27 @@
                     Subscribe and we’ll let you know when strawberries are ready, when U-pick opens,
                     and what fresh goods are available.
                 </p>
+                <a href="{% url 'farm_subscribe' %}" class="newsletter-link">
+                    Open the full subscription form
+                </a>
             </div>
 
             <form id="storySubscribeForm" class="newsletter-form">
                 {% csrf_token %}
 
-                <input
-                    type="text"
-                    name="name"
-                    placeholder="Your name"
-                    autocomplete="name">
+                <div class="newsletter-name-grid">
+                    <input
+                        type="text"
+                        name="first_name"
+                        placeholder="First name"
+                        autocomplete="given-name">
+
+                    <input
+                        type="text"
+                        name="last_name"
+                        placeholder="Last name"
+                        autocomplete="family-name">
+                </div>
 
                 <input
                     type="email"

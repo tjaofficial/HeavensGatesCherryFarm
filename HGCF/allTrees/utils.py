@@ -6,7 +6,8 @@ import json
 import time
 from django.utils.timezone import localtime
 from django.conf import settings # type: ignore
-from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
 
 alphabetKey = {'a': '1', 'b': '2', 'c': '3', 'd': '4', 'e': '5', 'f': '6', 'g': '7', 'h': '8', 'i': '9', 'j': '10', 'k': '11', 'l': '12', 'm': '13', 'n': '14', 'o': '15', 'p': '16', 'q': '17', 'r': '18', 's': '19', 't': '20', 'u': '21', 'v': '22', 'w': '23', 'x': '24', 'y': '25', 'z': '26', 'A': '27', 'B': '28', 'C': '29', 'D': '30', 'E': '31', 'F': '32', 'G': '33', 'H': '34', 'I': '35', 'J': '36', 'K': '37', 'L': '38', 'M': '39', 'N': '40', 'O': '41', 'P': '42', 'Q': '43', 'R': '44', 'S': '45', 'T': '46', 'U': '47', 'V': '48', 'W': '49', 'X': '50', 'Y': '51', 'Z': '52'}
 
@@ -167,43 +168,33 @@ def send_upick_reservation_confirmation(reservation):
 
     subject = f"Your {event.crop_name} U-Pick Reservation is Confirmed"
 
-    message = f"""
-        Hi {reservation.first_name},
+    context = {
+        "reservation": reservation,
+        "event": event,
+        "slot": slot,
+        "event_date": event_date,
+        "slot_label": slot_label,
+    }
 
-        Your U-Pick reservation at Heaven's Gates Cherry Farm is confirmed.
+    text_body = render_to_string(
+        "emails/upick_reservation_confirmation.txt",
+        context
+    )
 
-        Reservation Details:
-        Date: {event_date}
-        Time: {slot_label}
-        Party Size: {reservation.party_size}
-
-        Name: {reservation.full_name()}
-        Email: {reservation.email}
-        Phone: {reservation.phone or "Not provided"}
-
-        Farm Notes:
-        {event.field_note or "No field notes at this time."}
-
-        Weather Notes:
-        {event.weather_note or "No weather notes at this time."}
-
-        Rules:
-        {event.rules_text or "Please arrive during your scheduled time slot and check in when you arrive."}
-
-        Thank you,
-        Heaven's Gates Cherry Farm
-    """
+    html_body = render_to_string(
+        "emails/upick_reservation_confirmation.html",
+        context
+    )
 
     print(f"Sending U-Pick confirmation email to {reservation.email} for reservation {reservation.id}")
 
-    return send_mail(
+    email = EmailMultiAlternatives(
         subject=subject,
-        message=message,
+        body=text_body,
         from_email=settings.DEFAULT_FROM_EMAIL,
-        recipient_list=[reservation.email],
-        fail_silently=False,
+        to=[reservation.email],
     )
 
+    email.attach_alternative(html_body, "text/html")
 
-
-
+    return email.send(fail_silently=False)

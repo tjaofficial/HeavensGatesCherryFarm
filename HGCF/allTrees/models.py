@@ -1364,7 +1364,13 @@ class StoreOrderItem(models.Model):
 
 class FarmNewsletterSubscriber(models.Model):
     email = models.EmailField(unique=True)
+
+    first_name = models.CharField(max_length=80, blank=True, null=True)
+    last_name = models.CharField(max_length=80, blank=True, null=True)
+
+    # Keep this for old subscribers / backwards compatibility
     name = models.CharField(max_length=120, blank=True, null=True)
+
     source = models.CharField(max_length=80, default="our_story_page")
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -1376,6 +1382,16 @@ class FarmNewsletterSubscriber(models.Model):
 
     def __str__(self):
         return self.email
+
+    def full_name(self):
+        name_parts = [
+            self.first_name or "",
+            self.last_name or "",
+        ]
+
+        full_name = " ".join(part for part in name_parts if part).strip()
+
+        return full_name or self.name or self.email
 
 class FarmAnnouncement(models.Model):
     ANNOUNCEMENT_TYPE_CHOICES = (

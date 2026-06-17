@@ -363,288 +363,510 @@
    Dad-Friendly U-Pick Setup Page
 ================================ */
 
-.treespace-page {
-    max-width: 980px;
+.upickSetupPage {
+    max-width: 1120px;
     margin: 0 auto;
-    padding: 45px 20px 80px;
+    padding: 28px 18px 100px;
+    color: #2d1b12;
 }
 
-/* Big readable white cards */
-.treespace-card {
-    background: #fffaf3;
-    border: 3px solid #dba37d;
-    border-radius: 24px;
-    padding: 36px;
-    margin-bottom: 30px;
-    box-shadow: 0 14px 35px rgba(0, 0, 0, 0.22);
+.upickSetupHeader {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    align-items: flex-start;
+    margin-bottom: 24px;
 }
 
-/* Headings */
-.treespace-card h1 {
-    margin: 0 0 18px;
-    font-size: 42px;
-    line-height: 1.1;
+.eyebrow {
+    margin: 0 0 8px;
+    color: #ca5d63;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.85rem;
+}
+
+.upickSetupHeader h1 {
+    margin: 0;
     color: #4f2307;
+    font-size: clamp(2.2rem, 7vw, 4.2rem);
+    line-height: 0.98;
+}
+
+.headerText {
+    max-width: 720px;
+    color: #6f625b;
+    font-size: 1.05rem;
+    line-height: 1.55;
+    margin: 12px 0 0;
+}
+
+.headerActions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.setupCard,
+.existingCard {
+    background: #ffffff;
+    border: 2px solid #ead8c8;
+    border-radius: 24px;
+    padding: 22px;
+    margin-bottom: 24px;
+    box-shadow: 0 12px 32px rgba(79, 35, 7, 0.1);
+}
+
+.cardHeader {
+    padding-bottom: 16px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #f2dfcf;
+}
+
+.cardHeader h2 {
+    margin: 0 0 6px;
+    color: #4f2307;
+    font-size: clamp(1.6rem, 4vw, 2.2rem);
+}
+
+.cardHeader p {
+    margin: 0;
+    color: #6f625b;
+    line-height: 1.5;
+}
+
+.messageStack {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.messageBox {
+    border-radius: 16px;
+    padding: 14px 16px;
     font-weight: 900;
 }
 
-.treespace-card h2 {
-    margin: 30px 0 18px;
-    font-size: 28px;
-    color: #7b380b;
-    border-bottom: 3px solid #dba37d;
-    padding-bottom: 8px;
+.messageBox.success {
+    background: #e5f7e1;
+    color: #1f6b2d;
+    border: 2px solid #8cc989;
 }
 
-.treespace-card p {
-    font-size: 20px;
-    line-height: 1.5;
-    color: #2d1b12;
-    margin-bottom: 28px;
+.messageBox.error {
+    background: #ffe1e1;
+    color: #8a1f1f;
+    border: 2px solid #ca5d63;
 }
 
-/* Make form simple: one field per row */
-.upick-setup-form {
-    display: block;
+.upickSetupForm {
+    display: grid;
+    gap: 24px;
 }
 
-/* Labels */
-.upick-setup-form label {
-    display: block;
-    margin: 22px 0 8px;
-    font-size: 20px;
-    font-weight: 800;
-    color: #2d1b12;
+.formSection {
+    background: #fffaf3;
+    border: 2px solid #ead8c8;
+    border-radius: 20px;
+    padding: 20px;
 }
 
-/* Inputs */
-.upick-setup-form input,
-.upick-setup-form textarea,
-.upick-setup-form select {
-    display: block;
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-
-    background: #ffffff;
-    border: 3px solid #b98a65;
-    border-radius: 14px;
-
-    padding: 16px 18px;
-    font-size: 20px;
-    color: #1f140f;
-
-    outline: none;
-    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.06);
+.importantSection {
+    border-color: #dba37d;
+    background: #fff7ec;
 }
 
-/* Placeholder text */
-.upick-setup-form input::placeholder,
-.upick-setup-form textarea::placeholder {
+.sectionTitle {
+    margin-bottom: 18px;
+}
+
+.sectionTitle h3 {
+    color: #4f2307;
+    margin: 0 0 6px;
+    font-size: 1.45rem;
+}
+
+.sectionTitle p {
+    margin: 0;
     color: #6f625b;
-}
-
-/* Bigger text areas */
-.upick-setup-form textarea {
-    min-height: 130px;
-    resize: vertical;
     line-height: 1.45;
 }
 
-.upick-setup-form textarea[name="rules_text"] {
-    min-height: 220px;
-}
-
-/* Focus state: obvious */
-.upick-setup-form input:focus,
-.upick-setup-form textarea:focus,
-.upick-setup-form select:focus {
-    border-color: #ca5d63;
-    background: #fff;
-    box-shadow: 0 0 0 5px rgba(202, 93, 99, 0.22);
-}
-
-/* Section dividers */
-.upick-setup-form hr {
-    border: none;
-    border-top: 4px solid #dba37d;
-    margin: 34px 0 20px;
-}
-
-/* Checkbox area */
-.checkbox-row {
-    display: flex;
-    flex-wrap: wrap;
+.formGrid {
+    display: grid;
     gap: 16px;
-    margin-top: 24px;
 }
 
-.checkbox-row label {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+.formGrid.twoCol {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
 
+.formGrid.threeCol {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.formField.full {
+    grid-column: 1 / -1;
+}
+
+.formField label,
+.labelText {
+    display: block;
+    margin-bottom: 8px;
+    color: #4f2307;
+    font-weight: 900;
+    font-size: 1rem;
+}
+
+.formField input,
+.formField select,
+.formField textarea {
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 48px;
+    border: 2px solid #dba37d;
+    border-radius: 14px;
+    padding: 12px 14px;
+    background: #fffdf9;
+    color: #2d1b12;
+    font-size: 16px;
+    line-height: 1.35;
+}
+
+.formField textarea {
+    resize: vertical;
+    min-height: 110px;
+}
+
+.formField input:focus,
+.formField select:focus,
+.formField textarea:focus {
+    outline: none;
+    border-color: #ca5d63;
+    box-shadow: 0 0 0 4px rgba(202, 93, 99, 0.18);
+}
+
+.formField small {
+    display: block;
+    margin-top: 7px;
+    color: #6f625b;
+    line-height: 1.35;
+}
+
+.checkboxField {
     background: #ffffff;
-    border: 3px solid #b98a65;
+    border: 2px solid #ead8c8;
     border-radius: 16px;
+    padding: 14px;
+}
 
-    padding: 16px 20px;
-    margin: 0;
-
-    font-size: 20px;
-    font-weight: 800;
+.checkRow {
+    display: flex !important;
+    align-items: center;
+    gap: 10px;
+    margin: 10px 0 0 !important;
+    font-weight: 800 !important;
+    color: #2d1b12 !important;
     cursor: pointer;
 }
 
-.checkbox-row input {
-    width: 24px;
-    height: 24px;
-    margin: 0;
+.checkRow input {
+    width: 22px !important;
+    height: 22px !important;
+    min-height: 22px !important;
     accent-color: #7b380b;
+    flex: 0 0 auto;
 }
 
-/* Main button */
-.primary-btn {
-    display: block;
-    width: 100%;
-
-    margin-top: 32px;
-    padding: 20px 24px;
-
+.primaryBtn,
+.ghostBtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    border-radius: 14px;
+    padding: 12px 18px;
     border: none;
-    border-radius: 18px;
+    font-weight: 900;
+    text-decoration: none;
+    cursor: pointer;
+    font-size: 1rem;
+}
 
+.primaryBtn {
     background: #7b380b;
     color: #ffffff;
-
-    font-size: 24px;
-    font-weight: 900;
-    cursor: pointer;
-
-    box-shadow: 0 8px 0 #4f2307;
 }
 
-.primary-btn:hover {
-    background: #5f2b08;
+.primaryBtn:hover {
+    background: #4f2307;
 }
 
-.primary-btn:active {
-    transform: translateY(4px);
-    box-shadow: 0 4px 0 #4f2307;
+.ghostBtn {
+    background: #fff8ef;
+    color: #7b380b;
+    border: 2px solid #dba37d;
 }
 
-/* Messages */
-.message-list {
-    margin-bottom: 26px;
-}
-
-.message {
-    padding: 18px 20px;
-    border-radius: 14px;
-    margin-bottom: 14px;
-    font-size: 19px;
-    font-weight: 800;
-}
-
-.message.success {
-    background: #e8f8e6;
-    color: #1f6b2d;
-    border: 3px solid #66a763;
-}
-
-.message.error {
-    background: #ffe7e7;
-    color: #8a1f1f;
-    border: 3px solid #ca5d63;
-}
-
-/* Existing U-Pick Days */
-.upick-event-list {
-    display: grid;
-    gap: 18px;
-}
-
-.upick-event-row {
-    background: #ffffff;
-    border: 3px solid #dba37d;
-    border-radius: 18px;
-    padding: 20px;
+.stickySubmitBar {
+    position: sticky;
+    bottom: 16px;
+    z-index: 20;
 
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 20px;
+    gap: 16px;
+
+    background: #fff8ef;
+    border: 3px solid #dba37d;
+    border-radius: 22px;
+    padding: 16px;
+    box-shadow: 0 16px 42px rgba(79, 35, 7, 0.25);
 }
 
-.upick-event-row strong {
+.stickySubmitBar strong {
     display: block;
-    font-size: 22px;
     color: #4f2307;
-    margin-bottom: 6px;
+    font-size: 1.05rem;
 }
 
-.upick-event-row span,
-.upick-event-row small {
-    font-size: 17px;
-    color: #3d2b22;
+.stickySubmitBar span {
+    display: block;
+    color: #6f625b;
+    margin-top: 3px;
 }
 
-/* Status badges */
-.status {
-    display: inline-block;
-    padding: 9px 14px;
-    border-radius: 999px;
-    margin: 4px;
-    font-size: 14px;
+.eventList {
+    display: grid;
+    gap: 16px;
+}
+
+.eventItem {
+    background: #fffaf3;
+    border: 2px solid #ead8c8;
+    border-radius: 20px;
+    padding: 18px;
+}
+
+.eventMain {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+.eventDate {
+    margin: 0 0 5px;
+    color: #ca5d63;
     font-weight: 900;
-    text-transform: uppercase;
 }
 
-.status.active {
-    background: #dff5dc;
+.eventItem h3 {
+    margin: 0;
+    color: #4f2307;
+    font-size: 1.35rem;
+}
+
+.eventCrop {
+    margin: 5px 0 0;
+    color: #6f625b;
+    font-weight: 800;
+}
+
+.eventBadges {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.badge {
+    display: inline-flex;
+    border-radius: 999px;
+    padding: 7px 10px;
+    font-size: 0.78rem;
+    font-weight: 900;
+}
+
+.badge.good {
+    background: #e5f7e1;
     color: #1f6b2d;
-    border: 2px solid #66a763;
 }
 
-.status.inactive {
-    background: #eeeeee;
-    color: #555;
-    border: 2px solid #aaa;
+.badge.bad {
+    background: #ffe1e1;
+    color: #8a1f1f;
 }
 
-/* Mobile/tablet friendly */
-@media (max-width: 700px) {
-    .treespace-page {
-        padding: 24px 12px 60px;
-    }
+.badge.warn {
+    background: #fff2c7;
+    color: #7a5200;
+}
 
-    .treespace-card {
-        padding: 24px 18px;
-        border-radius: 20px;
-    }
+.eventStats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 16px;
+}
 
-    .treespace-card h1 {
-        font-size: 32px;
-    }
+.eventStats div {
+    background: #ffffff;
+    border: 1px solid #ead8c8;
+    border-radius: 14px;
+    padding: 12px;
+}
 
-    .treespace-card h2 {
-        font-size: 24px;
-    }
+.eventStats span {
+    display: block;
+    color: #6f625b;
+    font-size: 0.82rem;
+    font-weight: 900;
+    margin-bottom: 4px;
+}
 
-    .treespace-card p,
-    .upick-setup-form label,
-    .upick-setup-form input,
-    .upick-setup-form textarea,
-    .upick-setup-form select {
-        font-size: 18px;
-    }
+.eventStats strong {
+    color: #4f2307;
+    font-size: 1.1rem;
+}
 
-    .primary-btn {
-        font-size: 21px;
-    }
+.eventDetails {
+    margin-top: 16px;
+    background: #ffffff;
+    border: 1px solid #ead8c8;
+    border-radius: 14px;
+    padding: 12px 14px;
+}
 
-    .upick-event-row {
+.eventDetails summary {
+    cursor: pointer;
+    color: #7b380b;
+    font-weight: 900;
+    min-height: 36px;
+    display: flex;
+    align-items: center;
+}
+
+.noteBlock {
+    margin-top: 14px;
+    border-top: 1px solid #ead8c8;
+    padding-top: 12px;
+}
+
+.noteBlock strong {
+    display: block;
+    color: #4f2307;
+    margin-bottom: 5px;
+}
+
+.noteBlock p {
+    margin: 0;
+    color: #2d1b12;
+    line-height: 1.5;
+}
+
+.emptyState {
+    background: #fff8ef;
+    border: 2px dashed #dba37d;
+    border-radius: 18px;
+    padding: 28px;
+    text-align: center;
+    color: #6f625b;
+    font-weight: 900;
+}
+
+@media (max-width: 860px) {
+    .upickSetupHeader {
         flex-direction: column;
-        align-items: flex-start;
+    }
+
+    .headerActions {
+        width: 100%;
+    }
+
+    .headerActions .ghostBtn {
+        width: 100%;
+    }
+
+    .formGrid.twoCol,
+    .formGrid.threeCol {
+        grid-template-columns: 1fr;
+    }
+
+    .formField.full {
+        grid-column: auto;
+    }
+
+    .eventMain {
+        flex-direction: column;
+    }
+
+    .eventBadges {
+        justify-content: flex-start;
+    }
+
+    .eventStats {
+        grid-template-columns: 1fr;
+    }
+
+    .stickySubmitBar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .stickySubmitBar .primaryBtn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 520px) {
+    .upickSetupPage {
+        padding: 20px 12px 90px;
+    }
+
+    .setupCard,
+    .existingCard {
+        padding: 15px;
+        border-radius: 18px;
+    }
+
+    .formSection {
+        padding: 15px;
+        border-radius: 16px;
+    }
+
+    .upickSetupHeader h1 {
+        font-size: 2.35rem;
+    }
+
+    .headerText {
+        font-size: 1rem;
+    }
+
+    .cardHeader h2 {
+        font-size: 1.55rem;
+    }
+
+    .sectionTitle h3 {
+        font-size: 1.25rem;
+    }
+
+    .formField input,
+    .formField select,
+    .formField textarea {
+        font-size: 16px;
+        min-height: 52px;
+    }
+
+    .formField textarea {
+        min-height: 120px;
+    }
+
+    .stickySubmitBar {
+        bottom: 10px;
+        border-radius: 18px;
+        padding: 13px;
     }
 }

@@ -47,7 +47,19 @@ def our_story_subscribe_view(request):
         }, status=400)
 
     email = (data.get("email") or "").strip().lower()
-    name = (data.get("name") or "").strip()
+
+    first_name = (data.get("first_name") or "").strip()
+    last_name = (data.get("last_name") or "").strip()
+
+    # Backwards compatibility for old forms that only sent "name"
+    old_name = (data.get("name") or "").strip()
+
+    full_name = f"{first_name} {last_name}".strip()
+
+    if not full_name and old_name:
+        full_name = old_name
+
+    source = (data.get("source") or "our_story_page").strip()
 
     if not email:
         return JsonResponse({
@@ -66,8 +78,10 @@ def our_story_subscribe_view(request):
     subscriber, created = FarmNewsletterSubscriber.objects.get_or_create(
         email=email,
         defaults={
-            "name": name,
-            "source": "our_story_page",
+            "first_name": first_name,
+            "last_name": last_name,
+            "name": full_name,
+            "source": source,
             "is_active": True,
         }
     )
@@ -75,17 +89,63 @@ def our_story_subscribe_view(request):
     if not created:
         subscriber.is_active = True
 
-        if name and not subscriber.name:
-            subscriber.name = name
+        update_fields = ["is_active"]
 
-        subscriber.save(update_fields=["is_active", "name"])
+        if first_name:
+            subscriber.first_name = first_name
+            update_fields.append("first_name")
+
+        if last_name:
+            subscriber.last_name = last_name
+            update_fields.append("last_name")
+
+        if full_name:
+            subscriber.name = full_name
+            update_fields.append("name")
+
+        if source:
+            subscriber.source = source
+            update_fields.append("source")
+
+        subscriber.save(update_fields=update_fields)
 
         return JsonResponse({
             "success": True,
-            "message": "You’re already on the list — we reactivated your subscription."
+            "message": "You’re already on the list — we updated your subscription."
         })
 
     return JsonResponse({
         "success": True,
-        "message": "You’re subscribed! We’ll keep you posted on harvests, U-pick updates, and farm news."
+        "message": "You’re subscribed! We’ll keep you posted on harvests, U-Pick updates, and farm news."
     })
+
+def farm_subscribe_view(request):
+    noFooter = False
+    smallHeader = False
+    sideBar = False
+
+    return render(request, "farm_subscribe.html", {
+        "smallHeader": smallHeader,
+        "noFooter": noFooter,
+        "sideBar": sideBar,
+
+        "seo_title": "Farm Subscription Form | Heaven's Gates Cherry Farm",
+        "seo_description": "Subscribe for harvest updates, U-Pick announcements, and farm news from Heaven's Gates Cherry Farm in Hale, Michigan.",
+        "seo_keywords": "Heaven's Gates Cherry Farm subscribe, farm newsletter Michigan, U-pick updates, strawberry harvest updates, Hale Michigan farm news",
+        "seo_robots": "index, follow",
+        "seo_canonical": request.build_absolute_uri(),
+
+        "og_type": "website",
+        "og_title": "Subscribe to Heaven's Gates Cherry Farm Updates",
+        "og_description": "Get harvest updates, U-Pick announcements, and farm news from Heaven's Gates Cherry Farm.",
+        "og_url": request.build_absolute_uri(),
+        "og_image": request.build_absolute_uri("/static/images/HGCF-logo.png"),
+        "og_image_alt": "Heaven's Gates Cherry Farm",
+
+        "twitter_title": "Subscribe to Heaven's Gates Cherry Farm Updates",
+        "twitter_description": "Get harvest updates, U-Pick announcements, and farm news from Heaven's Gates Cherry Farm.",
+        "twitter_image": request.build_absolute_uri("/static/images/HGCF-logo.png"),
+    })
+
+
+

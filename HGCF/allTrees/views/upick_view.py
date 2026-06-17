@@ -11,6 +11,33 @@ from ..models import UPickEvent, UPickTimeSlot, UPickReservation
 from ..forms import UPickReservationForm
 from ..utils import send_upick_reservation_confirmation
 
+DEFAULT_UPICK_RULES_TEXT = """Please check in when you arrive before entering the picking area.
+
+Please arrive during your reserved time slot. If you are running late, your reservation may be released after the grace period so we can keep the day moving smoothly for other guests.
+
+Children are welcome, but they must stay with an adult at all times.
+
+Please stay in the marked picking areas and only pick from the rows or areas opened by farm staff.
+
+Please do not climb on trees, fences, equipment, irrigation lines, or farm structures.
+
+Closed-toe shoes are strongly recommended. The field may be muddy, uneven, wet, or slippery depending on weather and irrigation.
+
+No pets are allowed in the picking fields. If you use a service animal, please contact us or check in with farm staff when you arrive so we can help guide safe access.
+
+Please do not smoke, vape, drink alcohol, or litter anywhere in the picking areas.
+
+Please be respectful of the plants. Do not pull, damage, or step on plants, rows, irrigation lines, or field markers.
+
+Only pick ripe fruit from approved areas. If you are unsure what to pick, please ask farm staff.
+
+Please do not eat fruit from the field unless farm staff says sampling is allowed that day.
+
+Weather can affect U-Pick availability. Heavy rain, lightning, unsafe field conditions, or poor crop availability may cause delays, changes, or cancellations.
+
+By visiting the farm, guests understand that this is an active farm with natural outdoor conditions, including uneven ground, insects, mud, weather changes, and farm equipment.
+
+Thank you for helping us keep Heaven’s Gates Cherry Farm safe, clean, and enjoyable for everyone."""
 
 def get_client_ip(request):
     x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
@@ -204,6 +231,9 @@ def treespace_upick_setup_view(request):
         field_note = request.POST.get("field_note", "").strip()
         rules_text = request.POST.get("rules_text", "").strip()
 
+        if not rules_text:
+            rules_text = DEFAULT_UPICK_RULES_TEXT
+
         default_slot_capacity = int(request.POST.get("default_slot_capacity") or 10)
         default_slot_minutes = int(request.POST.get("default_slot_minutes") or 60)
         grace_period_minutes = int(request.POST.get("grace_period_minutes") or 15)
@@ -230,7 +260,7 @@ def treespace_upick_setup_view(request):
             grace_period_minutes=grace_period_minutes,
             weather_note=weather_note,
             field_note=field_note,
-            rules_text=rules_text or None,
+            rules_text=rules_text,
         )
 
         if start_time and end_time:
@@ -264,4 +294,5 @@ def treespace_upick_setup_view(request):
         "noFooter": noFooter,
         "sideBar": sideBar,
         "events": events,
+        "default_rules_text": DEFAULT_UPICK_RULES_TEXT,
     })

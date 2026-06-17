@@ -1,0 +1,159 @@
+.farmSubscribePage {
+    min-height: 75vh;
+    padding: 48px 16px 80px;
+    background:
+        radial-gradient(circle at top left, rgba(219, 163, 125, 0.35), transparent 34%),
+        linear-gradient(180deg, #fff8ef 0%, #ffffff 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.farmSubscribeCard {
+    width: 100%;
+    max-width: 760px;
+    background: #ffffff;
+    border: 2px solid #ead8c8;
+    border-radius: 28px;
+    padding: clamp(24px, 5vw, 46px);
+    box-shadow: 0 18px 50px rgba(79, 35, 7, 0.14);
+    color: #2d1b12;
+}
+
+.subscribeKicker {
+    margin: 0 0 10px;
+    color: #ca5d63;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.85rem;
+}
+
+.subscribeIntro h1 {
+    margin: 0;
+    color: #4f2307;
+    font-size: clamp(2.3rem, 7vw, 4.4rem);
+    line-height: 0.98;
+}
+
+.subscribeLead {
+    margin: 18px 0 0;
+    color: #7b380b;
+    font-size: clamp(1.25rem, 3vw, 1.65rem);
+    line-height: 1.35;
+    font-weight: 900;
+}
+
+.subscribeText {
+    margin: 14px 0 28px;
+    color: #6f625b;
+    font-size: 1.05rem;
+    line-height: 1.6;
+}
+
+.farmSubscribeForm {
+    display: grid;
+    gap: 18px;
+}
+
+.formGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.formField.full {
+    grid-column: 1 / -1;
+}
+
+.formField label {
+    display: block;
+    color: #4f2307;
+    font-weight: 900;
+    margin-bottom: 8px;
+}
+
+.formField input {
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 54px;
+    border: 2px solid #dba37d;
+    border-radius: 15px;
+    padding: 13px 15px;
+    font-size: 16px;
+    color: #2d1b12;
+    background: #fffdf9;
+}
+
+.formField input:focus {
+    outline: none;
+    border-color: #ca5d63;
+    box-shadow: 0 0 0 4px rgba(202, 93, 99, 0.18);
+}
+
+.subscribeBtn {
+    min-height: 56px;
+    border: none;
+    border-radius: 16px;
+    background: #7b380b;
+    color: #ffffff;
+    font-weight: 900;
+    font-size: 1.05rem;
+    cursor: pointer;
+    padding: 14px 18px;
+}
+
+.subscribeBtn:hover {
+    background: #4f2307;
+}
+
+.farmSubscribeMessage {
+    margin: 0;
+    min-height: 24px;
+    font-weight: 900;
+    line-height: 1.45;
+}
+
+.farmSubscribeMessage.success {
+    color: #1f6b2d;
+}
+
+.farmSubscribeMessage.error {
+    color: #8a1f1f;
+}
+
+.subscribeFinePrint {
+    margin-top: 22px;
+    border-top: 1px solid #ead8c8;
+    padding-top: 16px;
+}
+
+.subscribeFinePrint p {
+    margin: 0;
+    color: #6f625b;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+@media (max-width: 620px) {
+    .farmSubscribePage {
+        align-items: flex-start;
+        padding: 26px 12px 60px;
+    }
+
+    .farmSubscribeCard {
+        border-radius: 22px;
+    }
+
+    .formGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .formField.full {
+        grid-column: auto;
+    }
+
+    .subscribeBtn {
+        width: 100%;
+    }
+}
