@@ -358,7 +358,79 @@ class POSProductEditForm(forms.ModelForm):
             "meta_description": forms.TextInput(attrs={"class": "formInput"}),
         }
 
+class FarmAnnouncementForm(forms.ModelForm):
+    publish_date = forms.DateTimeField(
+        input_formats=["%Y-%m-%dT%H:%M"],
+        widget=forms.DateTimeInput(
+            attrs={
+                "type": "datetime-local",
+                "class": "formInput",
+            },
+            format="%Y-%m-%dT%H:%M"
+        )
+    )
 
+    class Meta:
+        model = FarmAnnouncement
+
+        fields = [
+            "title",
+            "announcement_type",
+            "summary",
+            "body",
+            "featured_image",
+            "image_alt_text",
+            "is_pinned",
+            "status",
+            "publish_date",
+            "meta_title",
+            "meta_description",
+        ]
+
+        widgets = {
+            "title": forms.TextInput(attrs={
+                "class": "formInput",
+                "placeholder": "Example: Strawberries Are Almost Ready"
+            }),
+
+            "announcement_type": forms.Select(attrs={
+                "class": "formInput"
+            }),
+
+            "summary": forms.TextInput(attrs={
+                "class": "formInput",
+                "placeholder": "Short preview shown on announcement cards."
+            }),
+
+            "body": forms.Textarea(attrs={
+                "class": "formInput",
+                "rows": 8,
+                "placeholder": "Write the full announcement here..."
+            }),
+
+            "featured_image": forms.ClearableFileInput(attrs={
+                "class": "formInput"
+            }),
+
+            "image_alt_text": forms.TextInput(attrs={
+                "class": "formInput",
+                "placeholder": "Describe the image for accessibility."
+            }),
+
+            "status": forms.Select(attrs={
+                "class": "formInput"
+            }),
+
+            "meta_title": forms.TextInput(attrs={
+                "class": "formInput",
+                "placeholder": "Optional SEO title"
+            }),
+
+            "meta_description": forms.TextInput(attrs={
+                "class": "formInput",
+                "placeholder": "Optional SEO description"
+            }),
+        }
 
 
 

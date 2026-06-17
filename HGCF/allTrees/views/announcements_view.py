@@ -1,8 +1,11 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
 from django.db.models import Q
 from django.db.models.functions import ExtractYear
 from ..models import FarmAnnouncement
+from ..forms import FarmAnnouncementForm
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 
 
 def announcements_view(request):
@@ -155,3 +158,41 @@ def announcement_detail_view(request, slug):
         "twitter_description": announcement.summary,
         "twitter_image": og_image,
     })
+
+@login_required
+def treespace_announcement_setup_view(request):
+    smallHeader = True
+    noFooter = True
+    sideBar = True
+
+    announcements = FarmAnnouncement.objects.all().order_by(
+        "-is_pinned",
+        "-publish_date"
+    )[:40]
+
+    if request.method == "POST":
+        form = FarmAnnouncementForm(request.POST, request.FILES)
+
+        if form.is_valid():
+            announcement = form.save()
+            messages.success(request, "Announcement saved successfully.")
+            return redirect("treespace_announcement_setup")
+        else:
+            messages.error(request, "Please fix the errors below.")
+    else:
+        form = FarmAnnouncementForm(initial={
+            "publish_date": timezone.localtime().strftime("%Y-%m-%dT%H:%M"),
+            "status": "draft",
+            "announcement_type": "general",
+        })
+
+    return render(request, "announcements/announcement_setup.html", {
+        "smallHeader": smallHeader,
+        "noFooter": noFooter,
+        "sideBar": sideBar,
+        "form": form,
+        "announcements": announcements,
+    })
+
+
+

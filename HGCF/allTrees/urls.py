@@ -16,6 +16,7 @@ urlpatterns = [
     # ---- Announcements ------------
     path("announcements/", views.announcements_view, name="announcements"),
     path("announcements/<slug:slug>/", views.announcement_detail_view, name="announcement_detail"),
+    path("treespace/announcements/", views.treespace_announcement_setup_view, name="treespace_announcement_setup"),
 
     # ---- Irrigation ----------
     path('irrigation/dashboard', views.irrigation_dashboard, name='irrigation_dashboard'),

@@ -870,3 +870,12 @@
         padding: 13px;
     }
 }
+
+.upick-pricing-card {
+    border: 1px solid rgba(219, 163, 125, 0.45);
+}
+
+.upick-pricing-card strong {
+    color: #e9ff7a;
+    font-weight: 800;
+}

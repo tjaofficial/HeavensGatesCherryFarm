@@ -20,17 +20,35 @@
     <section class="upick-info-grid">
         <div class="upick-info-card">
             <h2>How It Works</h2>
-            <p>Pick an available date, choose your arrival time, enter your party size, and check in when you arrive.</p>
+            <p>
+                Pick an available date, choose your arrival time, enter your party size,
+                and check in when you arrive.
+            </p>
         </div>
 
         <div class="upick-info-card">
             <h2>15 Minute Grace Period</h2>
-            <p>If you do not arrive within 15 minutes of your scheduled time, your spot may be released for walk-ins.</p>
+            <p>
+                If you do not arrive within 15 minutes of your scheduled time,
+                your spot may be released for walk-ins.
+            </p>
         </div>
 
         <div class="upick-info-card">
             <h2>Picking Time</h2>
-            <p>Most guests finish within 60–90 minutes. We will not rush you, but reservations are meant to prevent crowding.</p>
+            <p>
+                Most guests finish within 60–90 minutes. We will not rush you,
+                but reservations are meant to prevent crowding.
+            </p>
+        </div>
+
+        <div class="upick-info-card upick-pricing-card">
+            <h2>U-Pick Pricing</h2>
+            <p>
+                Strawberries are <strong>$3.00 per pound</strong> for U-Pick.
+                Pick 10 pounds or more and pay <strong>$2.75 per pound</strong>.
+                Your final total is weighed at checkout.
+            </p>
         </div>
     </section>
 
@@ -56,7 +74,9 @@
                                 <p class="event-note">Field: {{ event.field_note }}</p>
                             {% endif %}
 
-                            <p>{{ event.description|default:"U-Pick availability depends on weather, ripeness, and field conditions." }}</p>
+                            <p>
+                                {{ event.description|default:"U-Pick availability depends on weather, ripeness, and field conditions." }}
+                            </p>
                         </div>
 
                         <a href="{% url 'upick_day' event.id %}" class="upick-btn primary">
@@ -68,7 +88,10 @@
         {% else %}
             <div class="upick-empty">
                 <h2>No U-Pick dates available right now.</h2>
-                <p>Check back soon. Strawberries operate on farm time, which is basically “when they feel like it.”</p>
+                <p>
+                    Check back soon. Strawberries operate on farm time,
+                    which is basically “when they feel like it.”
+                </p>
             </div>
         {% endif %}
     </main>

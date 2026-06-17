@@ -1,0 +1,238 @@
+{% extends "mainLayout.html" %}
+{% load static %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'style/announcement_setup.css' %}">
+{% endblock %}
+
+{% block list %}
+
+<div class="announcementSetupPage">
+
+    <header class="announcementHeader">
+        <div>
+            <p class="eyebrow">TreeSpace Admin</p>
+            <h1>Farm Announcements</h1>
+            <p class="headerText">
+                Create harvest updates, U-Pick notices, weather alerts, store updates, and farm news.
+            </p>
+        </div>
+    </header>
+
+    {% if messages %}
+        <div class="messageStack">
+            {% for message in messages %}
+                <div class="messageBox {{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <section class="setupCard">
+        <div class="cardHeader">
+            <h2>Add Announcement</h2>
+            <p>
+                Use this form to create a new announcement. Save as draft until it is ready to show publicly.
+            </p>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data" class="announcementForm">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="formErrors">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <div class="formSection">
+                <div class="sectionTitle">
+                    <h3>Main Info</h3>
+                    <p>Title, type, short preview, and full announcement content.</p>
+                </div>
+
+                <div class="formGrid twoCol">
+                    <div class="formField full">
+                        <label for="{{ form.title.id_for_label }}">Title</label>
+                        {{ form.title }}
+                        {{ form.title.errors }}
+                    </div>
+
+                    <div class="formField">
+                        <label for="{{ form.announcement_type.id_for_label }}">Announcement Type</label>
+                        {{ form.announcement_type }}
+                        {{ form.announcement_type.errors }}
+                    </div>
+
+                    <div class="formField">
+                        <label for="{{ form.status.id_for_label }}">Status</label>
+                        {{ form.status }}
+                        {{ form.status.errors }}
+                    </div>
+
+                    <div class="formField full">
+                        <label for="{{ form.summary.id_for_label }}">Summary</label>
+                        {{ form.summary }}
+                        <small>Short preview text shown on cards and lists.</small>
+                        {{ form.summary.errors }}
+                    </div>
+
+                    <div class="formField full">
+                        <label for="{{ form.body.id_for_label }}">Body</label>
+                        {{ form.body }}
+                        {{ form.body.errors }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="formSection">
+                <div class="sectionTitle">
+                    <h3>Publishing</h3>
+                    <p>Choose when this announcement should appear and whether it should be pinned.</p>
+                </div>
+
+                <div class="formGrid twoCol">
+                    <div class="formField">
+                        <label for="{{ form.publish_date.id_for_label }}">Publish Date/Time</label>
+                        {{ form.publish_date }}
+                        {{ form.publish_date.errors }}
+                    </div>
+
+                    <div class="formField checkboxField">
+                        <span class="labelText">Pin Announcement</span>
+
+                        <label class="checkRow">
+                            {{ form.is_pinned }}
+                            <span>Show this before regular announcements</span>
+                        </label>
+
+                        {{ form.is_pinned.errors }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="formSection">
+                <div class="sectionTitle">
+                    <h3>Image</h3>
+                    <p>Optional image for the announcement card or detail page.</p>
+                </div>
+
+                <div class="formGrid twoCol">
+                    <div class="formField">
+                        <label for="{{ form.featured_image.id_for_label }}">Featured Image</label>
+                        {{ form.featured_image }}
+                        {{ form.featured_image.errors }}
+                    </div>
+
+                    <div class="formField">
+                        <label for="{{ form.image_alt_text.id_for_label }}">Image Alt Text</label>
+                        {{ form.image_alt_text }}
+                        {{ form.image_alt_text.errors }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="formSection">
+                <div class="sectionTitle">
+                    <h3>SEO</h3>
+                    <p>Optional search/social preview information.</p>
+                </div>
+
+                <div class="formGrid twoCol">
+                    <div class="formField">
+                        <label for="{{ form.meta_title.id_for_label }}">Meta Title</label>
+                        {{ form.meta_title }}
+                        {{ form.meta_title.errors }}
+                    </div>
+
+                    <div class="formField">
+                        <label for="{{ form.meta_description.id_for_label }}">Meta Description</label>
+                        {{ form.meta_description }}
+                        {{ form.meta_description.errors }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="stickySubmitBar">
+                <div>
+                    <strong>Ready to save this announcement?</strong>
+                    <span>You can save as draft or publish it now.</span>
+                </div>
+
+                <button type="submit" class="primaryBtn">
+                    Save Announcement
+                </button>
+            </div>
+        </form>
+    </section>
+
+    <section class="existingCard">
+        <div class="cardHeader">
+            <h2>Existing Announcements</h2>
+            <p>Recent announcements created for the farm.</p>
+        </div>
+
+        {% if announcements %}
+            <div class="announcementList">
+                {% for announcement in announcements %}
+                    <article class="announcementItem">
+                        <div class="announcementMain">
+                            <div>
+                                <p class="announcementDate">
+                                    {{ announcement.publish_date|date:"M j, Y" }} at {{ announcement.publish_date|time:"g:i A" }}
+                                </p>
+
+                                <h3>{{ announcement.title }}</h3>
+
+                                <p class="announcementSummary">
+                                    {{ announcement.summary }}
+                                </p>
+                            </div>
+
+                            <div class="announcementBadges">
+                                {% if announcement.is_pinned %}
+                                    <span class="badge pinned">Pinned</span>
+                                {% endif %}
+
+                                <span class="badge type">
+                                    {{ announcement.get_announcement_type_display }}
+                                </span>
+
+                                {% if announcement.status == "published" %}
+                                    <span class="badge good">Published</span>
+                                {% elif announcement.status == "draft" %}
+                                    <span class="badge warn">Draft</span>
+                                {% else %}
+                                    <span class="badge bad">Archived</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        {% if announcement.featured_image %}
+                            <div class="announcementImageWrap">
+                                <img 
+                                    src="{{ announcement.featured_image.url }}" 
+                                    alt="{{ announcement.image_alt_text|default:announcement.title }}"
+                                    class="announcementThumb"
+                                >
+                            </div>
+                        {% endif %}
+
+                        <details class="announcementDetails">
+                            <summary>Preview announcement</summary>
+                            <p>{{ announcement.body|linebreaksbr }}</p>
+                        </details>
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="emptyState">
+                No announcements have been created yet.
+            </div>
+        {% endif %}
+    </section>
+
+</div>
+
+{% endblock %}
