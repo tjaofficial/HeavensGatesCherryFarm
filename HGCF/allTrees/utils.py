@@ -8,6 +8,7 @@ from django.utils.timezone import localtime
 from django.conf import settings # type: ignore
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
+from django.utils import timezone
 
 alphabetKey = {'a': '1', 'b': '2', 'c': '3', 'd': '4', 'e': '5', 'f': '6', 'g': '7', 'h': '8', 'i': '9', 'j': '10', 'k': '11', 'l': '12', 'm': '13', 'n': '14', 'o': '15', 'p': '16', 'q': '17', 'r': '18', 's': '19', 't': '20', 'u': '21', 'v': '22', 'w': '23', 'x': '24', 'y': '25', 'z': '26', 'A': '27', 'B': '28', 'C': '29', 'D': '30', 'E': '31', 'F': '32', 'G': '33', 'H': '34', 'I': '35', 'J': '36', 'K': '37', 'L': '38', 'M': '39', 'N': '40', 'O': '41', 'P': '42', 'Q': '43', 'R': '44', 'S': '45', 'T': '46', 'U': '47', 'V': '48', 'W': '49', 'X': '50', 'Y': '51', 'Z': '52'}
 
@@ -198,3 +199,55 @@ def send_upick_reservation_confirmation(reservation):
     email.attach_alternative(html_body, "text/html")
 
     return email.send(fail_silently=False)
+
+def send_pos_receipt_email(sale, recipient_email=None, force=False):
+    email_to = (recipient_email or sale.customer_email or "").strip().lower()
+
+    if not email_to:
+        raise ValueError(f"POS receipt cannot be sent because sale {sale.id} has no email.")
+
+    if sale.receipt_email_sent_at and not force:
+        print(f"POS receipt skipped: sale {sale.id} receipt already sent.")
+        return 0
+
+    items = sale.items.select_related("product").all()
+
+    subject = f"Your Heaven's Gates Cherry Farm Receipt - {sale.sale_number}"
+
+    if force:
+        subject = f"Receipt Copy - {sale.sale_number} - Heaven's Gates Cherry Farm"
+
+    context = {
+        "sale": sale,
+        "items": items,
+    }
+
+    text_body = render_to_string("emails/pos_receipt.txt", context)
+    html_body = render_to_string("emails/pos_receipt.html", context)
+
+    try:
+        email = EmailMultiAlternatives(
+            subject=subject,
+            body=text_body,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to=[email_to],
+        )
+        email.attach_alternative(html_body, "text/html")
+
+        sent = email.send(fail_silently=False)
+
+        sale.receipt_email_sent_at = timezone.now()
+        sale.receipt_email_last_error = ""
+        sale.save(update_fields=["receipt_email_sent_at", "receipt_email_last_error"])
+
+        print(f"POS receipt sent to {email_to} for sale {sale.id}")
+
+        return sent
+
+    except Exception as exc:
+        sale.receipt_email_last_error = str(exc)[:1000]
+        sale.save(update_fields=["receipt_email_last_error"])
+
+        print(f"POS receipt failed for sale {sale.id}: {exc}")
+
+        raise

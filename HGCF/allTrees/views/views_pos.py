@@ -14,6 +14,8 @@ from ..models import (mainStore_products, POSSession, POSSale,POSSaleItem,POSPay
 from ..forms import POSProductEditForm
 from django.contrib import messages
 from django.utils.dateparse import parse_date
+from ..utils import send_pos_receipt_email
+from django.core.validators import validate_email
 
 
 TAX_RATE = Decimal("0.00")
@@ -681,6 +683,7 @@ def pos_sale_detail_api(request, sale_id):
             "created_at": sale.created_at.isoformat() if sale.created_at else None,
             "completed_at": sale.completed_at.isoformat() if sale.completed_at else None,
             "items": items,
+            "receipt_email_sent_at": sale.receipt_email_sent_at.isoformat() if sale.receipt_email_sent_at else None,
         }
     })
 
@@ -722,6 +725,8 @@ def pos_complete_cash_sale_api(request, sale_id):
             "status",
             "completed_at",
         ])
+
+        transaction.on_commit(lambda: send_pos_receipt_email(sale))
 
         return JsonResponse({
             "success": True,
@@ -1058,6 +1063,8 @@ def pos_complete_manual_card_sale_api(request, sale_id):
 
     sale.save()
 
+    transaction.on_commit(lambda: send_pos_receipt_email(sale))
+
     return JsonResponse({
         "success": True,
         "message": "Manual card sale completed.",
@@ -1137,3 +1144,68 @@ def pos_sales_list_page(request):
     }
 
     return render(request, "pos/pos_sales_list.html", context)
+
+@login_required
+@require_POST
+def pos_resend_receipt_api(request, sale_id):
+    try:
+        payload = json.loads(request.body or "{}")
+    except json.JSONDecodeError:
+        payload = {}
+
+    sale = get_object_or_404(POSSale, id=sale_id)
+
+    if sale.status != "completed":
+        return JsonResponse({
+            "success": False,
+            "message": "Receipt can only be sent for completed sales."
+        }, status=400)
+
+    email = (payload.get("email") or sale.customer_email or "").strip().lower()
+
+    if not email:
+        return JsonResponse({
+            "success": False,
+            "needs_email": True,
+            "message": "This sale does not have a customer email."
+        }, status=400)
+
+    try:
+        validate_email(email)
+    except ValidationError:
+        return JsonResponse({
+            "success": False,
+            "message": "Please enter a valid email address."
+        }, status=400)
+
+    update_fields = []
+
+    if sale.customer_email != email:
+        sale.customer_email = email
+        update_fields.append("customer_email")
+
+    if update_fields:
+        sale.save(update_fields=update_fields)
+
+    try:
+        send_pos_receipt_email(
+            sale=sale,
+            recipient_email=email,
+            force=True
+        )
+    except Exception as exc:
+        return JsonResponse({
+            "success": False,
+            "message": f"Receipt could not be sent: {str(exc)}"
+        }, status=500)
+
+    return JsonResponse({
+        "success": True,
+        "message": f"Receipt sent to {email}.",
+        "sale_id": sale.id,
+        "sale_number": sale.sale_number,
+        "customer_email": sale.customer_email,
+        "receipt_email_sent_at": sale.receipt_email_sent_at.isoformat() if sale.receipt_email_sent_at else None,
+    })
+
+

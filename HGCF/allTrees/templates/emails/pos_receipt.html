@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Heaven's Gates Cherry Farm Receipt</title>
+</head>
+
+<body style="margin:0; padding:0; background:#f7f3eb; font-family:Arial, sans-serif; color:#2f2418;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:#f7f3eb; padding:24px 12px;">
+        <tr>
+            <td align="center">
+                <table width="100%" cellpadding="0" cellspacing="0" style="max-width:680px; background:#ffffff; border-radius:18px; overflow:hidden; border:1px solid #ead9c7;">
+                    <tr>
+                        <td style="background:#7b380b; color:#ffffff; padding:26px 28px;">
+                            <div style="font-size:13px; letter-spacing:1.5px; text-transform:uppercase; font-weight:bold;">
+                                Heaven's Gates Cherry Farm
+                            </div>
+
+                            <h1 style="margin:8px 0 0; font-size:30px; line-height:1.15;">
+                                Receipt
+                            </h1>
+
+                            <p style="margin:8px 0 0; color:#ffe7c5; font-size:15px;">
+                                Thank you for supporting our family farm.
+                            </p>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="padding:26px 28px;">
+                            <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:22px;">
+                                <tr>
+                                    <td style="padding:10px 0; border-bottom:1px solid #f0e2d3;">
+                                        <strong>Sale Number:</strong>
+                                    </td>
+                                    <td align="right" style="padding:10px 0; border-bottom:1px solid #f0e2d3;">
+                                        {{ sale.sale_number }}
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style="padding:10px 0; border-bottom:1px solid #f0e2d3;">
+                                        <strong>Payment Method:</strong>
+                                    </td>
+                                    <td align="right" style="padding:10px 0; border-bottom:1px solid #f0e2d3;">
+                                        {{ sale.get_payment_method_display }}
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style="padding:10px 0; border-bottom:1px solid #f0e2d3;">
+                                        <strong>Status:</strong>
+                                    </td>
+                                    <td align="right" style="padding:10px 0; border-bottom:1px solid #f0e2d3;">
+                                        {{ sale.status }}
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style="padding:10px 0; border-bottom:1px solid #f0e2d3;">
+                                        <strong>Customer:</strong>
+                                    </td>
+                                    <td align="right" style="padding:10px 0; border-bottom:1px solid #f0e2d3;">
+                                        {% if sale.customer_name %}
+                                            {{ sale.customer_name }}
+                                        {% else %}
+                                            Walk-in Customer
+                                        {% endif %}
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style="padding:10px 0;">
+                                        <strong>Date:</strong>
+                                    </td>
+                                    <td align="right" style="padding:10px 0;">
+                                        {{ sale.completed_at|default:sale.created_at }}
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <h2 style="font-size:20px; margin:0 0 12px; color:#7b380b;">
+                                Items
+                            </h2>
+
+                            <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse; margin-bottom:22px;">
+                                <thead>
+                                    <tr>
+                                        <th align="left" style="padding:10px; background:#fff7ed; border-bottom:1px solid #ead9c7; font-size:13px;">
+                                            Item
+                                        </th>
+                                        <th align="center" style="padding:10px; background:#fff7ed; border-bottom:1px solid #ead9c7; font-size:13px;">
+                                            Qty/Weight
+                                        </th>
+                                        <th align="right" style="padding:10px; background:#fff7ed; border-bottom:1px solid #ead9c7; font-size:13px;">
+                                            Unit
+                                        </th>
+                                        <th align="right" style="padding:10px; background:#fff7ed; border-bottom:1px solid #ead9c7; font-size:13px;">
+                                            Total
+                                        </th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    {% for item in items %}
+                                        <tr>
+                                            <td style="padding:12px 10px; border-bottom:1px solid #f0e2d3;">
+                                                {% if item.product_name_snapshot %}
+                                                    {{ item.product_name_snapshot }}
+                                                {% elif item.product %}
+                                                    {{ item.product.product_name }}
+                                                {% else %}
+                                                    Item
+                                                {% endif %}
+                                            </td>
+
+                                            <td align="center" style="padding:12px 10px; border-bottom:1px solid #f0e2d3;">
+                                                {% if item.weight_amount %}
+                                                    {{ item.weight_amount }}
+                                                {% else %}
+                                                    {{ item.quantity }}
+                                                {% endif %}
+                                            </td>
+
+                                            <td align="right" style="padding:12px 10px; border-bottom:1px solid #f0e2d3;">
+                                                ${{ item.unit_price }}
+                                            </td>
+
+                                            <td align="right" style="padding:12px 10px; border-bottom:1px solid #f0e2d3;">
+                                                <strong>${{ item.line_subtotal }}</strong>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+
+                            <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:8px;">
+                                <tr>
+                                    <td style="padding:8px 0; color:#6b5b4a;">
+                                        Subtotal
+                                    </td>
+                                    <td align="right" style="padding:8px 0;">
+                                        ${{ sale.subtotal }}
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style="padding:8px 0; color:#6b5b4a;">
+                                        Tax
+                                    </td>
+                                    <td align="right" style="padding:8px 0;">
+                                        ${{ sale.tax_amount }}
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style="padding:14px 0 4px; font-size:22px; font-weight:bold; border-top:2px solid #7b380b;">
+                                        Total
+                                    </td>
+                                    <td align="right" style="padding:14px 0 4px; font-size:22px; font-weight:bold; border-top:2px solid #7b380b;">
+                                        ${{ sale.total }}
+                                    </td>
+                                </tr>
+                            </table>
+
+                            {% if sale.notes %}
+                                <div style="margin-top:22px; padding:16px; background:#fff7ed; border-radius:14px; border:1px solid #ead9c7;">
+                                    <strong style="display:block; margin-bottom:6px; color:#7b380b;">Notes</strong>
+                                    <div style="white-space:pre-line; line-height:1.5;">
+                                        {{ sale.notes }}
+                                    </div>
+                                </div>
+                            {% endif %}
+
+                            <p style="margin:26px 0 0; color:#6b5b4a; line-height:1.5;">
+                                Please keep this email as your receipt. We appreciate you visiting Heaven's Gates Cherry Farm.
+                            </p>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="background:#f3eadf; padding:18px 28px; color:#7b380b; font-size:13px; text-align:center;">
+                            Heaven's Gates Cherry Farm • Hale, Michigan
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

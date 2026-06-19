@@ -1,0 +1,31 @@
+Heaven's Gates Cherry Farm Receipt
+
+Thank you for supporting our family farm.
+
+Sale Number: {{ sale.sale_number }}
+Payment Method: {{ sale.get_payment_method_display }}
+Status: {{ sale.status }}
+Customer: {% if sale.customer_name %}{{ sale.customer_name }}{% else %}Walk-in Customer{% endif %}
+Date: {{ sale.completed_at|default:sale.created_at }}
+
+Items:
+{% for item in items %}
+- {% if item.product_name_snapshot %}{{ item.product_name_snapshot }}{% elif item.product %}{{ item.product.product_name }}{% else %}Item{% endif %}
+  Quantity/Weight: {% if item.weight_amount %}{{ item.weight_amount }}{% else %}{{ item.quantity }}{% endif %}
+  Unit Price: ${{ item.unit_price }}
+  Line Total: ${{ item.line_subtotal }}
+{% endfor %}
+
+Subtotal: ${{ sale.subtotal }}
+Tax: ${{ sale.tax_amount }}
+Total: ${{ sale.total }}
+
+{% if sale.notes %}
+Notes:
+{{ sale.notes }}
+{% endif %}
+
+Heaven's Gates Cherry Farm
+Hale, Michigan
+
+Please keep this email as your receipt.

@@ -2,6 +2,7 @@
 {% load static %}
 
 {% block extra_head %}
+    <meta name="csrf-token" content="{{ csrf_token }}">
     <link rel="stylesheet" href="{% static 'style/pos_sales_list.css' %}">
 {% endblock %}
 
@@ -206,9 +207,15 @@
                 <h2 id="modalSaleNumber">Receipt</h2>
             </div>
 
-            <button type="button" id="closeSaleDetailModalBtn" class="ghostBtn">
-                Close
-            </button>
+            <div class="modalHeadActions">
+                <button type="button" id="resendReceiptBtn" class="darkBtn">
+                    Resend Receipt
+                </button>
+
+                <button type="button" id="closeSaleDetailModalBtn" class="ghostBtn">
+                    Close
+                </button>
+            </div>
         </div>
 
         <div class="detailGrid">
@@ -279,6 +286,28 @@
 </div>
 
 <script>
+let selectedSale = null;
+let selectedSaleResendReceiptUrl = null;
+
+function getSalesCSRFToken() {
+    const tokenTag = document.querySelector('meta[name="csrf-token"]');
+
+    if (tokenTag && tokenTag.getAttribute("content")) {
+        return tokenTag.getAttribute("content");
+    }
+
+    const cookies = document.cookie ? document.cookie.split(";") : [];
+
+    for (let cookie of cookies) {
+        cookie = cookie.trim();
+
+        if (cookie.startsWith("csrftoken=")) {
+            return decodeURIComponent(cookie.substring("csrftoken=".length));
+        }
+    }
+
+    return "";
+}
 function salesMoney(value) {
     const num = Number(value || 0);
     return `$${num.toFixed(2)}`;
@@ -350,6 +379,9 @@ document.querySelectorAll(".viewSaleBtn").forEach(button => {
 
             const sale = data.sale;
 
+            selectedSale = sale;
+            selectedSaleResendReceiptUrl = url.replace(/\/$/, "") + "/resend-receipt/";
+
             document.getElementById("modalSaleNumber").textContent = sale.sale_number || "Receipt";
             document.getElementById("modalStatus").textContent = sale.status || "—";
             document.getElementById("modalPaymentMethod").textContent = formatSalesPaymentMethod(sale.payment_method);
@@ -402,5 +434,79 @@ document.querySelectorAll(".viewSaleBtn").forEach(button => {
         }
     });
 });
+async function resendReceiptForSelectedSale() {
+    if (!selectedSale || !selectedSaleResendReceiptUrl) {
+        alert("No sale selected.");
+        return;
+    }
+
+    let email = selectedSale.customer_email || "";
+
+    if (!email) {
+        email = window.prompt("This sale does not have an email. Enter the customer's email to send the receipt:");
+
+        if (email === null) return;
+
+        email = email.trim();
+
+        if (!email) {
+            alert("Email is required to send a receipt.");
+            return;
+        }
+    } else {
+        const confirmed = window.confirm(`Resend receipt to ${email}?`);
+
+        if (!confirmed) return;
+    }
+
+    const resendBtn = document.getElementById("resendReceiptBtn");
+
+    try {
+        if (resendBtn) {
+            resendBtn.disabled = true;
+            resendBtn.textContent = "Sending...";
+        }
+
+        const response = await fetch(selectedSaleResendReceiptUrl, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": getSalesCSRFToken(),
+            },
+            body: JSON.stringify({
+                email: email,
+            }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            alert(data.message || "Receipt could not be sent.");
+            return;
+        }
+
+        selectedSale.customer_email = data.customer_email;
+
+        document.getElementById("modalCustomer").textContent =
+            selectedSale.customer_name || selectedSale.customer_email || "Walk-in Customer";
+
+        alert(data.message || "Receipt sent.");
+
+    } catch (error) {
+        console.error(error);
+        alert("Error sending receipt.");
+    } finally {
+        if (resendBtn) {
+            resendBtn.disabled = false;
+            resendBtn.textContent = "Resend Receipt";
+        }
+    }
+}
+
+const resendReceiptBtn = document.getElementById("resendReceiptBtn");
+
+if (resendReceiptBtn) {
+    resendReceiptBtn.addEventListener("click", resendReceiptForSelectedSale);
+}
 </script>
 {% endblock %}

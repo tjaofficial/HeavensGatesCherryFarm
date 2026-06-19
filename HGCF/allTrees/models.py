@@ -773,6 +773,9 @@ class POSSale(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     completed_at = models.DateTimeField(null=True, blank=True)
 
+    receipt_email_sent_at = models.DateTimeField(null=True, blank=True)
+    receipt_email_last_error = models.TextField(blank=True, null=True)
+
     def __str__(self):
         return f"{self.sale_number} - {self.status}"
 
