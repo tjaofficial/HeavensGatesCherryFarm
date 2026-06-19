@@ -2,87 +2,107 @@
 {% load static %}
 
 {% block extra_head %}
-<link rel="stylesheet" href="{% static 'style/pos_sales_list.css' %}">
+    <link rel="stylesheet" href="{% static 'style/pos_sales_list.css' %}">
 {% endblock %}
 
 {% block list %}
-
 <div class="salesShell">
-
     <header class="salesHeader">
         <div>
-            <p class="eyebrow">Heavens Gates Cherry Farm</p>
+            <p class="salesEyebrow">Heavens Gates Cherry Farm</p>
             <h1>POS Sales</h1>
-            <p class="subText">
-                View completed, open, voided, and refunded POS sales.
-            </p>
+            <p class="salesSub">Review farm stand sales, payment methods, customers, and receipt details.</p>
         </div>
 
-        <div class="headerActions">
-            <a href="{% url 'pos_sales_list_page' %}" class="darkBtn">Sales</a>
+        <div class="salesHeaderActions">
             <a href="{% url 'pos_terminal_page' %}" class="darkBtn">Back to POS</a>
         </div>
     </header>
 
-    <section class="filterCard">
-        <form method="GET" class="filterForm">
+    <section class="summaryGrid">
+        <div class="summaryCard">
+            <span>Sales</span>
+            <strong>{{ totals.sale_count }}</strong>
+        </div>
 
-            <div class="filterField searchField">
+        <div class="summaryCard">
+            <span>Subtotal</span>
+            <strong>${{ totals.subtotal|floatformat:2 }}</strong>
+        </div>
+
+        <div class="summaryCard">
+            <span>Tax</span>
+            <strong>${{ totals.tax_amount|floatformat:2 }}</strong>
+        </div>
+
+        <div class="summaryCard total">
+            <span>Total</span>
+            <strong>${{ totals.total|floatformat:2 }}</strong>
+        </div>
+    </section>
+
+    <section class="filterCard">
+        <form method="get" class="salesFilterForm">
+            <div class="filterGroup searchWide">
                 <label for="q">Search</label>
-                <input 
-                    type="text" 
-                    id="q" 
-                    name="q" 
-                    value="{{ search_query }}" 
-                    placeholder="Sale #, customer, email, or notes..."
+                <input
+                    type="text"
+                    id="q"
+                    name="q"
+                    value="{{ q }}"
+                    placeholder="Sale number, customer, email, notes, Stripe ID..."
                 >
             </div>
 
-            <div class="filterField">
+            <div class="filterGroup">
                 <label for="status">Status</label>
                 <select id="status" name="status">
-                    <option value="">All</option>
-                    {% for value, label in sale_status_choices %}
-                        <option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>
+                    <option value="">All Statuses</option>
+                    {% for value, label in status_choices %}
+                        <option value="{{ value }}" {% if status == value %}selected{% endif %}>
                             {{ label }}
                         </option>
                     {% endfor %}
                 </select>
             </div>
 
-            <div class="filterField">
+            <div class="filterGroup">
                 <label for="payment_method">Payment</label>
                 <select id="payment_method" name="payment_method">
-                    <option value="">All</option>
+                    <option value="">All Payments</option>
                     {% for value, label in payment_method_choices %}
-                        <option value="{{ value }}" {% if selected_payment_method == value %}selected{% endif %}>
+                        <option value="{{ value }}" {% if payment_method == value %}selected{% endif %}>
                             {{ label }}
                         </option>
                     {% endfor %}
                 </select>
             </div>
 
-            <div class="filterField">
-                <label for="date_from">From</label>
+            <div class="filterGroup">
+                <label for="date_from">Date From</label>
                 <input type="date" id="date_from" name="date_from" value="{{ date_from }}">
             </div>
 
-            <div class="filterField">
-                <label for="date_to">To</label>
+            <div class="filterGroup">
+                <label for="date_to">Date To</label>
                 <input type="date" id="date_to" name="date_to" value="{{ date_to }}">
             </div>
 
             <div class="filterActions">
-                <button type="submit" class="primaryBtn">Filter</button>
-                <a href="{% url 'pos_sales_list_page' %}" class="ghostBtn">Reset</a>
+                <button type="submit" class="primaryBtn">Apply Filters</button>
+                <a href="{% url 'pos_sales_list_page' %}" class="ghostBtn">Clear</a>
             </div>
-
         </form>
     </section>
 
-    <section class="tableCard">
+    <section class="salesTableCard">
+        <div class="tableHead">
+            <h2>Sales</h2>
+            <p>{{ totals.sale_count }} result{{ totals.sale_count|pluralize }}</p>
+        </div>
+
         {% if sales %}
-            <div class="tableWrap">
+            <div class="salesTableWrap">
                 <table class="salesTable">
                     <thead>
                         <tr>
@@ -95,7 +115,7 @@
                             <th>Subtotal</th>
                             <th>Tax</th>
                             <th>Total</th>
-                            <th>Actions</th>
+                            <th></th>
                         </tr>
                     </thead>
 
@@ -104,53 +124,61 @@
                             <tr>
                                 <td>
                                     <strong>{{ sale.sale_number }}</strong>
+                                    {% if sale.stripe_payment_intent_id %}
+                                        <small>{{ sale.stripe_payment_intent_id }}</small>
+                                    {% endif %}
                                 </td>
 
                                 <td>
-                                    {{ sale.created_at|date:"M j, Y" }}
+                                    <span>{{ sale.created_at|date:"M d, Y" }}</span>
                                     <small>{{ sale.created_at|time:"g:i A" }}</small>
                                 </td>
 
                                 <td>
                                     {% if sale.customer_name %}
                                         <strong>{{ sale.customer_name }}</strong>
+                                    {% elif sale.customer_email %}
+                                        <strong>{{ sale.customer_email }}</strong>
                                     {% else %}
-                                        <span class="muted">Walk-in Customer</span>
+                                        <strong>Walk-in</strong>
                                     {% endif %}
 
-                                    {% if sale.customer_email %}
+                                    {% if sale.customer_email and sale.customer_name %}
                                         <small>{{ sale.customer_email }}</small>
                                     {% endif %}
                                 </td>
 
                                 <td>
-                                    <span class="statusPill status-{{ sale.status }}">
+                                    <span class="statusBadge status-{{ sale.status }}">
                                         {{ sale.get_status_display }}
                                     </span>
                                 </td>
 
                                 <td>
-                                    {% if sale.payment_method %}
-                                        {{ sale.get_payment_method_display }}
-                                    {% else %}
-                                        <span class="muted">Pending</span>
-                                    {% endif %}
+                                    <span class="paymentBadge payment-{{ sale.payment_method|default:'none' }}">
+                                        {% if sale.payment_method %}
+                                            {{ sale.get_payment_method_display }}
+                                        {% else %}
+                                            —
+                                        {% endif %}
+                                    </span>
                                 </td>
 
                                 <td>{{ sale.item_count }}</td>
 
-                                <td>${{ sale.subtotal }}</td>
-                                <td>${{ sale.tax_amount }}</td>
+                                <td>${{ sale.subtotal|floatformat:2 }}</td>
+
+                                <td>${{ sale.tax_amount|floatformat:2 }}</td>
 
                                 <td>
-                                    <strong>${{ sale.total }}</strong>
+                                    <strong>${{ sale.total|floatformat:2 }}</strong>
                                 </td>
 
                                 <td>
-                                    <button 
-                                        type="button" 
+                                    <button
+                                        type="button"
                                         class="viewSaleBtn"
-                                        data-sale-id="{{ sale.id }}"
+                                        data-detail-url="{% url 'pos_sale_detail_api' sale.id %}"
                                     >
                                         View
                                     </button>
@@ -162,195 +190,217 @@
             </div>
         {% else %}
             <div class="emptyState">
-                No sales found.
+                No sales found for the current filters.
             </div>
         {% endif %}
     </section>
-
 </div>
 
-<div id="saleModal" class="saleModal hidden">
-    <div class="saleModalBackdrop" id="saleModalBackdrop"></div>
+<div id="saleDetailModal" class="saleDetailModal hidden">
+    <div id="saleDetailBackdrop" class="saleDetailBackdrop"></div>
 
-    <div class="saleModalDialog">
-        <div class="saleModalHead">
+    <div class="saleDetailDialog">
+        <div class="modalHead">
             <div>
-                <p class="eyebrow">Sale Details</p>
-                <h2 id="modalSaleNumber">Sale</h2>
+                <p class="salesEyebrow">Sale Details</p>
+                <h2 id="modalSaleNumber">Receipt</h2>
             </div>
 
-            <button type="button" id="closeSaleModalBtn" class="ghostBtn">
+            <button type="button" id="closeSaleDetailModalBtn" class="ghostBtn">
                 Close
             </button>
         </div>
 
-        <div id="saleModalContent" class="saleModalContent">
-            Loading...
+        <div class="detailGrid">
+            <div class="detailCard">
+                <span>Status</span>
+                <strong id="modalStatus">—</strong>
+            </div>
+
+            <div class="detailCard">
+                <span>Payment</span>
+                <strong id="modalPaymentMethod">—</strong>
+            </div>
+
+            <div class="detailCard">
+                <span>Customer</span>
+                <strong id="modalCustomer">—</strong>
+            </div>
+
+            <div class="detailCard">
+                <span>Completed</span>
+                <strong id="modalCompletedAt">—</strong>
+            </div>
+        </div>
+
+        <div class="modalSection">
+            <h3>Items</h3>
+            <div id="modalItems" class="modalItems"></div>
+        </div>
+
+        <div class="modalTotals">
+            <div>
+                <span>Subtotal</span>
+                <strong id="modalSubtotal">$0.00</strong>
+            </div>
+
+            <div>
+                <span>Tax</span>
+                <strong id="modalTax">$0.00</strong>
+            </div>
+
+            <div class="grand">
+                <span>Total</span>
+                <strong id="modalTotal">$0.00</strong>
+            </div>
+
+            <div>
+                <span>Cash Received</span>
+                <strong id="modalCashReceived">—</strong>
+            </div>
+
+            <div>
+                <span>Change</span>
+                <strong id="modalCashChange">—</strong>
+            </div>
+        </div>
+
+        <div class="modalSection">
+            <h3>Notes</h3>
+            <p id="modalNotes" class="notesText">—</p>
+        </div>
+
+        <div class="modalActions">
+            <a id="modalStripeReceiptLink" href="#" target="_blank" class="darkBtn hidden">
+                Open Stripe Receipt
+            </a>
         </div>
     </div>
 </div>
 
 <script>
-    window.SALES_CONFIG = {
-        saleDetailUrlBase: "/pos/api/sale/",
+function salesMoney(value) {
+    const num = Number(value || 0);
+    return `$${num.toFixed(2)}`;
+}
+
+function escapeSalesHtml(value) {
+    return String(value || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+function formatSalesDateTime(value) {
+    if (!value) return "—";
+
+    try {
+        return new Date(value).toLocaleString();
+    } catch (error) {
+        return value;
+    }
+}
+
+function formatSalesPaymentMethod(value) {
+    const map = {
+        cash: "Cash",
+        card: "Card",
+        manual_card: "Manual Card",
+        tap_to_pay: "Tap to Pay",
+        other: "Other",
     };
 
-    function money(value) {
-        const num = Number(value || 0);
-        return `$${num.toFixed(2)}`;
-    }
+    return map[value] || value || "—";
+}
 
-    function escapeHtml(value) {
-        return String(value || "")
-            .replaceAll("&", "&amp;")
-            .replaceAll("<", "&lt;")
-            .replaceAll(">", "&gt;")
-            .replaceAll('"', "&quot;")
-            .replaceAll("'", "&#039;");
-    }
+const saleDetailModal = document.getElementById("saleDetailModal");
+const saleDetailBackdrop = document.getElementById("saleDetailBackdrop");
+const closeSaleDetailModalBtn = document.getElementById("closeSaleDetailModalBtn");
 
-    function formatDateTime(value) {
-        if (!value) return "—";
+function openSaleDetailModal() {
+    saleDetailModal.classList.remove("hidden");
+}
 
-        try {
-            return new Date(value).toLocaleString();
-        } catch (e) {
-            return value;
-        }
-    }
+function closeSaleDetailModal() {
+    saleDetailModal.classList.add("hidden");
+}
 
-    function openSaleModal() {
-        document.getElementById("saleModal").classList.remove("hidden");
-    }
+if (saleDetailBackdrop) {
+    saleDetailBackdrop.addEventListener("click", closeSaleDetailModal);
+}
 
-    function closeSaleModal() {
-        document.getElementById("saleModal").classList.add("hidden");
-    }
+if (closeSaleDetailModalBtn) {
+    closeSaleDetailModalBtn.addEventListener("click", closeSaleDetailModal);
+}
 
-    async function loadSaleDetails(saleId) {
-        const modalSaleNumber = document.getElementById("modalSaleNumber");
-        const modalContent = document.getElementById("saleModalContent");
-
-        modalSaleNumber.textContent = "Loading...";
-        modalContent.innerHTML = `<div class="emptyState">Loading sale details...</div>`;
-
-        openSaleModal();
+document.querySelectorAll(".viewSaleBtn").forEach(button => {
+    button.addEventListener("click", async () => {
+        const url = button.dataset.detailUrl;
 
         try {
-            const response = await fetch(`${window.SALES_CONFIG.saleDetailUrlBase}${saleId}/`);
+            const response = await fetch(url);
             const data = await response.json();
 
             if (!data.success || !data.sale) {
-                modalContent.innerHTML = `<div class="emptyState error">Could not load sale details.</div>`;
+                alert("Could not load sale details.");
                 return;
             }
 
             const sale = data.sale;
 
-            modalSaleNumber.textContent = sale.sale_number || "Sale";
+            document.getElementById("modalSaleNumber").textContent = sale.sale_number || "Receipt";
+            document.getElementById("modalStatus").textContent = sale.status || "—";
+            document.getElementById("modalPaymentMethod").textContent = formatSalesPaymentMethod(sale.payment_method);
+            document.getElementById("modalCustomer").textContent = sale.customer_name || sale.customer_email || "Walk-in Customer";
+            document.getElementById("modalCompletedAt").textContent = formatSalesDateTime(sale.completed_at || sale.created_at);
+            document.getElementById("modalSubtotal").textContent = salesMoney(sale.subtotal);
+            document.getElementById("modalTax").textContent = salesMoney(sale.tax_amount);
+            document.getElementById("modalTotal").textContent = salesMoney(sale.total);
+            document.getElementById("modalCashReceived").textContent = sale.cash_received ? salesMoney(sale.cash_received) : "—";
+            document.getElementById("modalCashChange").textContent = sale.cash_change ? salesMoney(sale.cash_change) : "—";
+            document.getElementById("modalNotes").textContent = sale.notes || "—";
 
-            const itemsHtml = sale.items && sale.items.length
-                ? sale.items.map(item => `
+            const stripeLink = document.getElementById("modalStripeReceiptLink");
+
+            if (sale.stripe_receipt_url) {
+                stripeLink.href = sale.stripe_receipt_url;
+                stripeLink.classList.remove("hidden");
+            } else {
+                stripeLink.href = "#";
+                stripeLink.classList.add("hidden");
+            }
+
+            const itemsBox = document.getElementById("modalItems");
+
+            if (!sale.items || !sale.items.length) {
+                itemsBox.innerHTML = `<div class="emptyState">No receipt items found.</div>`;
+            } else {
+                itemsBox.innerHTML = sale.items.map(item => `
                     <div class="modalItem">
                         <div>
-                            <strong>${escapeHtml(item.product_name)}</strong>
-                            <small>SKU: ${escapeHtml(item.sku || "No SKU")}</small>
+                            <strong>${escapeSalesHtml(item.product_name)}</strong>
+                            <small>
+                                Qty/Weight:
+                                ${escapeSalesHtml(item.weight_amount || item.quantity || "1")}
+                                • Unit Price:
+                                ${salesMoney(item.unit_price)}
+                            </small>
                         </div>
 
-                        <div class="modalItemRight">
-                            <span>Qty: ${escapeHtml(item.weight_amount || item.quantity || "1")}</span>
-                            <span>Unit: ${money(item.unit_price)}</span>
-                            <strong>${money(item.line_subtotal)}</strong>
-                        </div>
+                        <strong>${salesMoney(item.line_subtotal)}</strong>
                     </div>
-                `).join("")
-                : `<div class="emptyState">No items found.</div>`;
+                `).join("");
+            }
 
-            modalContent.innerHTML = `
-                <div class="modalGrid">
-                    <div class="modalInfoCard">
-                        <span>Status</span>
-                        <strong>${escapeHtml(sale.status || "—")}</strong>
-                    </div>
+            openSaleDetailModal();
 
-                    <div class="modalInfoCard">
-                        <span>Payment</span>
-                        <strong>${escapeHtml(sale.payment_method || "Pending")}</strong>
-                    </div>
-
-                    <div class="modalInfoCard">
-                        <span>Customer</span>
-                        <strong>${escapeHtml(sale.customer_name || "Walk-in Customer")}</strong>
-                        <small>${escapeHtml(sale.customer_email || "")}</small>
-                    </div>
-
-                    <div class="modalInfoCard">
-                        <span>Created</span>
-                        <strong>${formatDateTime(sale.created_at)}</strong>
-                    </div>
-
-                    <div class="modalInfoCard">
-                        <span>Completed</span>
-                        <strong>${formatDateTime(sale.completed_at)}</strong>
-                    </div>
-                </div>
-
-                <div class="modalSection">
-                    <h3>Items</h3>
-                    ${itemsHtml}
-                </div>
-
-                <div class="modalTotals">
-                    <div>
-                        <span>Subtotal</span>
-                        <strong>${money(sale.subtotal)}</strong>
-                    </div>
-
-                    <div>
-                        <span>Tax</span>
-                        <strong>${money(sale.tax_amount)}</strong>
-                    </div>
-
-                    <div class="grand">
-                        <span>Total</span>
-                        <strong>${money(sale.total)}</strong>
-                    </div>
-
-                    <div>
-                        <span>Cash Received</span>
-                        <strong>${sale.cash_received ? money(sale.cash_received) : "—"}</strong>
-                    </div>
-
-                    <div>
-                        <span>Change</span>
-                        <strong>${sale.cash_change ? money(sale.cash_change) : "—"}</strong>
-                    </div>
-                </div>
-
-                ${
-                    sale.notes
-                    ? `
-                    <div class="modalSection">
-                        <h3>Notes</h3>
-                        <p>${escapeHtml(sale.notes)}</p>
-                    </div>
-                    `
-                    : ""
-                }
-            `;
         } catch (error) {
-            modalContent.innerHTML = `<div class="emptyState error">Error loading sale details.</div>`;
+            console.error(error);
+            alert("Error loading sale details.");
         }
-    }
-
-    document.querySelectorAll(".viewSaleBtn").forEach(button => {
-        button.addEventListener("click", () => {
-            loadSaleDetails(button.dataset.saleId);
-        });
     });
-
-    document.getElementById("closeSaleModalBtn").addEventListener("click", closeSaleModal);
-    document.getElementById("saleModalBackdrop").addEventListener("click", closeSaleModal);
+});
 </script>
-
 {% endblock %}

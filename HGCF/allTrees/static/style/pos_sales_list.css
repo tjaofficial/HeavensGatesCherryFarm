@@ -1,372 +1,455 @@
 .salesShell {
-    max-width: 1400px;
+    width: min(1500px, calc(100% - 2rem));
     margin: 0 auto;
-    padding: 34px 22px 80px;
-    color: #2d1b12;
+    padding: 2rem 0 4rem;
 }
 
 .salesHeader {
     display: flex;
-    justify-content: space-between;
-    gap: 24px;
     align-items: flex-start;
-    margin-bottom: 26px;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
 }
 
-.eyebrow {
-    margin: 0 0 8px;
-    color: #ca5d63;
+.salesEyebrow {
+    margin: 0 0 0.35rem;
+    color: #9b1c25;
     font-weight: 900;
     text-transform: uppercase;
     letter-spacing: 0.08em;
+    font-size: 0.78rem;
 }
 
 .salesHeader h1 {
     margin: 0;
-    font-size: clamp(2.2rem, 5vw, 4rem);
-    color: #4f2307;
-    line-height: 1;
+    color: #1f2937;
+    font-size: clamp(2rem, 4vw, 3.5rem);
 }
 
-.subText {
-    max-width: 720px;
-    color: #6f625b;
-    font-size: 1.05rem;
-    line-height: 1.5;
+.salesSub {
+    margin: 0.4rem 0 0;
+    color: #6b7280;
+    font-size: 1rem;
+}
+
+.salesHeaderActions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.summaryGrid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.2rem;
+}
+
+.summaryCard {
+    background: #fff;
+    border: 1px solid rgba(123, 56, 11, 0.16);
+    border-radius: 20px;
+    padding: 1.2rem;
+    box-shadow: 0 12px 32px rgba(31, 41, 55, 0.08);
+}
+
+.summaryCard span {
+    display: block;
+    color: #6b7280;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 900;
+    margin-bottom: 0.35rem;
+}
+
+.summaryCard strong {
+    color: #1f2937;
+    font-size: 1.5rem;
+}
+
+.summaryCard.total {
+    background: linear-gradient(135deg, #7b380b, #4f2307);
+}
+
+.summaryCard.total span,
+.summaryCard.total strong {
+    color: #fff;
 }
 
 .filterCard,
-.tableCard {
-    background: #ffffff;
-    border: 2px solid #ead8c8;
-    border-radius: 22px;
-    padding: 20px;
-    margin-bottom: 24px;
-    box-shadow: 0 10px 28px rgba(79, 35, 7, 0.1);
+.salesTableCard {
+    background: #fff;
+    border: 1px solid rgba(123, 56, 11, 0.16);
+    border-radius: 24px;
+    box-shadow: 0 14px 38px rgba(31, 41, 55, 0.08);
 }
 
-.filterForm {
+.filterCard {
+    padding: 1rem;
+    margin-bottom: 1.2rem;
+}
+
+.salesFilterForm {
     display: grid;
-    grid-template-columns: 2fr repeat(4, 1fr) auto;
-    gap: 16px;
+    grid-template-columns: 2fr 1fr 1fr 1fr 1fr auto;
+    gap: 0.8rem;
     align-items: end;
 }
 
-.filterField label {
-    display: block;
-    font-weight: 900;
-    color: #4f2307;
-    margin-bottom: 7px;
+.filterGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
 }
 
-.filterField input,
-.filterField select {
+.filterGroup label {
+    color: #374151;
+    font-weight: 900;
+    font-size: 0.8rem;
+}
+
+.filterGroup input,
+.filterGroup select {
     width: 100%;
-    box-sizing: border-box;
-    padding: 12px 13px;
-    border: 2px solid #dba37d;
-    border-radius: 12px;
-    background: #fffdf9;
-    color: #2d1b12;
-    font-size: 15px;
+    border: 1px solid #d1d5db;
+    border-radius: 14px;
+    padding: 0.75rem 0.85rem;
+    font-size: 0.95rem;
+    background: #fff;
 }
 
 .filterActions {
     display: flex;
-    gap: 10px;
+    gap: 0.5rem;
+    align-items: center;
 }
 
 .primaryBtn,
 .darkBtn,
 .ghostBtn,
 .viewSaleBtn {
+    border: none;
+    border-radius: 14px;
+    padding: 0.75rem 1rem;
+    font-weight: 900;
+    cursor: pointer;
+    text-decoration: none;
     display: inline-flex;
     justify-content: center;
     align-items: center;
-    text-decoration: none;
-    border-radius: 12px;
-    padding: 12px 18px;
-    font-weight: 900;
-    border: none;
-    cursor: pointer;
     white-space: nowrap;
 }
 
 .primaryBtn {
-    background: #7b380b;
+    background: linear-gradient(135deg, #b41422, #760811);
     color: #fff;
 }
 
 .darkBtn {
-    background: #2d1b12;
+    background: #1f2937;
     color: #fff;
 }
 
 .ghostBtn {
-    background: #fff8ef;
-    color: #7b380b;
-    border: 2px solid #dba37d;
+    background: #f3f4f6;
+    color: #374151;
+    border: 1px solid #d1d5db;
 }
 
 .viewSaleBtn {
-    background: #7b380b;
-    color: #fff;
-    padding: 9px 14px;
+    background: #fff7ed;
+    color: #7b380b;
+    border: 1px solid rgba(123, 56, 11, 0.22);
 }
 
-.tableWrap {
+.salesTableCard {
+    overflow: hidden;
+}
+
+.tableHead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.2rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.tableHead h2 {
+    margin: 0;
+    color: #1f2937;
+}
+
+.tableHead p {
+    margin: 0;
+    color: #6b7280;
+}
+
+.salesTableWrap {
     overflow-x: auto;
 }
 
 .salesTable {
     width: 100%;
-    min-width: 1100px;
     border-collapse: collapse;
+    min-width: 1050px;
 }
 
 .salesTable th {
     text-align: left;
-    background: #fff8ef;
-    color: #4f2307;
-    font-size: 13px;
+    color: #6b7280;
+    font-size: 0.75rem;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    padding: 14px 12px;
-    border-bottom: 2px solid #dba37d;
+    letter-spacing: 0.06em;
+    padding: 0.9rem 1rem;
+    background: #f9fafb;
+    border-bottom: 1px solid #e5e7eb;
 }
 
 .salesTable td {
-    padding: 14px 12px;
-    border-bottom: 1px solid #ead8c8;
-    vertical-align: middle;
+    padding: 1rem;
+    border-bottom: 1px solid #edf0f3;
+    color: #1f2937;
+    vertical-align: top;
 }
 
-.salesTable tbody tr:hover {
-    background: #fffaf3;
-}
-
-.salesTable small {
+.salesTable td small {
     display: block;
-    color: #6f625b;
-    margin-top: 4px;
+    color: #6b7280;
+    margin-top: 0.2rem;
+    word-break: break-word;
 }
 
-.muted {
-    color: #9a8b82;
-}
-
-.statusPill {
+.statusBadge,
+.paymentBadge {
     display: inline-flex;
-    padding: 7px 11px;
+    align-items: center;
     border-radius: 999px;
-    font-size: 12px;
+    padding: 0.35rem 0.65rem;
+    font-size: 0.75rem;
     font-weight: 900;
+    text-transform: capitalize;
 }
 
 .status-completed {
-    background: #e5f7e1;
-    color: #1f6b2d;
+    background: #dcfce7;
+    color: #166534;
 }
 
 .status-open {
-    background: #fff2c7;
-    color: #7a5200;
+    background: #fef9c3;
+    color: #854d0e;
 }
 
 .status-voided,
 .status-refunded {
-    background: #ffe1e1;
-    color: #8a1f1f;
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.payment-cash {
+    background: #ecfdf5;
+    color: #047857;
+}
+
+.payment-card,
+.payment-manual_card {
+    background: #eef2ff;
+    color: #4338ca;
+}
+
+.payment-none {
+    background: #f3f4f6;
+    color: #6b7280;
 }
 
 .emptyState {
-    background: #fff8ef;
-    border: 2px dashed #dba37d;
-    border-radius: 18px;
-    padding: 28px;
+    padding: 2rem;
     text-align: center;
-    color: #6f625b;
-    font-weight: 900;
+    color: #6b7280;
+    border: 1px dashed #d1d5db;
+    border-radius: 18px;
+    margin: 1rem;
 }
 
-.emptyState.error {
-    background: #ffe1e1;
-    color: #8a1f1f;
-    border-color: #ca5d63;
+.hidden {
+    display: none !important;
 }
 
-.saleModal.hidden {
-    display: none;
-}
-
-.saleModal {
+/* Modal */
+.saleDetailModal {
     position: fixed;
     inset: 0;
-    z-index: 9999;
+    z-index: 20000;
 }
 
-.saleModalBackdrop {
+.saleDetailBackdrop {
     position: absolute;
     inset: 0;
-    background: rgba(0, 0, 0, 0.58);
+    background: rgba(0,0,0,0.55);
 }
 
-.saleModalDialog {
+.saleDetailDialog {
     position: relative;
-    z-index: 1;
-    max-width: 900px;
-    max-height: 86vh;
+    width: min(850px, calc(100% - 2rem));
+    max-height: calc(100vh - 2rem);
     overflow-y: auto;
-    margin: 5vh auto;
-    background: #ffffff;
+    margin: 1rem auto;
+    background: #fff;
     border-radius: 24px;
-    padding: 24px;
-    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+    box-shadow: 0 24px 80px rgba(0,0,0,0.35);
+    padding: 1.3rem;
 }
 
-.saleModalHead {
+.modalHead {
     display: flex;
     justify-content: space-between;
-    gap: 18px;
+    gap: 1rem;
     align-items: flex-start;
-    border-bottom: 2px solid #ead8c8;
-    padding-bottom: 16px;
-    margin-bottom: 18px;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
 }
 
-.saleModalHead h2 {
+.modalHead h2 {
     margin: 0;
-    color: #4f2307;
-    font-size: 2rem;
+    color: #1f2937;
 }
 
-.modalGrid {
+.detailGrid {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 14px;
-    margin-bottom: 22px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.8rem;
+    margin-bottom: 1rem;
 }
 
-.modalInfoCard {
-    background: #fff8ef;
-    border: 2px solid #ead8c8;
+.detailCard {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
     border-radius: 16px;
-    padding: 14px;
+    padding: 0.85rem;
 }
 
-.modalInfoCard span {
+.detailCard span {
     display: block;
-    color: #6f625b;
+    color: #6b7280;
+    font-size: 0.75rem;
+    text-transform: uppercase;
     font-weight: 900;
-    margin-bottom: 6px;
+    margin-bottom: 0.25rem;
 }
 
-.modalInfoCard strong {
-    display: block;
-    color: #2d1b12;
-}
-
-.modalInfoCard small {
-    display: block;
-    color: #6f625b;
-    margin-top: 5px;
+.detailCard strong {
+    color: #1f2937;
 }
 
 .modalSection {
-    margin-top: 22px;
+    margin-top: 1.2rem;
 }
 
 .modalSection h3 {
-    color: #4f2307;
-    margin-bottom: 12px;
+    margin: 0 0 0.6rem;
+    color: #1f2937;
+}
+
+.modalItems {
+    display: grid;
+    gap: 0.6rem;
 }
 
 .modalItem {
     display: flex;
     justify-content: space-between;
-    gap: 18px;
-    border: 1px solid #ead8c8;
-    border-radius: 14px;
-    padding: 14px;
-    margin-bottom: 10px;
-    background: #fffdf9;
+    gap: 1rem;
+    background: #fff7ed;
+    border: 1px solid rgba(123,56,11,0.12);
+    border-radius: 16px;
+    padding: 0.9rem;
 }
 
 .modalItem small {
     display: block;
-    color: #6f625b;
-    margin-top: 4px;
-}
-
-.modalItemRight {
-    display: grid;
-    gap: 4px;
-    text-align: right;
+    color: #6b7280;
+    margin-top: 0.25rem;
 }
 
 .modalTotals {
-    margin-top: 22px;
-    background: #fff8ef;
-    border: 2px solid #dba37d;
-    border-radius: 18px;
-    padding: 16px;
+    margin-top: 1rem;
+    border-top: 1px solid #e5e7eb;
+    padding-top: 1rem;
     display: grid;
-    gap: 10px;
+    gap: 0.5rem;
 }
 
 .modalTotals div {
     display: flex;
     justify-content: space-between;
-    gap: 18px;
+    color: #374151;
 }
 
 .modalTotals .grand {
-    border-top: 2px solid #dba37d;
-    padding-top: 10px;
-    font-size: 1.25rem;
+    font-size: 1.3rem;
+    font-weight: 900;
+    color: #1f2937;
 }
 
-@media (max-width: 1000px) {
+.notesText {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 1rem;
+    color: #374151;
+    white-space: pre-wrap;
+}
+
+.modalActions {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: flex-end;
+}
+
+@media (max-width: 1100px) {
+    .summaryGrid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .salesFilterForm {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .searchWide,
+    .filterActions {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 700px) {
+    .salesShell {
+        width: min(100% - 1rem, 1500px);
+        padding-top: 1rem;
+    }
+
     .salesHeader {
         flex-direction: column;
     }
 
-    .filterForm {
-        grid-template-columns: 1fr 1fr;
-    }
-
-    .searchField {
-        grid-column: 1 / -1;
-    }
-
-    .modalGrid {
-        grid-template-columns: 1fr;
-    }
-}
-
-@media (max-width: 620px) {
-    .salesShell {
-        padding: 24px 12px 60px;
-    }
-
-    .filterForm {
+    .summaryGrid,
+    .salesFilterForm,
+    .detailGrid {
         grid-template-columns: 1fr;
     }
 
     .filterActions {
         flex-direction: column;
+        align-items: stretch;
     }
 
-    .saleModalDialog {
-        margin: 2vh 10px;
-        max-height: 94vh;
+    .modalHead {
+        flex-direction: column;
     }
 
     .modalItem {
         flex-direction: column;
-    }
-
-    .modalItemRight {
-        text-align: left;
     }
 }

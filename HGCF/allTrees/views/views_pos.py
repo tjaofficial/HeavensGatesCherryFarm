@@ -13,6 +13,7 @@ from django.views.decorators.csrf import csrf_exempt
 from ..models import (mainStore_products, POSSession, POSSale,POSSaleItem,POSPaymentEvent,UPickReservation,)
 from ..forms import POSProductEditForm
 from django.contrib import messages
+from django.utils.dateparse import parse_date
 
 
 TAX_RATE = Decimal("0.00")
@@ -1069,3 +1070,70 @@ def pos_complete_manual_card_sale_api(request, sale_id):
         "tax_amount": str(sale.tax_amount),
         "total": str(sale.total),
     })
+
+@login_required
+def pos_sales_list_page(request):
+    smallHeader = True
+    noFooter = True
+    sideBar = True
+
+    q = (request.GET.get("q") or "").strip()
+    status = (request.GET.get("status") or "").strip()
+    payment_method = (request.GET.get("payment_method") or "").strip()
+    date_from = (request.GET.get("date_from") or "").strip()
+    date_to = (request.GET.get("date_to") or "").strip()
+
+    sales = (
+        POSSale.objects
+        .select_related("session", "created_by")
+        .annotate(item_count=Count("items"))
+        .order_by("-created_at")
+    )
+
+    if q:
+        sales = sales.filter(
+            Q(sale_number__icontains=q) |
+            Q(customer_name__icontains=q) |
+            Q(customer_email__icontains=q) |
+            Q(notes__icontains=q) |
+            Q(stripe_payment_intent_id__icontains=q)
+        )
+
+    if status:
+        sales = sales.filter(status=status)
+
+    if payment_method:
+        sales = sales.filter(payment_method=payment_method)
+
+    parsed_date_from = parse_date(date_from) if date_from else None
+    parsed_date_to = parse_date(date_to) if date_to else None
+
+    if parsed_date_from:
+        sales = sales.filter(created_at__date__gte=parsed_date_from)
+
+    if parsed_date_to:
+        sales = sales.filter(created_at__date__lte=parsed_date_to)
+
+    totals = {
+        "sale_count": sales.count(),
+        "subtotal": sum(sale.subtotal for sale in sales),
+        "tax_amount": sum(sale.tax_amount for sale in sales),
+        "total": sum(sale.total for sale in sales),
+    }
+
+    context = {
+        "smallHeader": smallHeader,
+        "noFooter": noFooter,
+        "sideBar": sideBar,
+        "sales": sales,
+        "totals": totals,
+        "q": q,
+        "status": status,
+        "payment_method": payment_method,
+        "date_from": date_from,
+        "date_to": date_to,
+        "status_choices": POSSale._meta.get_field("status").choices,
+        "payment_method_choices": POSSale._meta.get_field("payment_method").choices,
+    }
+
+    return render(request, "pos/pos_sales_list.html", context)
