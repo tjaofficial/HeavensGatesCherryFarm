@@ -62,7 +62,7 @@
                     <textarea id="saleNotes" placeholder="Notes (optional)"></textarea>
                 </div>
 
-                <div class="readerBox">
+                <div class="readerBox hidden">
                     <label for="readerSelect">Stripe Reader</label>
                     <div class="readerRow">
                         <select id="readerSelect" class="readerSelect">
@@ -101,6 +101,14 @@
                         Complete Cash Sale
                     </button>
 
+                    <button id="openStripeManualChargeBtn" class="darkBtn hidden" type="button" disabled>
+                        Open Stripe Card Charge
+                    </button>
+
+                    <button id="manualCardSaleBtn" class="secondaryBtn hidden" type="button" disabled>
+                        Mark Card Paid
+                    </button>
+
                     <button id="cardSaleBtn" class="darkBtn hidden" type="button" disabled>
                         Card / Tap Payment
                     </button>
@@ -109,6 +117,10 @@
                         Cancel Card Payment
                     </button>
                 </div>
+
+                <small class="readerHelp">
+                    Card payments today are processed manually through Stripe Dashboard. After charging the card in Stripe, return here and click “Mark Card Paid.”
+                </small>
 
                 <div id="saleStatusBox" class="saleStatusBox hidden"></div>
             </aside>
@@ -186,9 +198,10 @@
             todayReservationsUrl: "{% url 'pos_today_reservations_api' %}",
             calculateTotalsUrl: "{% url 'pos_calculate_totals_api' %}",
             createSaleUrl: "{% url 'pos_create_sale_api' %}",
-            readersUrl: "{% url 'pos_terminal_readers_api' %}",
             saleDetailUrlBase: "/pos/api/sale/",
             cashCompleteUrlBase: "/pos/api/sale/",
+            stripeDashboardUrl: "https://dashboard.stripe.com/payments",
+            manualCardCompleteUrlBase: "/pos/api/sale/",
         };
     </script>
 {% endblock %}

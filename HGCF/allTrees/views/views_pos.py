@@ -15,7 +15,7 @@ from ..forms import POSProductEditForm
 from django.contrib import messages
 
 
-TAX_RATE = Decimal("0.06")
+TAX_RATE = Decimal("0.00")
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
 def _money(value):
@@ -1007,4 +1007,65 @@ def stripe_terminal_webhook(request):
         "success": True
     })
 
+@login_required
+@require_POST
+@transaction.atomic
+def pos_complete_manual_card_sale_api(request, sale_id):
+    try:
+        payload = json.loads(request.body or "{}")
+    except json.JSONDecodeError:
+        payload = {}
 
+    sale = get_object_or_404(
+        POSSale.objects.select_for_update(),
+        id=sale_id
+    )
+
+    if sale.status == "completed":
+        return JsonResponse({
+            "success": True,
+            "message": "Sale is already completed.",
+            "sale_id": sale.id,
+            "sale_number": sale.sale_number,
+        })
+
+    if sale.status != "open":
+        return JsonResponse({
+            "success": False,
+            "message": "Only open sales can be completed."
+        }, status=400)
+
+    stripe_reference = (payload.get("stripe_reference") or "").strip()
+
+    sale.status = "completed"
+    sale.payment_method = "card"
+    sale.payment_status = "completed"
+    sale.completed_at = timezone.now()
+
+    if stripe_reference and hasattr(sale, "stripe_payment_intent_id"):
+        sale.stripe_payment_intent_id = stripe_reference
+
+    note_to_add = "Manual card payment completed through Stripe Dashboard."
+
+    if stripe_reference:
+        note_to_add += f" Stripe reference: {stripe_reference}."
+
+    if sale.notes:
+        sale.notes = f"{sale.notes}\n\n{note_to_add}"
+    else:
+        sale.notes = note_to_add
+
+    sale.save()
+
+    return JsonResponse({
+        "success": True,
+        "message": "Manual card sale completed.",
+        "sale_id": sale.id,
+        "sale_number": sale.sale_number,
+        "status": sale.status,
+        "payment_method": sale.payment_method,
+        "payment_status": sale.payment_status,
+        "subtotal": str(sale.subtotal),
+        "tax_amount": str(sale.tax_amount),
+        "total": str(sale.total),
+    })

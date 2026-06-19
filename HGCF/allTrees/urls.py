@@ -81,4 +81,5 @@ urlpatterns = [
     path("pos/products/", views.pos_products_list_page, name="pos_products_list_page"),
     path("pos/products/<int:product_id>/edit/", views.pos_product_edit_page, name="pos_product_edit_page"),
     path("pos/sales/", views.pos_sales_list_page, name="pos_sales_list_page"),
+    path("pos/api/sale/<int:sale_id>/manual-card-complete/", views.pos_complete_manual_card_sale_api, name="pos_complete_manual_card_sale_api"),
 ]
