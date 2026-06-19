@@ -204,7 +204,8 @@ def send_pos_receipt_email(sale, recipient_email=None, force=False):
     email_to = (recipient_email or sale.customer_email or "").strip().lower()
 
     if not email_to:
-        raise ValueError(f"POS receipt cannot be sent because sale {sale.id} has no email.")
+        print(f"POS receipt skipped: sale {sale.id} has no customer email.")
+        return 0
 
     if sale.receipt_email_sent_at and not force:
         print(f"POS receipt skipped: sale {sale.id} receipt already sent.")
