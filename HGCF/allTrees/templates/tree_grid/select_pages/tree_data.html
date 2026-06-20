@@ -1,45 +1,334 @@
 {% extends "mainLayout.html" %}
-{% block list %}{% load static %}
-    {% block extra_head %}
-        <link href="{% static 'style/pageSetup.css' %}" rel="stylesheet" />
-        <link href="{% static 'style/backArrow.css' %}" rel="stylesheet" />
-        <link href="{% static 'style/addCards.css' %}" rel="stylesheet" />
-        <link href="{% static 'style/treeData.css' %}" rel="stylesheet" />
-    {% endblock %}
-    <div class='card'>
-        <div class="treeCont" style="color:white;">
-            {% include "components/backArrow.html" with destination="grid" selector1=treeData.areaID.id %}
-            <div style='margin-top: -46px; margin-bottom: 25px;text-align: center;'>
-                <img src="{% static 'images/tree.jpeg' %}" />
+{% load static %}
+
+{% block list %}
+
+{% block extra_head %}
+<link href="{% static 'style/farm_map.css' %}" rel="stylesheet">
+<link href="{% static 'style/tree_detail.css' %}" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+{% endblock %}
+
+<div class="tree-detail-page">
+
+    <div class="tree-detail-topbar">
+        <div>
+            <div class="farm-breadcrumbs">
+                <a href="{% url 'farm_map' %}">Farm Map</a>
+                <span>›</span>
+                <a href="{% url 'farm_map_location' treeData.areaID.locationID.id %}">
+                    {{ treeData.areaID.locationID.name|default:treeData.areaID.locationID.locationID }}
+                </a>
+                <span>›</span>
+                <a href="{% url 'farm_map_area' treeData.areaID.locationID.id treeData.areaID.id %}">
+                    {{ treeData.areaID.name|default:treeData.areaID.areaID }}
+                </a>
+                <span>›</span>
+                <span>{{ displayName }}</span>
             </div>
-            <div class='dataCont'>
-                <strong>Tree ID:</strong> {{fullTreeID}}<br><br>
-                <strong>Root Stock:</strong> {{treeData.rootStock}}<br><br>
-                <strong>Zion Type:</strong> {{treeData.zionType}}<br><br>
-                <strong>Date Planted:</strong> {{treeData.datePlanted}}<br><br>
-                <strong>Notes:</strong> <br><br>
-                <strong>Logs:</strong> <br>
-                <div class='logCont'>
-                    <ul>
-                        {% for log in treeLogs %}
-                        <li class='listGap'>
-                            <a href="{% url 'treeLog' locationID areaID treeID log.id%}">
-                                {{log}}
-                            </a>
-                        </li>
-                        {% endfor %}
-                    </ul>
-                </div>
-                <center>
-                    <a href="{% url 'treeLog' locationID areaID treeID 'all' %}">see all</a><br><br>
-                    <div>
-                        <p>Assigned QR Code</p>
-                        <img style="position: relative;left: -16px;" src="{{treeQrCode.qr_code.url}}">
-                    </div>
-                    <a class='linkStyleRemove' href="{% url 'addLog' locationID areaID treeID %}"><div class='primButton'>Add Log</div></a>
-                    <br>
-                </center>
-            </div>
+
+            <h1>Plant Details</h1>
+            <p class="page-subtitle">
+                Complete record for this plant.
+            </p>
+        </div>
+
+        <div class="tree-detail-actions">
+            <a href="{% url 'farm_map_area' treeData.areaID.locationID.id treeData.areaID.id %}" class="outline-btn">
+                <i data-lucide="arrow-left"></i>
+                Back to Farm Map
+            </a>
+
+            <a href="{% url 'editTree' locationID areaID treeID %}" class="outline-btn">
+                <i data-lucide="pencil"></i>
+                Edit
+            </a>
+
+            <a href="{% url 'addLog' locationID areaID treeID %}" class="primary-btn">
+                <i data-lucide="plus"></i>
+                Add Log
+            </a>
         </div>
     </div>
+
+    <div style="padding: 11px;
+        max-width: 1260px;
+        justify-self: center;
+        width: 100%;
+        border: #dcd8c9 solid 1px;
+        border-radius: 26px;
+        background: #efebd1;"
+    >
+        <section class="tree-hero-card">
+
+            <div class="tree-hero-image">
+                {% if treeData.image %}
+                    <img src="{{ treeData.image.url }}" alt="{{ displayName }}">
+                {% else %}
+                    <img src="{% static 'images/tree.jpeg' %}" alt="{{ displayName }}">
+                {% endif %}
+            </div>
+
+            <div class="tree-hero-content">
+                <div class="tree-title-row">
+                    <div>
+                        <span class="summary-label">Selected Plant</span>
+                        <h2>{{ displayName }}</h2>
+
+                        <div class="copy-id-row">
+                            <p id="treeFullId">{{ fullTreeID }}</p>
+
+                            <button type="button" class="copy-id-btn" data-copy-target="treeFullId" title="Copy Tree ID">
+                                <i data-lucide="copy"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <span class="status-pill status-{{ treeData.status }}">
+                        {{ treeData.status }}
+                    </span>
+                </div>
+
+                <div class="tree-quick-meta">
+                    <div>
+                        <i data-lucide="map-pin"></i>
+                        <span>{{ treeData.areaID.locationID.name|default:treeData.areaID.locationID.locationID }}</span>
+                    </div>
+
+                    <div>
+                        <i data-lucide="warehouse"></i>
+                        <span>{{ treeData.areaID.name|default:treeData.areaID.areaID }}</span>
+                    </div>
+
+                    <div>
+                        <i data-lucide="grid-3x3"></i>
+                        <span>{{ positionLabel }}</span>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+
+        <section class="tree-info-grid">
+
+            <div class="tree-info-card">
+                <span class="info-icon">
+                    <i data-lucide="calendar"></i>
+                </span>
+
+                <div>
+                    <span class="summary-label">Date Planted</span>
+                    <strong>{{ treeData.datePlanted }}</strong>
+                </div>
+            </div>
+
+            <div class="tree-info-card">
+                <span class="info-icon">
+                    <i data-lucide="sprout"></i>
+                </span>
+
+                <div>
+                    <span class="summary-label">Rootstock</span>
+                    <strong>{{ treeData.rootStock }}</strong>
+                </div>
+            </div>
+
+            <div class="tree-info-card">
+                <span class="info-icon">
+                    <i data-lucide="leaf"></i>
+                </span>
+
+                <div>
+                    <span class="summary-label">Zion Type</span>
+                    <strong>{{ treeData.zionType }}</strong>
+                </div>
+            </div>
+
+            <div class="tree-info-card">
+                <span class="info-icon">
+                    <i data-lucide="activity"></i>
+                </span>
+
+                <div>
+                    <span class="summary-label">Status</span>
+                    <strong>{{ treeData.status }}</strong>
+                </div>
+            </div>
+
+        </section>
+
+
+        <section class="tree-detail-layout">
+
+            <div class="tree-main-column">
+
+                <div class="tree-detail-card">
+                    <div class="detail-card-header">
+                        <div>
+                            <h2>
+                                <i data-lucide="file-text"></i>
+                                Notes
+                            </h2>
+                            <p>General notes for this plant.</p>
+                        </div>
+                    </div>
+
+                    {% if notes %}
+                        <div class="tree-notes-content">
+                            {{ notes|linebreaks }}
+                        </div>
+                    {% else %}
+                        <div class="empty-state">
+                            No notes have been added yet.
+                        </div>
+                    {% endif %}
+                </div>
+
+
+                <div class="tree-detail-card">
+                    <div class="detail-card-header">
+                        <div>
+                            <h2>
+                                <i data-lucide="clipboard-list"></i>
+                                Recent Logs
+                            </h2>
+                            <p>{{ logCount }} total log{% if logCount != 1 %}s{% endif %} for this plant.</p>
+                        </div>
+
+                        <a href="{% url 'treeLog' locationID areaID treeID 'all' %}" class="outline-btn small-btn">
+                            View All
+                        </a>
+                    </div>
+
+                    {% if recentTreeLogs %}
+                        <div class="log-timeline">
+                            {% for log in recentTreeLogs %}
+                                <a href="{% url 'treeLog' locationID areaID treeID log.id %}" class="log-timeline-item">
+                                    <div class="timeline-dot"></div>
+
+                                    <div class="log-content">
+                                        <div class="log-meta-row">
+                                            <strong>{{ log.category.name }}</strong>
+                                            <span>{{ log.timestamp|date:"M d, Y · g:i A" }}</span>
+                                        </div>
+
+                                        <p>{{ log.note|truncatechars:220 }}</p>
+                                    </div>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="empty-state">
+                            No logs have been added yet.
+                        </div>
+                    {% endif %}
+                </div>
+
+            </div>
+
+
+            <aside class="tree-side-column">
+
+                <div class="tree-detail-card qr-card">
+                    <div class="detail-card-header">
+                        <div>
+                            <h2>
+                                <i data-lucide="qr-code"></i>
+                                QR Code
+                            </h2>
+                            <p>Assigned code for this plant.</p>
+                        </div>
+                    </div>
+
+                    {% if treeQrCode %}
+                        <div class="qr-code-wrap">
+                            <img src="{{ treeQrCode.qr_code.url }}" alt="QR Code for {{ fullTreeID }}">
+                        </div>
+
+                        <button type="button" class="outline-btn full-width-btn" onclick="window.print()">
+                            <i data-lucide="printer"></i>
+                            Print QR
+                        </button>
+                    {% else %}
+                        <div class="empty-state">
+                            No QR code assigned yet.
+                        </div>
+                    {% endif %}
+                </div>
+
+
+                <div class="tree-detail-card">
+                    <div class="detail-card-header">
+                        <div>
+                            <h2>
+                                <i data-lucide="settings"></i>
+                                Actions
+                            </h2>
+                            <p>Manage this plant record.</p>
+                        </div>
+                    </div>
+
+                    <div class="side-action-stack">
+                        <a href="{% url 'editTree' locationID areaID treeID %}" class="outline-btn full-width-btn">
+                            <i data-lucide="pencil"></i>
+                            Edit Plant
+                        </a>
+
+                        <a href="{% url 'addLog' locationID areaID treeID %}" class="primary-btn full-width-btn">
+                            <i data-lucide="plus"></i>
+                            Add Log
+                        </a>
+
+                        <a href="{% url 'farm_map_area' treeData.areaID.locationID.id treeData.areaID.id %}" class="outline-btn full-width-btn">
+                            <i data-lucide="map"></i>
+                            Back to Layout
+                        </a>
+                    </div>
+                </div>
+
+            </aside>
+
+        </section>
+    </div>
+</div>
+
+
+<script>
+    document.addEventListener("click", async function(event) {
+        const copyButton = event.target.closest(".copy-id-btn");
+
+        if (!copyButton) {
+            return;
+        }
+
+        const targetId = copyButton.dataset.copyTarget;
+        const target = document.getElementById(targetId);
+
+        if (!target) {
+            return;
+        }
+
+        const textToCopy = target.textContent.trim();
+
+        try {
+            await navigator.clipboard.writeText(textToCopy);
+            copyButton.classList.add("copied");
+
+            setTimeout(function() {
+                copyButton.classList.remove("copied");
+            }, 900);
+        } catch (error) {
+            console.error(error);
+            alert("Could not copy ID.");
+        }
+    });
+
+    window.addEventListener("DOMContentLoaded", function() {
+        if (window.lucide) {
+            lucide.createIcons();
+        }
+    });
+</script>
+
 {% endblock %}

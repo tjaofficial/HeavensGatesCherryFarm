@@ -1,0 +1,609 @@
+{% extends 'mainLayout.html' %}
+{% load static %}
+
+{% block list %}
+
+{% block extra_head %}
+<link href="{% static 'style/farm_map.css' %}" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+{% endblock %}
+
+<div class="farm-map-page">
+
+    <div class="farm-map-topbar">
+        <div>
+            <div class="farm-breadcrumbs">
+                <a href="{% url 'farm_map' %}">Farm Map</a>
+
+                {% if selected_location %}
+                    <span>›</span>
+                    <a href="{% url 'farm_map_location' selected_location.id %}">
+                        {{ selected_location.name|default:selected_location.locationID }}
+                    </a>
+                {% endif %}
+
+                {% if selected_area %}
+                    <span>›</span>
+                    <span>{{ selected_area.name|default:selected_area.areaID }}</span>
+                {% endif %}
+            </div>
+
+            <h1>Farm Map & Plant Inventory</h1>
+            <p class="page-subtitle">
+                Browse locations, sections, and individual plants.
+            </p>
+        </div>
+
+        <div class="farm-map-actions">
+            <a href="{% url 'add_location' %}" class="outline-btn">
+                <i data-lucide="map-pin"></i>
+                Add Location
+            </a>
+
+            {% if selected_location %}
+                <a href="{% url 'add_area' selected_location.id %}" class="outline-btn">
+                    <i data-lucide="warehouse"></i>
+                    Add Area
+                </a>
+            {% endif %}
+
+            {% if selected_location and selected_area %}
+                <a href="{% url 'addTree' selected_location.locationID selected_area.areaID %}" class="primary-btn">
+                    <i data-lucide="plus"></i>
+                    Add Plant
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+
+    {% if not selected_location %}
+
+        <section class="farm-section-card">
+            <div class="section-header">
+                <div>
+                    <h2>Locations</h2>
+                    <p>Choose a farm location.</p>
+                </div>
+            </div>
+
+            <div class="location-card-grid">
+                {% for loc in locations %}
+                    <a href="{% url 'farm_map_location' loc.id %}" class="farm-card">
+                        <div class="farm-card-image">
+                            {% if loc.image %}
+                                <img src="{{ loc.image.url }}" alt="{{ loc.name }}">
+                            {% else %}
+                                <img src="{% static 'images/locations/hale.jpg' %}" alt="{{ loc.name }}">
+                            {% endif %}
+                        </div>
+
+                        <div class="farm-card-body">
+                            <h3>{{ loc.name|default:loc.locationID }}</h3>
+                            <p>{{ loc.locationID }}</p>
+                            <small>{{ loc.city }}, {{ loc.state }}</small>
+                        </div>
+                    </a>
+                {% empty %}
+                    <p>No locations created yet.</p>
+                {% endfor %}
+            </div>
+        </section>
+
+    {% endif %}
+
+
+    {% if selected_location and not selected_area %}
+
+        <section class="farm-section-card">
+            <div class="section-header">
+                <div>
+                    <h2>Sections in {{ selected_location.name|default:selected_location.locationID }}</h2>
+                    <p>Choose an area, high tunnel, block, or section.</p>
+                </div>
+
+                <a href="{% url 'add_area' selected_location.id %}" class="outline-btn">+ Add Area</a>
+            </div>
+
+            <div class="area-card-grid">
+                {% for area in areas %}
+                    <a href="{% url 'farm_map_area' selected_location.id area.id %}" class="area-card">
+                        <div class="area-card-image">
+                            {% if area.image %}
+                                <img src="{{ area.image.url }}" alt="{{ area.name }}">
+                            {% else %}
+                                <img src="{% static 'images/locations/hale.jpg' %}" alt="{{ area.name }}">
+                            {% endif %}
+                        </div>
+
+                        <div class="area-card-body">
+                            <h3>{{ area.name|default:area.areaID }}</h3>
+                            <p>{{ area.areaID }}</p>
+                            <small>{{ area.widthByTree }} Columns × {{ area.lengthByTree }} Rows</small>
+                        </div>
+                    </a>
+                {% empty %}
+                    <p>No areas created for this location yet.</p>
+                {% endfor %}
+            </div>
+        </section>
+
+    {% endif %}
+
+
+    {% if selected_location and selected_area %}
+
+        <div class="summary-card-row">
+
+            <a href="{% url 'farm_map_location' selected_location.id %}" class="summary-card">
+                <span class="summary-label">Planted / Capacity</span>
+                <h3>{{ existing_tree_count }} / {{ plant_capacity }}</h3>
+                <p>Planted trees in this section</p>
+            </a>
+
+            <div class="summary-card">
+                <span class="summary-label">Section</span>
+                <h3>{{ selected_area.name|default:selected_area.areaID }}</h3>
+                <p>{{ selected_area.areaID }}</p>
+            </div>
+
+            <div class="summary-card">
+                <span class="summary-label">Plant Count</span>
+                <h3>{{ existing_tree_count }} / {{ plant_capacity }}</h3>
+                <p>Trees in this section</p>
+            </div>
+
+        </div>
+
+
+        <section class="farm-workspace">
+
+            <div class="layout-panel">
+                <div class="layout-toolbar">
+                    <div>
+                        <h2>{{ selected_area.name|default:selected_area.areaID }} Layout</h2>
+                        <p>{{ selected_area.widthByTree }} Columns × {{ selected_area.lengthByTree }} Rows</p>
+                    </div>
+
+                    <div class="status-legend">
+                        <span><i class="dot active"></i> Planted</span>
+                        <span><i class="dot inactive"></i> Inactive</span>
+                        <span><i class="dot open"></i> Open Slot</span>
+                    </div>
+                </div>
+
+                <div class="view-toggle-row">
+                    <button type="button" class="view-toggle active" data-view-button="grid">
+                        <i data-lucide="grid-3x3"></i>
+                        Grid View
+                    </button>
+
+                    <button type="button" class="view-toggle" data-view-button="list">
+                        <i data-lucide="list"></i>
+                        List View
+                    </button>
+
+                    <button type="button" class="view-toggle" data-view-button="map">
+                        <i data-lucide="map"></i>
+                        Map View
+                    </button>
+                </div>
+                <div class="view-panel active" data-view-panel="grid">
+                    <div class="plant-grid-table" style="--grid-columns: {{ selected_area.widthByTree }};">
+                        <div class="plant-grid-header-row">
+                            <div class="row-label-spacer"></div>
+
+                            {% for col in columns %}
+                                <div class="column-label">Column {{ col }}</div>
+                            {% endfor %}
+                        </div>
+
+                        {% for row in tree_grid %}
+                            <div class="plant-grid-row">
+                                <div class="row-label">{{ row.row_number }}</div>
+
+                                {% for cell in row.cells %}
+                                    {% if cell.tree %}
+                                        <button
+                                            type="button"
+                                            class="plant-tile status-{{ cell.tree.status }}"
+                                            data-tree-pk="{{ cell.tree.id }}"
+                                        >
+                                            <span class="plant-name">
+                                                {% if cell.tree.name %}
+                                                    {{ cell.tree.name }}
+                                                {% else %}
+                                                    Tree {{ cell.tree.treeID }}
+                                                {% endif %}
+                                            </span>
+
+                                            <span class="plant-id">{{ cell.full_id }}</span>
+                                        </button>
+                                    {% else %}
+                                        <a 
+                                            href="{% url 'addTree' selected_location.locationID selected_area.areaID %}?column={{ cell.column }}&row={{ cell.row }}"
+                                            class="plant-tile open-slot"
+                                        >
+                                            <span class="plant-name">Open Slot</span>
+                                            <span class="plant-id">{{ cell.full_id }}</span>
+                                        </a>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="view-panel" data-view-panel="list">
+                    <div class="plant-list-table-wrap">
+                        <table class="plant-list-table">
+                            <thead>
+                                <tr>
+                                    <th>Position</th>
+                                    <th>Plant</th>
+                                    <th>Full ID</th>
+                                    <th>Status</th>
+                                    <th>Date Planted</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {% for cell in flat_cells %}
+                                    <tr>
+                                        <td>Column {{ cell.column }}, Row {{ cell.row }}</td>
+
+                                        {% if cell.tree %}
+                                            <td>
+                                                {% if cell.tree.name %}
+                                                    {{ cell.tree.name }}
+                                                {% else %}
+                                                    Tree {{ cell.tree.treeID }}
+                                                {% endif %}
+                                            </td>
+
+                                            <td>{{ cell.full_id }}</td>
+                                            <td>{{ cell.tree.status }}</td>
+                                            <td>{{ cell.tree.datePlanted }}</td>
+
+                                            <td>
+                                                <button 
+                                                    type="button"
+                                                    class="mini-action-btn"
+                                                    data-tree-pk="{{ cell.tree.id }}"
+                                                >
+                                                    View
+                                                </button>
+                                            </td>
+                                        {% else %}
+                                            <td>Open Slot</td>
+                                            <td>{{ cell.full_id }}</td>
+                                            <td>Open</td>
+                                            <td>—</td>
+                                            <td>
+                                                <a 
+                                                    class="mini-action-btn"
+                                                    href="{% url 'addTree' selected_location.locationID selected_area.areaID %}?column={{ cell.column }}&row={{ cell.row }}"
+                                                >
+                                                    Add
+                                                </a>
+                                            </td>
+                                        {% endif %}
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="view-panel" data-view-panel="map">
+                    <div class="section-map-view">
+                        <div class="map-orientation top">
+                            Entrance
+                            <i data-lucide="arrow-up"></i>
+                        </div>
+
+                        <div class="map-layout-box" style="--grid-columns: {{ selected_area.widthByTree }};">
+                            {% for row in tree_grid %}
+                                {% for cell in row.cells %}
+                                    {% if cell.tree %}
+                                        <button
+                                            type="button"
+                                            class="map-plant-dot status-{{ cell.tree.status }}"
+                                            data-tree-pk="{{ cell.tree.id }}"
+                                            title="{{ cell.full_id }}"
+                                        >
+                                            {{ cell.column }}-{{ cell.row }}
+                                        </button>
+                                    {% else %}
+                                        <a
+                                            href="{% url 'addTree' selected_location.locationID selected_area.areaID %}?column={{ cell.column }}&row={{ cell.row }}"
+                                            class="map-plant-dot open-slot-dot"
+                                            title="{{ cell.full_id }}"
+                                        >
+                                            +
+                                        </a>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endfor %}
+                        </div>
+
+                        <div class="map-orientation bottom">
+                            Back of Tunnel
+                            <i data-lucide="arrow-down"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <aside class="selected-plant-panel" id="selectedPlantPanel">
+                <div class="selected-panel-empty" id="selectedPanelEmpty">
+                    <h3>Selected Plant</h3>
+                    <p>Click a plant tile to view details.</p>
+                </div>
+
+                <div class="selected-panel-content" id="selectedPanelContent" style="display:none;">
+                    <div class="selected-panel-header">
+                        <div>
+                            <h3>Selected Plant</h3>
+                            <span id="selectedPosition">Plant Details</span>
+                        </div>
+
+                        <button type="button" class="panel-collapse-btn">
+                            <i data-lucide="chevron-up"></i>
+                        </button>
+                    </div>
+
+                    <div class="selected-image-wrap">
+                        <img id="selectedImage" src="{% static 'images/tree.jpeg' %}" alt="Selected plant">
+                    </div>
+
+                    <div class="selected-main-info">
+                        <div>
+                            <h2 id="selectedName">Tree</h2>
+
+                            <div class="copy-id-row">
+                                <p id="selectedFullId">—</p>
+
+                                <button type="button" class="copy-id-btn" data-copy-target="selectedFullId" title="Copy Tree ID">
+                                    <i data-lucide="copy"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <span class="status-pill healthy" id="selectedStatus">Healthy</span>
+                    </div>
+
+                    <div class="selected-detail-list">
+                        <div>
+                            <span class="detail-label">
+                                <i data-lucide="calendar"></i>
+                                Date Planted
+                            </span>
+                            <span id="selectedDate">—</span>
+                        </div>
+
+                        <div>
+                            <span class="detail-label">
+                                <i data-lucide="sprout"></i>
+                                Rootstock
+                            </span>
+                            <span id="selectedRootstock">—</span>
+                        </div>
+
+                        <div>
+                            <span class="detail-label">
+                                <i data-lucide="leaf"></i>
+                                Zion Type
+                            </span>
+                            <span id="selectedZion">—</span>
+                        </div>
+                    </div>
+
+                    <div class="selected-notes-box">
+                        <div class="box-title-row">
+                            <strong>
+                                <i data-lucide="file-text"></i>
+                                Recent Notes
+                            </strong>
+                        </div>
+                        <p id="selectedNotes">No notes yet.</p>
+                    </div>
+
+                    <div class="selected-log-box">
+                        <div class="box-title-row">
+                            <strong>
+                                <i data-lucide="clipboard-list"></i>
+                                Last Log
+                            </strong>
+                        </div>
+
+                        <div class="log-preview-meta" id="selectedLatestLogMeta">
+                            No logs yet.
+                        </div>
+
+                        <p class="log-preview-note" id="selectedLatestLogNote"></p>
+                    </div>
+
+                    <div class="selected-qr-row">
+                        <div>
+                            <strong>
+                                <i data-lucide="qr-code"></i>
+                                QR Code
+                            </strong>
+                            <p>Scan to view this plant.</p>
+                        </div>
+
+                        <img id="selectedQr" alt="QR Code">
+                    </div>
+
+                    <div class="selected-actions three-actions">
+                        <a href="#" id="selectedSeeFullPage" class="outline-btn" style="min-width: 164px;"">
+                            <i data-lucide="external-link"></i>
+                            See Full Page
+                        </a>
+
+                        <a href="#" id="selectedEdit" class="outline-btn">
+                            <i data-lucide="pencil"></i>
+                            Edit
+                        </a>
+
+                        <a href="#" id="selectedAddLog" class="primary-btn" style="min-width: 124px;">
+                            <i data-lucide="plus"></i>
+                            Add Log
+                        </a>
+                    </div>
+                </div>
+            </aside>
+        </section>
+
+    {% endif %}
+
+</div>
+
+
+<script>
+    const quickViewUrlBase = "{% url 'tree_quick_view_api' 0 %}".replace("/0/", "/");
+
+    async function loadTreeDetails(treePk, tile = null) {
+        if (tile) {
+            document.querySelectorAll(".plant-tile.selected, .map-plant-dot.selected").forEach(function(el) {
+                el.classList.remove("selected");
+            });
+
+            tile.classList.add("selected");
+        }
+
+        try {
+            const response = await fetch(`${quickViewUrlBase}${treePk}/`);
+            const data = await response.json();
+
+            document.getElementById("selectedPanelEmpty").style.display = "none";
+            document.getElementById("selectedPanelContent").style.display = "block";
+
+            document.getElementById("selectedName").textContent = data.display_name;
+            document.getElementById("selectedFullId").textContent = data.full_tree_id;
+            document.getElementById("selectedPosition").textContent = data.position_label || "Plant Details";
+            document.getElementById("selectedStatus").textContent = data.status || "Unknown";
+            document.getElementById("selectedDate").textContent = data.datePlanted || "—";
+            document.getElementById("selectedRootstock").textContent = data.rootStock || "—";
+            document.getElementById("selectedZion").textContent = data.zionType || "—";
+            document.getElementById("selectedNotes").textContent = data.notes || "No notes yet.";
+
+            document.getElementById("selectedSeeFullPage").href = data.full_page_url;
+            document.getElementById("selectedAddLog").href = data.add_log_url;
+            document.getElementById("selectedEdit").href = data.edit_url;
+
+            const selectedImage = document.getElementById("selectedImage");
+            selectedImage.src = data.image_url || "{% static 'images/tree.jpeg' %}";
+
+            const qr = document.getElementById("selectedQr");
+
+            if (data.qr_url) {
+                qr.src = data.qr_url;
+                qr.style.display = "block";
+            } else {
+                qr.style.display = "none";
+            }
+
+            const latestLogMeta = document.getElementById("selectedLatestLogMeta");
+            const latestLogNote = document.getElementById("selectedLatestLogNote");
+
+            if (data.latest_log) {
+                latestLogMeta.textContent = `${data.latest_log.timestamp} · ${data.latest_log.category}`;
+                latestLogNote.textContent = data.latest_log.note;
+            } else {
+                latestLogMeta.textContent = "No logs yet.";
+                latestLogNote.textContent = "";
+            }
+
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+
+        } catch (error) {
+            console.error(error);
+            alert("Could not load plant details.");
+        }
+    }
+
+    document.addEventListener("click", function(event) {
+        const treeTile = event.target.closest("[data-tree-pk]");
+
+        if (treeTile) {
+            const treePk = treeTile.dataset.treePk;
+            loadTreeDetails(treePk, treeTile);
+        }
+    });
+
+    document.addEventListener("click", async function(event) {
+        const copyButton = event.target.closest(".copy-id-btn");
+
+        if (!copyButton) {
+            return;
+        }
+
+        const targetId = copyButton.dataset.copyTarget;
+        const target = document.getElementById(targetId);
+
+        if (!target) {
+            return;
+        }
+
+        const textToCopy = target.textContent.trim();
+
+        try {
+            await navigator.clipboard.writeText(textToCopy);
+            copyButton.classList.add("copied");
+
+            setTimeout(function() {
+                copyButton.classList.remove("copied");
+            }, 900);
+        } catch (error) {
+            console.error(error);
+            alert("Could not copy ID.");
+        }
+    });
+
+    document.addEventListener("click", function(event) {
+        const viewButton = event.target.closest("[data-view-button]");
+
+        if (!viewButton) {
+            return;
+        }
+
+        const selectedView = viewButton.dataset.viewButton;
+
+        document.querySelectorAll("[data-view-button]").forEach(function(button) {
+            button.classList.remove("active");
+        });
+
+        document.querySelectorAll("[data-view-panel]").forEach(function(panel) {
+            panel.classList.remove("active");
+        });
+
+        viewButton.classList.add("active");
+
+        const panel = document.querySelector(`[data-view-panel="${selectedView}"]`);
+
+        if (panel) {
+            panel.classList.add("active");
+        }
+
+        if (window.lucide) {
+            lucide.createIcons();
+        }
+    });
+
+    window.addEventListener("DOMContentLoaded", function() {
+        if (window.lucide) {
+            lucide.createIcons();
+        }
+
+        const firstTreeTile = document.querySelector("[data-tree-pk]");
+
+        if (firstTreeTile) {
+            firstTreeTile.click();
+        }
+    });
+</script>
+
+{% endblock %}

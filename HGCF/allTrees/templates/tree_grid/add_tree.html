@@ -1,0 +1,125 @@
+{% extends 'mainLayout.html' %}
+{% load static %}
+
+{% block list %}
+
+{% block extra_head %}
+<link href="{% static 'style/farm_map.css' %}" rel="stylesheet">
+{% endblock %}
+
+<div class="farm-map-page">
+
+    <div class="form-page-wrap">
+
+        <div class="farm-map-topbar compact-form-topbar">
+            <div>
+                <div class="farm-breadcrumbs">
+                    <a href="{% url 'farm_map' %}">Farm Map</a>
+                    <span>›</span>
+                    <a href="{% url 'farm_map_location' location.id %}">
+                        {{ location.name|default:location.locationID }}
+                    </a>
+                    <span>›</span>
+                    <a href="{% url 'farm_map_area' location.id area.id %}">
+                        {{ area.name|default:area.areaID }}
+                    </a>
+                    <span>›</span>
+                    <span>Add Plant</span>
+                </div>
+
+                <h1>Add Plant</h1>
+
+                {% if selected_column and selected_row %}
+                    <p class="page-subtitle">
+                        Position: Column {{ selected_column }}, Row {{ selected_row }}
+                    </p>
+                {% else %}
+                    <p class="page-subtitle">
+                        Add a new plant to {{ area.name|default:area.areaID }}.
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+
+        <section class="farm-section-card form-card">
+
+            <div class="position-summary-card">
+                <div>
+                    <span class="summary-label">Location</span>
+                    <strong>{{ location.name|default:location.locationID }}</strong>
+                </div>
+
+                <div>
+                    <span class="summary-label">Section</span>
+                    <strong>{{ area.name|default:area.areaID }}</strong>
+                </div>
+
+                <div>
+                    <span class="summary-label">Position</span>
+
+                    {% if selected_column and selected_row %}
+                        <strong>Column {{ selected_column }}, Row {{ selected_row }}</strong>
+                    {% else %}
+                        <strong>Select below</strong>
+                    {% endif %}
+                </div>
+            </div>
+
+            <form method="POST" enctype="multipart/form-data" class="farm-form">
+                {% csrf_token %}
+
+                {% if selected_column and selected_row %}
+                    <input type="hidden" name="column" value="{{ selected_column }}">
+                    <input type="hidden" name="row" value="{{ selected_row }}">
+                {% else %}
+                    <div class="form-grid two-col">
+                        <div class="form-field">
+                            <label for="column">Column</label>
+                            <input type="number" name="column" id="column" min="1" max="{{ area.widthByTree }}" required>
+                        </div>
+
+                        <div class="form-field">
+                            <label for="row">Row</label>
+                            <input type="number" name="row" id="row" min="1" max="{{ area.lengthByTree }}" required>
+                        </div>
+                    </div>
+                {% endif %}
+
+                {% if form.non_field_errors %}
+                    <div class="form-errors">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+
+                <div class="form-grid two-col">
+                    {% for field in form %}
+                        <div class="form-field {% if field.name == 'notes' or field.name == 'image' %}full-width{% endif %}">
+                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field }}
+
+                            {% if field.help_text %}
+                                <small>{{ field.help_text }}</small>
+                            {% endif %}
+
+                            {% if field.errors %}
+                                <div class="field-errors">
+                                    {{ field.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="primary-btn">Save Plant</button>
+                    <a href="{% url 'farm_map_area' location.id area.id %}" class="outline-btn">Cancel</a>
+                </div>
+            </form>
+
+        </section>
+
+    </div>
+
+</div>
+
+{% endblock %}

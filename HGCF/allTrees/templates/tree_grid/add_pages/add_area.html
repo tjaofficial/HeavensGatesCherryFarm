@@ -1,33 +1,137 @@
-{% extends "mainLayout.html" %}
-{% block list %}{% load static %}
-    {% block extra_head %}
-        <link href="{% static 'style/pageSetup.css' %}" rel="stylesheet" />
-        <link href="{% static 'style/addCards.css' %}" rel="stylesheet" />
-        <link href="{% static 'style/backArrow.css' %}" rel="stylesheet" />
-        <script defer src="{% static 'script/hideAddContainer.js' %}"></script>
-        <link href="{% static 'style/add_area.css' %}" rel="stylesheet">
-    {% endblock %}
-    {% include "components/spacer.html" with headerSpace='small' %}
-    <div class="card main_card_width">
-        <header>
-            {% include "components/backArrow.html" with destination="area" selector1=locationID %}
-            <h2>Add Area</h2>
-        </header>
-        <form id="areaForm" action='' method="POST">
-            {% csrf_token %}
-            {{addForm.locationID.label}}<br>
-            <input type="text" style="background: gray;" readonly name="locationID" value="{{location.locationID}}"/><br>
-            {{addForm.areaID.label}}<br>
-            <input type="text" style="background: gray;" readonly name="areaID" value="{% if areasData|length > 0 %}{{newID}}{% else %}001{% endif %}"/> <br>
-            {{addForm.name.label}}<br>
-            {{addForm.name}}<br>
-            {{addForm.widthByTree.label}}<br>
-            {{addForm.widthByTree}}<br>
-            {{addForm.lengthByTree.label}}<br>
-            {{addForm.lengthByTree}}<br>
-            {{addForm.dateEst.label}}<br>
-            {{addForm.dateEst}}<br>
-            <input type='submit' value='Save' />
-        </form>
+{% extends 'mainLayout.html' %}
+{% load static %}
+
+{% block list %}
+
+{% block extra_head %}
+<link href="{% static 'style/farm_map.css' %}" rel="stylesheet">
+{% endblock %}
+
+<div class="farm-map-page">
+
+    <div class="form-page-wrap">
+
+        <div class="farm-map-topbar compact-form-topbar">
+            <div>
+                <div class="farm-breadcrumbs">
+                    <a href="{% url 'farm_map' %}">Farm Map</a>
+                    <span>›</span>
+                    <a href="{% url 'farm_map_location' location.id %}">
+                        {{ location.name|default:location.locationID }}
+                    </a>
+                    <span>›</span>
+                    <span>Add Section</span>
+                </div>
+
+                <h1>Add Section</h1>
+                <p class="page-subtitle">
+                    Create a new area, block, tunnel, or section.
+                </p>
+            </div>
+        </div>
+
+        <section class="farm-section-card form-card">
+
+            <div class="position-summary-card three-summary-items">
+                <div>
+                    <span class="summary-label">Location</span>
+                    <strong>{{ location.name|default:location.locationID }}</strong>
+                </div>
+
+                <div>
+                    <span class="summary-label">New Section ID</span>
+                    <strong>{{ newID }}</strong>
+                </div>
+
+                <div>
+                    <span class="summary-label">Capacity Preview</span>
+                    <strong id="capacityPreview">—</strong>
+                </div>
+            </div>
+
+            <form method="POST" enctype="multipart/form-data" class="farm-form">
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="form-errors">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+
+                <div class="form-grid two-col">
+                    {% for field in form %}
+                        {% if field.is_hidden %}
+                            {{ field }}
+                        {% else %}
+                            <div class="form-field {% if field.name == 'description' %}full-width{% endif %}">
+                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                {{ field }}
+
+                                {% if field.errors %}
+                                    <div class="field-errors">
+                                        {{ field.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                <div class="form-help-panel">
+                    <strong>How layout works</strong>
+                    <p>
+                        Columns run across the section. Rows run down the section.
+                        A section with 3 columns and 10 rows has 30 possible plant positions.
+                        Plant records are only created when you add plants.
+                    </p>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="primary-btn">Save Section</button>
+                    <a href="{% url 'farm_map_location' location.id %}" class="outline-btn">Cancel</a>
+                </div>
+            </form>
+
+        </section>
+
     </div>
+
+</div>
+
+<script>
+    function updateCapacityPreview() {
+        const widthInput = document.getElementById("id_widthByTree");
+        const lengthInput = document.getElementById("id_lengthByTree");
+        const preview = document.getElementById("capacityPreview");
+
+        if (!widthInput || !lengthInput || !preview) {
+            return;
+        }
+
+        const columns = parseInt(widthInput.value || "0");
+        const rows = parseInt(lengthInput.value || "0");
+
+        if (columns > 0 && rows > 0) {
+            preview.textContent = `${columns * rows} Positions`;
+        } else {
+            preview.textContent = "—";
+        }
+    }
+
+    window.addEventListener("DOMContentLoaded", function() {
+        updateCapacityPreview();
+
+        const widthInput = document.getElementById("id_widthByTree");
+        const lengthInput = document.getElementById("id_lengthByTree");
+
+        if (widthInput) {
+            widthInput.addEventListener("input", updateCapacityPreview);
+        }
+
+        if (lengthInput) {
+            lengthInput.addEventListener("input", updateCapacityPreview);
+        }
+    });
+</script>
+
 {% endblock %}

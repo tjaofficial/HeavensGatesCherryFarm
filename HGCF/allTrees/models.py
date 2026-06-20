@@ -40,14 +40,19 @@ STATUS_CHOICES = [
 ]
 
 class locationTree_model(models.Model):
-    locationID = models.CharField(max_length=10)
+    locationID = models.CharField(max_length=10, unique=True)
     name = models.CharField(max_length=45, blank=True, null=True)
     address = models.CharField(max_length=40)
     city = models.CharField(max_length=15)
     state = models.CharField(max_length=15)
     dateEst = models.DateField(auto_now=False, auto_now_add=False)
+    image = models.ImageField(upload_to='location_images/', blank=True, null=True)
     def __str__(self):
-        return self.locationID
+        return self.name or self.locationID
+
+    @property
+    def display_name(self):
+        return self.name or self.locationID
     
 class areaTree_model(models.Model):
     areaID = models.CharField(max_length=10)
@@ -61,8 +66,26 @@ class areaTree_model(models.Model):
     widthByTree = models.IntegerField()
     lengthByTree = models.IntegerField()
     dateEst = models.DateField(auto_now=False, auto_now_add=False)
+    image = models.ImageField(upload_to='area_images/', blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
     def __str__(self):
-        return str(self.locationID) + " - " + str(self.areaID)
+        return f"{self.locationID} - {self.areaID}"
+
+    @property
+    def display_name(self):
+        return self.name or self.areaID
+
+    @property
+    def layout_label(self):
+        return f"{self.widthByTree} Columns x {self.lengthByTree} Rows"
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['locationID', 'areaID'],
+                name='unique_area_per_location'
+            )
+        ]
 
 class individualTrees_model(models.Model):
     treeID = models.CharField(max_length=20)
@@ -72,6 +95,9 @@ class individualTrees_model(models.Model):
         blank=True, 
         null=True
     )
+    name = models.CharField(max_length=45, blank=True, null=True)
+    image = models.ImageField(upload_to='tree_images/', blank=True, null=True)
+    notes = models.TextField(blank=True, null=True)
     rootStock = models.CharField(
         max_length=10,
         default='none'
@@ -83,7 +109,37 @@ class individualTrees_model(models.Model):
     datePlanted = models.DateField(auto_now=False, auto_now_add=False)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='healthy')
     def __str__(self):
-        return str(self.areaID.areaID) + " - " + str(self.treeID)
+        return self.full_tree_id
+
+    @property
+    def full_tree_id(self):
+        return f"{self.areaID.locationID.locationID}-{self.areaID.areaID}-{self.treeID}"
+
+    @property
+    def display_name(self):
+        return self.name or self.treeID
+
+    @property
+    def column_number(self):
+        try:
+            return int(self.treeID.split('-')[0])
+        except:
+            return None
+
+    @property
+    def row_number(self):
+        try:
+            return int(self.treeID.split('-')[1])
+        except:
+            return None
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['areaID', 'treeID'],
+                name='unique_tree_per_area'
+            )
+        ]
 
 class logCategory_model(models.Model):
     name = models.CharField(max_length=25)

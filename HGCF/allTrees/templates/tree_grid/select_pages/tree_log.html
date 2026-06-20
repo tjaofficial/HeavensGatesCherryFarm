@@ -1,43 +1,213 @@
 {% extends "mainLayout.html" %}
-{% load static %}{% block list%}
-    {% block extra_head %}
-        <link href="{% static 'style/pageSetup.css' %}" rel="stylesheet" />
-        <link href="{% static 'style/backArrow.css' %}" rel="stylesheet" />
-        <link href="{% static 'style/treeLog.css' %}" rel="stylesheet" />
-    {% endblock %}
-    <div class='card' style="margin: auto;color:white;">
-        {% include "components/backArrow.html" with destination="tree" selector1=locationID selector2=areaID selector3=treeID %}
-        {% if selector == 'all' %}
-            <div class='dataCont' style='overflow: scroll;background: black;border-radius: 5px;'>
-                <ul>
-                    {% for log in treeLogData %}
-                        <li>
-                            [ {{log.timestamp}} ] {{log.category}} - {{log.note}}
-                        </li>
-                    {% endfor %}
-                </ul>
+{% load static %}
+
+{% block list %}
+
+{% block extra_head %}
+<link href="{% static 'style/farm_map.css' %}" rel="stylesheet">
+<link href="{% static 'style/tree_detail.css' %}" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+{% endblock %}
+
+<div class="tree-detail-page">
+
+    <div class="tree-detail-topbar">
+        <div>
+            <div class="farm-breadcrumbs">
+                <a href="{% url 'farm_map' %}">Farm Map</a>
+                <span>›</span>
+                <a href="{% url 'farm_map_area' treeData.areaID.locationID.id treeData.areaID.id %}">
+                    {{ treeData.areaID.name|default:treeData.areaID.areaID }}
+                </a>
+                <span>›</span>
+                <a href="{% url 'treeData' locationID areaID treeID %}">
+                    {{ displayName }}
+                </a>
+                <span>›</span>
+
+                {% if selector == 'all' %}
+                    <span>All Logs</span>
+                {% else %}
+                    <span>Log Detail</span>
+                {% endif %}
             </div>
-        {% else %}
-            <div class='dataCont' style="background: black;border-radius: 5px;padding:10px;">
+
+            {% if selector == 'all' %}
+                <h1>Plant Logs</h1>
+                <p class="page-subtitle">
+                    {{ logCount }} total log{% if logCount != 1 %}s{% endif %} for {{ displayName }}.
+                </p>
+            {% else %}
+                <h1>Log Detail</h1>
+                <p class="page-subtitle">
+                    Full log record for {{ displayName }}.
+                </p>
+            {% endif %}
+        </div>
+
+        <div class="tree-detail-actions">
+            <a href="{% url 'treeData' locationID areaID treeID %}" class="outline-btn">
+                <i data-lucide="arrow-left"></i>
+                Back to Plant
+            </a>
+
+            <a href="{% url 'addLog' locationID areaID treeID %}" class="primary-btn">
+                <i data-lucide="plus"></i>
+                Add Log
+            </a>
+        </div>
+    </div>
+
+
+    <section class="tree-log-summary-row">
+
+        <div class="summary-card">
+            <span class="summary-label">Plant</span>
+            <h3>{{ displayName }}</h3>
+            <p>{{ fullTreeID }}</p>
+        </div>
+
+        <div class="summary-card">
+            <span class="summary-label">Section</span>
+            <h3>{{ treeData.areaID.name|default:treeData.areaID.areaID }}</h3>
+            <p>{{ treeData.areaID.locationID.name|default:treeData.areaID.locationID.locationID }}</p>
+        </div>
+
+        <div class="summary-card">
+            <span class="summary-label">Status</span>
+            <h3>{{ treeData.status }}</h3>
+            <p>Current plant status</p>
+        </div>
+
+    </section>
+
+
+    {% if selector == 'all' %}
+
+        <section class="tree-detail-card logs-page-card">
+
+            <div class="detail-card-header">
                 <div>
-                    <div style="display:flex;">
-                        <span style="width:120px;display: block;"><strong>Time Stamp:</strong></span> 
-                        <span>{{treeLog.timestamp}}</span><br>
-                    </div>
-                    <div style="display:flex;">
-                        <span style="width:120px;display: block;"><strong>Tree ID:</strong></span> 
-                        <span>{{locationID}}-{{areaID}}-{{treeID}}</span><br>
-                    </div>
-                    <div style="display:flex;">
-                        <span style="width:120px;display: block;"><strong>Category:</strong></span> 
-                        <span>{{treeLog.category}}</span><br>
-                    </div>
-                    <div style="display:flex;">
-                        <span style="width:120px;display: block;"><strong>Log:</strong></span> 
-                        <span>{{treeLog.note}}</span>
-                    </div>
+                    <h2>
+                        <i data-lucide="clipboard-list"></i>
+                        All Logs
+                    </h2>
+                    <p>Newest entries appear first.</p>
                 </div>
             </div>
-        {% endif %}
-    </div>
+
+            {% if treeLogData %}
+                <div class="log-timeline large-log-timeline">
+                    {% for log in treeLogData %}
+                        <a href="{% url 'treeLog' locationID areaID treeID log.id %}" class="log-timeline-item large-log-item">
+
+                            <div class="timeline-dot"></div>
+
+                            <div class="log-content">
+                                <div class="log-meta-row">
+                                    <strong>
+                                        <i data-lucide="tag"></i>
+                                        {{ log.category.name }}
+                                    </strong>
+
+                                    <span>
+                                        <i data-lucide="calendar"></i>
+                                        {{ log.timestamp|date:"M d, Y · g:i A" }}
+                                    </span>
+                                </div>
+
+                                <p>{{ log.note|linebreaksbr }}</p>
+                            </div>
+
+                        </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    No logs have been added yet.
+                </div>
+            {% endif %}
+
+        </section>
+
+    {% else %}
+
+        <section class="tree-detail-layout">
+
+            <div class="tree-main-column">
+
+                <div class="tree-detail-card single-log-card">
+                    <div class="detail-card-header">
+                        <div>
+                            <h2>
+                                <i data-lucide="file-text"></i>
+                                {{ treeLog.category.name }}
+                            </h2>
+                            <p>{{ treeLog.timestamp|date:"M d, Y · g:i A" }}</p>
+                        </div>
+                    </div>
+
+                    <div class="single-log-note">
+                        {{ treeLog.note|linebreaks }}
+                    </div>
+                </div>
+
+            </div>
+
+            <aside class="tree-side-column">
+
+                <div class="tree-detail-card">
+                    <div class="detail-card-header">
+                        <div>
+                            <h2>
+                                <i data-lucide="info"></i>
+                                Log Info
+                            </h2>
+                            <p>Details for this log entry.</p>
+                        </div>
+                    </div>
+
+                    <div class="selected-detail-list">
+                        <div>
+                            <span class="detail-label">
+                                <i data-lucide="tag"></i>
+                                Category
+                            </span>
+                            <span>{{ treeLog.category.name }}</span>
+                        </div>
+
+                        <div>
+                            <span class="detail-label">
+                                <i data-lucide="calendar"></i>
+                                Timestamp
+                            </span>
+                            <span>{{ treeLog.timestamp|date:"M d, Y · g:i A" }}</span>
+                        </div>
+
+                        <div>
+                            <span class="detail-label">
+                                <i data-lucide="tree-pine"></i>
+                                Plant
+                            </span>
+                            <span>{{ fullTreeID }}</span>
+                        </div>
+                    </div>
+                </div>
+
+            </aside>
+
+        </section>
+
+    {% endif %}
+
+</div>
+
+<script>
+    window.addEventListener("DOMContentLoaded", function() {
+        if (window.lucide) {
+            lucide.createIcons();
+        }
+    });
+</script>
+
 {% endblock %}

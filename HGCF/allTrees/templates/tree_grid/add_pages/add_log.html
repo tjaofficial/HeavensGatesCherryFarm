@@ -1,0 +1,135 @@
+{% extends "mainLayout.html" %}
+{% load static %}
+
+{% block list %}
+
+{% block extra_head %}
+<link href="{% static 'style/farm_map.css' %}" rel="stylesheet">
+<link href="{% static 'style/tree_detail.css' %}" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+{% endblock %}
+
+<div class="tree-detail-page">
+
+    <div class="form-page-wrap">
+
+        <div class="tree-detail-topbar">
+            <div>
+                <div class="farm-breadcrumbs">
+                    <a href="{% url 'farm_map' %}">Farm Map</a>
+                    <span>›</span>
+                    <a href="{% url 'farm_map_area' treeData.areaID.locationID.id treeData.areaID.id %}">
+                        {{ treeData.areaID.name|default:treeData.areaID.areaID }}
+                    </a>
+                    <span>›</span>
+                    <a href="{% url 'treeData' locationID areaID treeID %}">
+                        {{ displayName }}
+                    </a>
+                    <span>›</span>
+                    <span>Add Log</span>
+                </div>
+
+                <h1>Add Log</h1>
+                <p class="page-subtitle">
+                    Add a new activity, observation, irrigation note, pruning note, or general update.
+                </p>
+            </div>
+
+            <div class="tree-detail-actions">
+                <a href="{% url 'treeData' locationID areaID treeID %}" class="outline-btn">
+                    <i data-lucide="arrow-left"></i>
+                    Back to Plant
+                </a>
+            </div>
+        </div>
+
+
+        <section class="farm-section-card form-card">
+
+            <div class="position-summary-card three-summary-items">
+                <div>
+                    <span class="summary-label">Plant</span>
+                    <strong>{{ displayName }}</strong>
+                </div>
+
+                <div>
+                    <span class="summary-label">Tree ID</span>
+                    <strong>{{ fullTreeID }}</strong>
+                </div>
+
+                <div>
+                    <span class="summary-label">Section</span>
+                    <strong>{{ treeData.areaID.name|default:treeData.areaID.areaID }}</strong>
+                </div>
+            </div>
+
+            <form method="POST" class="farm-form">
+                {% csrf_token %}
+
+                {% if logForm.non_field_errors %}
+                    <div class="form-errors">
+                        {{ logForm.non_field_errors }}
+                    </div>
+                {% endif %}
+
+                <div class="form-grid two-col">
+                    {% for field in logForm %}
+                        <div class="form-field {% if field.name == 'note' %}full-width{% endif %}">
+                            <label for="{{ field.id_for_label }}">
+                                {% if field.name == 'timestamp' %}
+                                    <i data-lucide="calendar"></i>
+                                {% elif field.name == 'category' %}
+                                    <i data-lucide="tag"></i>
+                                {% elif field.name == 'note' %}
+                                    <i data-lucide="file-text"></i>
+                                {% endif %}
+
+                                {{ field.label }}
+                            </label>
+
+                            {{ field }}
+
+                            {% if field.errors %}
+                                <div class="field-errors">
+                                    {{ field.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <div class="form-help-panel">
+                    <strong>Log format tip</strong>
+                    <p>
+                        Keep the note specific. Example:
+                        “Light pruning on lower branches. Checked irrigation line near Column 2, Row 1.”
+                    </p>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="primary-btn">
+                        <i data-lucide="save"></i>
+                        Save Log
+                    </button>
+
+                    <a href="{% url 'treeData' locationID areaID treeID %}" class="outline-btn">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+
+        </section>
+
+    </div>
+
+</div>
+
+<script>
+    window.addEventListener("DOMContentLoaded", function() {
+        if (window.lucide) {
+            lucide.createIcons();
+        }
+    });
+</script>
+
+{% endblock %}

@@ -1,6 +1,5 @@
 from .dashboard_view import *
 from .tree_data_add import *
-from .addTree_view import *
 from .treeData_view import *
 from .addLog_view import *
 from .treeSpace_login_view import *
@@ -14,3 +13,4 @@ from .upick_view import *
 from .upick_dashboard_view import *
 from .our_story_view import *
 from .announcements_view import *
+from .farm_map_view import *

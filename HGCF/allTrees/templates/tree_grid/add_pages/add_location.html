@@ -1,34 +1,83 @@
-{% extends "mainLayout.html" %}
-{% block list %}{% load static %}
-	{% block extra_head %}
-		<link href="{% static 'style/pageSetup.css' %}" rel="stylesheet" />
-		<link href="{% static 'style/addCards.css' %}" rel="stylesheet" />
-		<link href="{% static 'style/backArrow.css' %}" rel="stylesheet" />
-		<link href="{% static 'style/add_location.css' %}" rel="stylesheet" />
-		<script defer src="{% static 'script/hideAddContainer.js' %}"></script>
-	{% endblock %}
-	{% include "components/spacer.html" with headerSpace='small' %}
-{% comment %} {% include "components/secondarySideBars/secondarySideBar.html" with selector="location" %} {% endcomment %}
-<div class="card main_card_width">
-    <header>
-		{% include "components/backArrow.html" with destination="location" %}
-        <h2>Add Location</h2>
-    </header>
-    <form id="locationForm" action='' method="POST">
-        {% csrf_token %}
-        {{addForm.locationID.label}}<br>
-        <input type="text" readonly style="background: gray;" name="locationID" value="{{newID}}"/> <br>
-        {{addForm.name.label}}<br>
-        {{addForm.name}}<br>
-        {{addForm.address.label}}<br>
-        {{addForm.address}}<br>
-        {{addForm.city.label}}<br>
-        {{addForm.city}}<br>
-        {{addForm.state.label}}<br>
-        {{addForm.state}}<br>
-        Date Established<br>
-        {{addForm.dateEst}}<br>
-        <input type='submit' value='Save' />
-    </form>
+{% extends 'mainLayout.html' %}
+{% load static %}
+
+{% block list %}
+
+{% block extra_head %}
+<link href="{% static 'style/farm_map.css' %}" rel="stylesheet">
+{% endblock %}
+
+<div class="farm-map-page">
+
+    <div class="form-page-wrap">
+
+        <div class="farm-map-topbar compact-form-topbar">
+            <div>
+                <div class="farm-breadcrumbs">
+                    <a href="{% url 'farm_map' %}">Farm Map</a>
+                    <span>›</span>
+                    <span>Add Location</span>
+                </div>
+
+                <h1>Add Location</h1>
+                <p class="page-subtitle">
+                    Create a new farm location.
+                </p>
+            </div>
+        </div>
+
+        <section class="farm-section-card form-card">
+
+            <div class="position-summary-card two-summary-items">
+                <div>
+                    <span class="summary-label">New Location ID</span>
+                    <strong>{{ newID }}</strong>
+                </div>
+
+                <div>
+                    <span class="summary-label">After Save</span>
+                    <strong>Opens Location in Farm Map</strong>
+                </div>
+            </div>
+
+            <form method="POST" enctype="multipart/form-data" class="farm-form">
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="form-errors">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+
+                <div class="form-grid two-col">
+                    {% for field in form %}
+                        {% if field.is_hidden %}
+                            {{ field }}
+                        {% else %}
+                            <div class="form-field {% if field.name == 'address' %}full-width{% endif %}">
+                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                {{ field }}
+
+                                {% if field.errors %}
+                                    <div class="field-errors">
+                                        {{ field.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="primary-btn">Save Location</button>
+                    <a href="{% url 'farm_map' %}" class="outline-btn">Cancel</a>
+                </div>
+            </form>
+
+        </section>
+
+    </div>
+
 </div>
+
 {% endblock %}

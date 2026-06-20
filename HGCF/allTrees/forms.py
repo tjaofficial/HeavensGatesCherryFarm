@@ -5,40 +5,86 @@ from django.contrib.auth.forms import UserCreationForm # type: ignore
 from django.contrib.auth.models import User # type: ignore
 from django.forms import inlineformset_factory # type: ignore
 
-class individualTrees_form(ModelForm):
+class individualTrees_form(forms.ModelForm):
     class Meta:
         model = individualTrees_model
-        fields = ("__all__")
+        fields = [
+            'name',
+            'image',
+            'notes',
+            'rootStock',
+            'zionType',
+            'datePlanted',
+            'status',
+        ]
+
+        labels = {
+            'name': 'Plant Name',
+            'image': 'Plant Image',
+            'notes': 'Notes',
+            'rootStock': 'Rootstock',
+            'zionType': 'Zion Type',
+            'datePlanted': 'Date Planted',
+            'status': 'Status',
+        }
+
         widgets = {
-            'treeID': forms.TextInput(),
-            'rootStock': forms.TextInput(),
-            'zionType': forms.TextInput(),
-            'datePlanted': forms.DateInput(attrs={'type':'date'}),
+            'datePlanted': forms.DateInput(attrs={'type': 'date'}),
+            'notes': forms.Textarea(attrs={'rows': 4}),
         }
         
-class locationTree_form(ModelForm):
+class locationTree_form(forms.ModelForm):
     class Meta:
         model = locationTree_model
-        fields = ("__all__")
+        fields = [
+            'locationID',
+            'name',
+            'address',
+            'city',
+            'state',
+            'dateEst',
+            'image',
+        ]
+
+        labels = {
+            'locationID': 'Location ID',
+            'name': 'Location Name',
+            'address': 'Address',
+            'city': 'City',
+            'state': 'State',
+            'dateEst': 'Date Established',
+        }
+
         widgets = {
-            'locationID':forms.TextInput(attrs={}),
-            'name':forms.TextInput(),
-            'address':forms.TextInput(),
-            'city':forms.TextInput(),
-            'state':forms.TextInput(),
-            'dateEst':forms.DateInput(attrs={'type':'date'}),
+            'locationID': forms.HiddenInput(),
+            'dateEst': forms.DateInput(attrs={'type': 'date'}),
         }
         
-class areaTree_form(ModelForm):
+class areaTree_form(forms.ModelForm):
     class Meta:
         model = areaTree_model
-        fields = ("__all__")
+        fields = [
+            'areaID',
+            'name',
+            'widthByTree',
+            'lengthByTree',
+            'dateEst',
+            'image',
+            'description',
+        ]
+
+        labels = {
+            'areaID': 'Section ID',
+            'name': 'Section Name',
+            'widthByTree': 'Columns',
+            'lengthByTree': 'Rows',
+            'dateEst': 'Date Established',
+        }
+
         widgets = {
-            'areaID': forms.TextInput(),
-            'name': forms.TextInput(),
-            'dateEst': forms.DateInput(attrs={'type':'date'}),
-            'widthByTree': forms.NumberInput(),
-            'lengthByTree': forms.NumberInput(),
+            'areaID': forms.HiddenInput(),
+            'dateEst': forms.DateInput(attrs={'type': 'date'}),
+            'description': forms.Textarea(attrs={'rows': 4}),
         }
         
 class logCategory_form(ModelForm):
@@ -50,16 +96,35 @@ class logCategory_form(ModelForm):
             'description': forms.TextInput(),
         }
               
-class treeLogs_form(ModelForm):
+class treeLogs_form(forms.ModelForm):
+    timestamp = forms.DateTimeField(
+        label="Date / Time",
+        widget=forms.DateTimeInput(
+            attrs={'type': 'datetime-local'},
+            format='%Y-%m-%dT%H:%M'
+        ),
+        input_formats=['%Y-%m-%dT%H:%M']
+    )
+
     class Meta:
         model = treeLogs_model
-        fields = ("__all__")
+        fields = [
+            'timestamp',
+            'category',
+            'note',
+        ]
+
+        labels = {
+            'timestamp': 'Date / Time',
+            'category': 'Category',
+            'note': 'Log Note',
+        }
+
         widgets = {
-            'treeID': forms.TextInput(),
-            'date': forms.DateInput(attrs={'type':'date'}),
-            'time': forms.TimeInput(attrs={'type':'time'}),
-            'note': forms.TextInput(),
-            'category': forms.Select(),
+            'note': forms.Textarea(attrs={
+                'rows': 5,
+                'placeholder': 'Write the log details here...'
+            }),
         }
 
 class CreateUserForm(UserCreationForm):

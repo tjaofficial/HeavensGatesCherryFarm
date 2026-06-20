@@ -1,0 +1,69 @@
+{% extends 'mainLayout.html' %}
+{% load static %}
+
+{% block list %}
+
+{% block extra_head %}
+<link href="{% static 'style/farm_map.css' %}" rel="stylesheet">
+{% endblock %}
+
+<div class="farm-map-page">
+
+    <div class="farm-map-topbar">
+        <div>
+            <div class="farm-breadcrumbs">
+                <a href="{% url 'farm_map' %}">Farm Map</a>
+                <span>›</span>
+                <a href="{% url 'farm_map_location' location.id %}">
+                    {{ location.name|default:location.locationID }}
+                </a>
+                <span>›</span>
+                <a href="{% url 'farm_map_area' location.id area.id %}">
+                    {{ area.name|default:area.areaID }}
+                </a>
+                <span>›</span>
+                <span>Edit Plant</span>
+            </div>
+
+            <h1>Edit Plant</h1>
+            <p class="page-subtitle">
+                {{ location.locationID }}-{{ area.areaID }}-{{ tree.treeID }}
+            </p>
+        </div>
+    </div>
+
+    <section class="farm-section-card">
+        <form method="POST" enctype="multipart/form-data" class="farm-form">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="form-errors">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <div class="form-grid two-col">
+                {% for field in form %}
+                    <div class="form-field {% if field.name == 'notes' %}full-width{% endif %}">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+
+                        {% if field.errors %}
+                            <div class="field-errors">
+                                {{ field.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="primary-btn">Save Changes</button>
+                <a href="{% url 'farm_map_area' location.id area.id %}" class="outline-btn">Cancel</a>
+            </div>
+        </form>
+    </section>
+
+</div>
+
+{% endblock %}

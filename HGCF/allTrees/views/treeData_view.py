@@ -1,4 +1,4 @@
-from django.shortcuts import render # type: ignore
+from django.shortcuts import render, get_object_or_404 # type: ignore
 from ..models import individualTrees_model, areaTree_model, locationTree_model, treeLogs_model, tree_qr
 from django.contrib.auth.decorators import login_required # type: ignore
 
@@ -9,28 +9,57 @@ def treeData_view(request, locationID, areaID, treeID):
     noFooter = True
     smallHeader = True
     sideBar = True
-    fullTreeID = f"{locationID}-{areaID}-{treeID}"
-    treeData = individualTrees_model.objects.get(areaID__areaID=areaID, treeID=treeID)
-    treeLogs = treeLogs_model.objects.filter(treeID=treeData).order_by('-timestamp')
-    treeQrCode = tree_qr.objects.filter(treeID__id=treeData.id)
-    if treeQrCode.exists():
-        treeQrCode = treeQrCode[0]
-    else:
-        treeQrCode = False
-    
 
-    print(treeLogs)
-    return render(request, 'tree_grid/select_pages/tree_data.html',{
-        'treeQrCode': treeQrCode, 
-        'treeLogs': treeLogs, 
-        'locationID': locationID, 
-        'areaID': areaID, 
-        'treeID': treeID, 
+    treeData = get_object_or_404(
+        individualTrees_model.objects.select_related(
+            'areaID',
+            'areaID__locationID'
+        ),
+        areaID__locationID__locationID=locationID,
+        areaID__areaID=areaID,
+        treeID=treeID
+    )
+
+    treeLogs = treeLogs_model.objects.filter(
+        treeID=treeData
+    ).select_related('category').order_by('-timestamp')
+
+    treeQrCode = tree_qr.objects.filter(treeID=treeData).first()
+
+    fullTreeID = f"{locationID}-{areaID}-{treeID}"
+
+    displayName = getattr(treeData, 'name', None) or f"Tree {treeID}"
+    notes = getattr(treeData, 'notes', '') or ''
+
+    try:
+        column, row = treeID.split('-', 1)
+        positionLabel = f"Column {column}, Row {row}"
+    except Exception:
+        column = None
+        row = None
+        positionLabel = "Position Unknown"
+
+    return render(request, 'tree_grid/select_pages/tree_data.html', {
+        'treeQrCode': treeQrCode,
+        'treeLogs': treeLogs,
+        'recentTreeLogs': treeLogs[:5],
+        'logCount': treeLogs.count(),
+
+        'locationID': locationID,
+        'areaID': areaID,
+        'treeID': treeID,
         'treeData': treeData,
+
+        'displayName': displayName,
+        'notes': notes,
+        'fullTreeID': fullTreeID,
+        'positionLabel': positionLabel,
+        'column': column,
+        'row': row,
+
         'smallHeader': smallHeader,
         'noFooter': noFooter,
         'sideBar': sideBar,
-        'fullTreeID': fullTreeID
     })
     
 @lock
@@ -38,91 +67,50 @@ def treeLog_view(request, locationID, areaID, treeID, selector):
     noFooter = True
     smallHeader = True
     sideBar = True
-    treeData = individualTrees_model.objects.get(areaID__areaID=areaID, treeID=treeID)
+
+    treeData = get_object_or_404(
+        individualTrees_model.objects.select_related(
+            'areaID',
+            'areaID__locationID'
+        ),
+        areaID__locationID__locationID=locationID,
+        areaID__areaID=areaID,
+        treeID=treeID
+    )
+
+    displayName = getattr(treeData, 'name', None) or f"Tree {treeID}"
+    fullTreeID = f"{locationID}-{areaID}-{treeID}"
+
+    baseVariables = {
+        'locationID': locationID,
+        'areaID': areaID,
+        'treeID': treeID,
+        'selector': selector,
+        'treeData': treeData,
+        'displayName': displayName,
+        'fullTreeID': fullTreeID,
+        'smallHeader': smallHeader,
+        'noFooter': noFooter,
+        'sideBar': sideBar,
+    }
+
     if selector == 'all':
-        treeLogData = treeLogs_model.objects.filter(treeID=treeData).order_by('-timestamp')
-        variables = {
-            'locationID': locationID, 
-            'areaID': areaID, 
-            'treeID': treeID, 
-            'selector': selector,
-            'treeLogData': treeLogData,
-            'smallHeader': smallHeader,
-            'noFooter': noFooter,
-            'sideBar': sideBar
-        }
+        treeLogData = treeLogs_model.objects.filter(
+            treeID=treeData
+        ).select_related('category').order_by('-timestamp')
+
+        baseVariables['treeLogData'] = treeLogData
+        baseVariables['logCount'] = treeLogData.count()
+
     else:
-        treeLog = treeLogs_model.objects.get(id=int(selector))
-        variables = {
-            'locationID': locationID, 
-            'areaID': areaID, 
-            'treeID': treeID, 
-            'treeLog': treeLog,
-            'selector': selector,
-            'smallHeader': smallHeader,
-            'noFooter': noFooter,
-            'sideBar': sideBar
-        }
-    print(selector)
-    return render(request, 'tree_grid/select_pages/tree_log.html', variables)
+        treeLog = get_object_or_404(
+            treeLogs_model.objects.select_related('category'),
+            id=int(selector),
+            treeID=treeData
+        )
 
-@lock
-def location_list_view(request):
-    noFooter = True
-    smallHeader = True
-    sideBar = True
+        baseVariables['treeLog'] = treeLog
 
-    locations = locationTree_model.objects.all()
-    print(locations)
-    return render(request, 'tree_grid/select_pages/tree_locations.html', {
-        'locations': locations,
-        'smallHeader': smallHeader,
-        'noFooter': noFooter,
-        'sideBar': sideBar
-    })
-
-@lock
-def area_list_view(request, location_id):
-    noFooter = True
-    smallHeader = True
-    sideBar = True
-
-    location = locationTree_model.objects.get(id=location_id)
-    areas = areaTree_model.objects.filter(locationID=location)
-    return render(request, 'tree_grid/select_pages/tree_areas.html', {
-        'location': location, 
-        'areas': areas,
-        'smallHeader': smallHeader,
-        'noFooter': noFooter,
-        'sideBar': sideBar
-    })
-
-@lock
-def area_tree_grid_view(request, area_id):
-    noFooter = True
-    smallHeader = True
-    sideBar = True
-    area = areaTree_model.objects.get(id=area_id)
-    trees = individualTrees_model.objects.filter(areaID=area)
-    tree_map = {}
-
-    for tree in trees:
-        tree_map[tree.treeID] = {
-            "rootStock": tree.rootStock,
-            "zionType": tree.zionType,
-            "datePlanted": tree.datePlanted.strftime('%Y-%m-%d'),
-            "status": getattr(tree, 'status', 'healthy'),  # optional field
-        }
-
-    return render(request, 'tree_grid/select_pages/tree_grid.html', {
-        'area': area,
-        'range_area': range(1, area.lengthByTree + 1),
-        'range_width': range(1, area.widthByTree + 1),
-        'tree_map': tree_map,
-        'smallHeader': smallHeader,
-        'noFooter': noFooter,
-        'sideBar': sideBar
-    })
-
+    return render(request, 'tree_grid/select_pages/tree_log.html', baseVariables)
 
 

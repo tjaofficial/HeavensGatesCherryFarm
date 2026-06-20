@@ -18,7 +18,7 @@ def selectNextID(data, selector):
     if data.exists():
         print("DATA DOES EXISTS")
         if selector == "location":
-            lastID = data[0].locationID# + 1
+            lastID = data[0].locationID[1:]# + 1
             starter = "L"
         elif selector == "area":
             lastID = int(data[0].areaID[1:]) + 1

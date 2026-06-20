@@ -27,15 +27,33 @@ urlpatterns = [
     path('irrigation/emergency-shutoff/', views.emergency_shutoff, name='emergency_shutoff'),
     path('irrigation/schedules/', views.get_schedule_overview, name='schedule_overview'),
 
-    # ---- Tree Grid -----------
-    path('treespace/locations/', views.location_list_view, name='location_list'),
-    path('treespace/area/<int:location_id>/', views.area_list_view, name='area_list'),
-    path('treespace/tree-grid/<int:area_id>/', views.area_tree_grid_view, name='tree_grid'),
-    path("treespace/tree-data/<str:locationID>/<str:areaID>/<str:treeID>", views.treeData_view, name="treeData"),
-    path("treespace/tree-data/add-log/<str:locationID>/<str:areaID>/<str:treeID>", views.addLog_view, name="addLog"),
-    path("treespace/tree-data/logs/<str:locationID>/<str:areaID>/<str:treeID>/<str:selector>", views.treeLog_view, name="treeLog"),
-    path("treespace/locations/add", views.addLocation_view, name="add_location"),
-    path("treespace/areas/add/<int:location_id>", views.addArea_view, name="add_area"),
+    # ---- Tree / Farm Map -----------
+
+    # New main Farm Map routes
+    path('treespace/farm-map/', views.farm_map_view, name='farm_map'),
+    path('treespace/farm-map/location/<int:location_id>/', views.farm_map_view, name='farm_map_location'),
+    path('treespace/farm-map/location/<int:location_id>/area/<int:area_id>/', views.farm_map_view, name='farm_map_area'),
+
+    # Quick View API
+    path('treespace/api/tree-quick-view/<int:tree_pk>/', views.tree_quick_view_api, name='tree_quick_view_api'),
+
+    # Add pages
+    path("treespace/locations/add/", views.addLocation_view, name="add_location"),
+    path("treespace/areas/add/<int:location_id>/", views.addArea_view, name="add_area"),
+
+    # Full Tree Pages
+    path("treespace/tree-data/<str:locationID>/<str:areaID>/<str:treeID>/", views.treeData_view, name="treeData"),
+    path("treespace/tree-data/<str:locationID>/<str:areaID>/<str:treeID>/add-log/", views.addLog_view, name="addLog"),
+    path("treespace/tree-data/<str:locationID>/<str:areaID>/<str:treeID>/logs/<str:selector>/", views.treeLog_view, name="treeLog"),
+    path("treespace/tree-data/<str:locationID>/<str:areaID>/<str:treeID>/edit/", views.editTree_view, name="editTree"),
+
+    # Legacy redirects
+    path('treespace/locations/', views.legacy_location_list_redirect, name='location_list'),
+    path('treespace/area/<int:location_id>/', views.legacy_area_list_redirect, name='area_list'),
+    path('treespace/tree-grid/<int:area_id>/', views.legacy_tree_grid_redirect, name='tree_grid'),
+
+
+
 
     # Joyce's Kitchen URLs
     path("recipeForm", views.recipeForm_view, name="recipeForm"),

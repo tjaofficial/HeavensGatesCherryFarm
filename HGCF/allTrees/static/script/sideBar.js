@@ -1,37 +1,41 @@
 document.addEventListener("DOMContentLoaded", function () {
+    const toggle = document.getElementById("sideBarToggle");
     const sidebar = document.getElementById("treeSpaceSidebar");
-    const toggleButton = document.getElementById("sideBarToggle");
     const overlay = document.getElementById("sideBarOverlay");
 
-    if (!sidebar || !toggleButton || !overlay) return;
-
     function openSidebar() {
+        if (!sidebar || !overlay || !toggle) return;
+
         sidebar.classList.add("is-open");
         overlay.classList.add("is-open");
         document.body.classList.add("sidebar-open");
-        toggleButton.setAttribute("aria-expanded", "true");
+        toggle.setAttribute("aria-expanded", "true");
     }
 
     function closeSidebar() {
+        if (!sidebar || !overlay || !toggle) return;
+
         sidebar.classList.remove("is-open");
         overlay.classList.remove("is-open");
         document.body.classList.remove("sidebar-open");
-        toggleButton.setAttribute("aria-expanded", "false");
+        toggle.setAttribute("aria-expanded", "false");
     }
 
-    toggleButton.addEventListener("click", function () {
-        if (sidebar.classList.contains("is-open")) {
-            closeSidebar();
-        } else {
-            openSidebar();
-        }
-    });
+    if (toggle) {
+        toggle.addEventListener("click", function () {
+            const isOpen = sidebar.classList.contains("is-open");
 
-    overlay.addEventListener("click", closeSidebar);
+            if (isOpen) {
+                closeSidebar();
+            } else {
+                openSidebar();
+            }
+        });
+    }
 
-    sidebar.querySelectorAll("a").forEach(function (link) {
-        link.addEventListener("click", closeSidebar);
-    });
+    if (overlay) {
+        overlay.addEventListener("click", closeSidebar);
+    }
 
     document.addEventListener("keydown", function (event) {
         if (event.key === "Escape") {
@@ -39,9 +43,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    window.addEventListener("resize", function () {
-        if (window.innerWidth > 900) {
-            closeSidebar();
-        }
-    });
+    if (window.lucide) {
+        lucide.createIcons();
+    }
 });

@@ -1,5 +1,7 @@
 {% load static %}
+
 <link href="{% static 'style/sideBar.css' %}" rel="stylesheet" />
+<script src="https://unpkg.com/lucide@latest"></script>
 <script defer src="{% static 'script/sideBar.js' %}"></script>
 
 <button 
@@ -9,62 +11,108 @@
     aria-label="Open TreeSpace sidebar"
     aria-expanded="false"
 >
-    ☰ TreeSpace
+    <i data-lucide="menu"></i>
+    <span>TreeSpace</span>
 </button>
 
 <div id="sideBarOverlay" class="sidebar-overlay"></div>
 
-<aside id="treeSpaceSidebar" class="play">
-    {% comment %} <div class="headerSpacer"></div> {% endcomment %}
+<aside id="treeSpaceSidebar" class="play treespace-sidebar">
 
-    <div class="sidebar-title">
-        TreeSpace
+    <div class="sidebar-brand">
+        <div class="sidebar-brand-icon">
+            <i data-lucide="trees"></i>
+        </div>
+
+        <div class="sidebar-brand-text">
+            <span>TreeSpace</span>
+            <small>Farm Admin</small>
+        </div>
     </div>
 
-    <ul>
-        <li>YouTube API</li>
-        <li>
-            <a href="{% url 'location_list' %}">Trees</a>
-        </li>
-        <li>
-            <a href="{% url 'irrigation_dashboard' %}">Irrigation</a>
-        </li>
-        <li>
-            <a href="{% url 'treespace_upick_dashboard' %}">U-Pick</a>
-        </li>
-        <li>
-            <a href="{% url 'recipeForm' %}">Recipes</a>
-        </li>
-        <li>
-            <a href="{% url 'weatherDash' %}">Weather</a>
-        </li>
-        <li style="padding-bottom: 0px">
-            <h4 style="margin:0pc;">Store</h4>
-            <ul class="innerList" style="margin: 0px;">
-                <li style="font-weight: unset;
-                    font-size: 0.9rem;
-                    background: unset;
-                    letter-spacing: 1px;
-                    text-transform: unset;">
-                    <a href="{% url 'pos_products_list_page' %}">Products List</a>
-                </li>
-                <li>
-                    <a href="{% url 'addProduct' %}">Add Products</a>
-                </li>
-                <li>
-                    <a href="{% url 'pos_terminal_page' %}">POS</a>
-                </li>
-                <li>
-                    <a href="{% url 'pos_sales_list_page' %}">POS Sales</a>
-                </li>
-            </ul>
-        </li>
-        
-        <li>
-            <a href="{% url 'treespace_announcement_setup' %}">Announcements</a>
-        </li>
-        <li>
-            <a href="{% url 'Logout' %}">Logout</a>
-        </li>
-    </ul>
+    <nav class="sidebar-nav">
+
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Trees</div>
+
+            <a href="{% url 'farm_map' %}" class="sidebar-link">
+                <i data-lucide="map"></i>
+                <span>Farm Map</span>
+            </a>
+
+            <a href="{% url 'irrigation_dashboard' %}" class="sidebar-link">
+                <i data-lucide="droplets"></i>
+                <span>Irrigation</span>
+            </a>
+
+            <a href="{% url 'weatherDash' %}" class="sidebar-link">
+                <i data-lucide="cloud-sun"></i>
+                <span>Weather</span>
+            </a>
+        </div>
+
+
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Farm Ops</div>
+
+            <a href="{% url 'treespace_upick_dashboard' %}" class="sidebar-link">
+                <i data-lucide="calendar-check"></i>
+                <span>U-Pick</span>
+            </a>
+
+            <a href="{% url 'treespace_announcement_setup' %}" class="sidebar-link">
+                <i data-lucide="megaphone"></i>
+                <span>News</span>
+            </a>
+        </div>
+
+
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Store</div>
+
+            <a href="{% url 'pos_terminal_page' %}" class="sidebar-link">
+                <i data-lucide="monitor-dot"></i>
+                <span>POS</span>
+            </a>
+
+            <a href="{% url 'pos_sales_list_page' %}" class="sidebar-link">
+                <i data-lucide="receipt-text"></i>
+                <span>Sales</span>
+            </a>
+
+            <a href="{% url 'pos_products_list_page' %}" class="sidebar-link">
+                <i data-lucide="package"></i>
+                <span>Products</span>
+            </a>
+
+            <a href="{% url 'addProduct' %}" class="sidebar-link">
+                <i data-lucide="package-plus"></i>
+                <span>Add Item</span>
+            </a>
+        </div>
+
+
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Other</div>
+
+            <a href="{% url 'recipeForm' %}" class="sidebar-link">
+                <i data-lucide="utensils"></i>
+                <span>Recipes</span>
+            </a>
+
+            <div class="sidebar-link disabled-link">
+                <i data-lucide="youtube"></i>
+                <span>YouTube</span>
+            </div>
+        </div>
+
+    </nav>
+
+    <div class="sidebar-footer">
+        <a href="{% url 'Logout' %}" class="sidebar-link logout-link">
+            <i data-lucide="log-out"></i>
+            <span>Logout</span>
+        </a>
+    </div>
+
 </aside>
