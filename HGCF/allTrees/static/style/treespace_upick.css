@@ -1,26 +1,52 @@
 :root {
-    --farm-dark: #241006;
-    --farm-card: rgba(35, 18, 10, 0.92);
-    --farm-card-soft: rgba(255, 242, 210, 0.075);
-    --farm-border: rgba(255, 226, 171, 0.22);
-    --farm-cream: #fff2d2;
-    --farm-muted: rgba(255, 242, 210, 0.68);
-    --farm-gold: #d59a35;
-    --farm-red: #b41422;
-    --farm-red-dark: #760811;
-    --farm-green: #315f2b;
-    --farm-input: #f5f1e8;
+    --farm-bg: #f7f6ef;
+    --farm-bg-soft: #faf7ec;
+    --farm-card: #fffdf7;
+    --farm-card-soft: #faf7ec;
+    --farm-border: #dcd8c9;
+    --farm-border-strong: #cfc6b2;
+
+    --farm-text: #1f2418;
+    --farm-muted: #68705e;
+    --farm-muted-soft: #8a907f;
+
+    --farm-green: #244719;
+    --farm-green-mid: #4f7b35;
+    --farm-green-soft: #e8f4df;
+
+    --farm-gold: #c6a63d;
+    --farm-gold-dark: #7a5b00;
+    --farm-gold-soft: #fff7d7;
+
+    --farm-red: #9d1025;
+    --farm-red-soft: #fff2f3;
+
+    --farm-blue: #25658f;
+    --farm-blue-soft: #e7f2ff;
+
+    --farm-input: #fffdf7;
+
+    --shadow-card: 0 8px 22px rgba(21, 29, 15, 0.06);
+    --shadow-card-strong: 0 12px 30px rgba(21, 29, 15, 0.1);
 }
+
+/* =========================
+   Page Shell
+========================= */
 
 .treespace-upick-page {
     min-height: 100vh;
-    padding: 2rem 1.25rem 5rem;
-    color: var(--farm-cream);
+    padding: 18px 18px 5rem;
+    color: var(--farm-text);
     background:
-        radial-gradient(circle at 15% 10%, rgba(180, 20, 34, 0.22), transparent 30%),
-        radial-gradient(circle at 85% 0%, rgba(213, 154, 53, 0.22), transparent 26%),
-        linear-gradient(180deg, #8a3a08 0%, #431703 100%);
+        radial-gradient(circle at 12% 8%, rgba(198, 166, 61, 0.14), transparent 30%),
+        radial-gradient(circle at 90% 4%, rgba(36, 71, 25, 0.12), transparent 26%),
+        linear-gradient(180deg, #f7f6ef 0%, #efe9d8 100%);
 }
+
+/* =========================
+   Shared Cards
+========================= */
 
 .upick-admin-header,
 .event-picker-card,
@@ -32,135 +58,213 @@
     margin-right: auto;
     background: var(--farm-card);
     border: 1px solid var(--farm-border);
-    border-radius: 24px;
-    box-shadow: 0 14px 35px rgba(0,0,0,0.35);
+    border-radius: 16px;
+    box-shadow: var(--shadow-card);
 }
+
+/* =========================
+   Header
+========================= */
 
 .upick-admin-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    padding: 1.5rem;
-    margin-bottom: 1.25rem;
+    padding: 22px;
+    margin-bottom: 18px;
 }
 
 .admin-kicker {
     margin: 0 0 0.35rem;
-    color: var(--farm-gold);
+    color: var(--farm-green);
     text-transform: uppercase;
-    letter-spacing: 0.18em;
-    font-size: 0.78rem;
+    letter-spacing: 0.16em;
+    font-size: 0.76rem;
     font-weight: 900;
 }
 
 .upick-admin-header h1 {
     margin: 0;
-    font-size: clamp(2rem, 5vw, 4rem);
+    font-size: clamp(2rem, 4vw, 3.6rem);
     line-height: 1;
+    color: var(--farm-text);
     text-transform: uppercase;
-    text-shadow: 4px 4px 0 rgba(0,0,0,0.34);
+    letter-spacing: 0.02em;
 }
 
 .upick-admin-header p {
-    margin: 0.5rem 0 0;
+    margin: 0.6rem 0 0;
     color: var(--farm-muted);
+    font-weight: 650;
 }
 
 .admin-header-actions {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.75rem;
+    justify-content: flex-end;
+    gap: 10px;
 }
 
+/* =========================
+   Buttons
+========================= */
+
 .admin-btn {
-    border: none;
+    min-height: 38px;
+    border: 1px solid transparent;
     cursor: pointer;
-    border-radius: 999px;
-    padding: 0.8rem 1rem;
+    border-radius: 8px;
+    padding: 0 14px;
     font-weight: 900;
     text-transform: uppercase;
     text-decoration: none;
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    font-size: 0.83rem;
+    transition:
+        transform 0.16s ease,
+        box-shadow 0.16s ease,
+        border-color 0.16s ease,
+        background 0.16s ease;
+}
+
+.admin-btn:hover {
+    transform: translateY(-1px);
 }
 
 .admin-btn.secondary {
-    background: rgba(255, 242, 210, 0.12);
-    color: var(--farm-cream);
-    border: 1px solid rgba(255, 242, 210, 0.24);
+    background: var(--farm-card);
+    color: var(--farm-green);
+    border-color: #9bad8b;
 }
 
+.admin-btn.secondary:hover {
+    background: var(--farm-green-soft);
+    border-color: var(--farm-green-mid);
+}
+
+.admin-btn.primary {
+    background: var(--farm-green);
+    color: #fff;
+    border-color: var(--farm-green);
+}
+
+.admin-btn i {
+    width: 16px;
+    height: 16px;
+    margin-right: 6px;
+}
+
+/* =========================
+   Event Picker
+========================= */
+
 .event-picker-card {
-    padding: 1.2rem;
-    margin-bottom: 1.25rem;
+    padding: 18px;
+    margin-bottom: 18px;
 }
 
 .event-picker-form {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 8px;
 }
 
 .event-picker-form label {
+    display: inline-flex;
+    align-items: center;
     font-weight: 900;
-    color: var(--farm-gold);
+    color: var(--farm-green);
     text-transform: uppercase;
-    letter-spacing: 0.1em;
-    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    font-size: 0.76rem;
+}
+
+.event-picker-form label i {
+    width: 16px;
+    height: 16px;
+    margin-right: 6px;
 }
 
 .event-picker-form select,
 .reservation-filters input,
 .reservation-filters select {
     min-height: 44px;
-    border-radius: 12px;
-    border: 2px solid rgba(213, 154, 53, 0.35);
+    border-radius: 9px;
+    border: 1px solid #d6d0bd;
     background: var(--farm-input);
-    color: #1d0b03;
-    padding: 0.75rem;
+    color: var(--farm-text);
+    padding: 0.72rem 0.8rem;
     font-weight: 800;
     outline: none;
+    font: inherit;
 }
+
+.event-picker-form select:focus,
+.reservation-filters input:focus,
+.reservation-filters select:focus {
+    border-color: var(--farm-green-mid);
+    box-shadow: 0 0 0 3px rgba(79, 123, 53, 0.13);
+}
+
+/* =========================
+   Metrics
+========================= */
 
 .admin-metrics-grid {
     max-width: 1250px;
-    margin: 0 auto 1.25rem;
+    margin: 0 auto 18px;
     display: grid;
     grid-template-columns: repeat(6, 1fr);
-    gap: 1rem;
+    gap: 14px;
 }
 
 .metric-card {
     background: var(--farm-card);
     border: 1px solid var(--farm-border);
-    border-radius: 20px;
-    padding: 1rem;
-    box-shadow: 0 12px 28px rgba(0,0,0,0.28);
+    border-radius: 14px;
+    padding: 16px;
+    box-shadow: var(--shadow-card);
+    transition:
+        transform 0.16s ease,
+        box-shadow 0.16s ease,
+        border-color 0.16s ease;
+}
+
+.metric-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--farm-border-strong);
+    box-shadow: var(--shadow-card-strong);
 }
 
 .metric-card span {
     display: block;
     color: var(--farm-muted);
     font-weight: 900;
-    font-size: 0.78rem;
+    font-size: 0.74rem;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.07em;
 }
 
 .metric-card strong {
     display: block;
-    color: var(--farm-gold);
+    color: var(--farm-green);
     font-size: 2rem;
-    margin-top: 0.35rem;
+    line-height: 1;
+    margin-top: 0.45rem;
 }
+
+/* =========================
+   Sections
+========================= */
 
 .time-slot-admin-card,
 .reservation-admin-card,
 .empty-panel {
-    padding: 1.25rem;
-    margin-bottom: 1.25rem;
+    padding: 20px;
+    margin-bottom: 18px;
 }
 
 .section-title-row {
@@ -168,85 +272,146 @@
     align-items: flex-end;
     justify-content: space-between;
     gap: 1rem;
-    margin-bottom: 1rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid rgba(255, 242, 210, 0.16);
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e7e0ce;
 }
 
 .section-title-row p {
     margin: 0 0 0.25rem;
-    color: var(--farm-gold);
+    color: var(--farm-green);
     text-transform: uppercase;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.12em;
     font-weight: 900;
-    font-size: 0.78rem;
+    font-size: 0.76rem;
 }
 
 .section-title-row h2 {
     margin: 0;
-    font-size: clamp(1.6rem, 4vw, 2.8rem);
+    color: var(--farm-text);
+    font-size: clamp(1.5rem, 3vw, 2.4rem);
     text-transform: uppercase;
 }
+
+/* =========================
+   Time Slot Cards
+========================= */
 
 .slot-admin-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
-    gap: 1rem;
+    gap: 14px;
 }
 
 .slot-admin-card {
     background: var(--farm-card-soft);
-    border: 1px solid rgba(255, 242, 210, 0.14);
-    border-radius: 18px;
-    padding: 1rem;
+    border: 1px solid var(--farm-border);
+    border-radius: 14px;
+    padding: 16px;
+    transition:
+        transform 0.16s ease,
+        box-shadow 0.16s ease,
+        border-color 0.16s ease;
+}
+
+.slot-admin-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--farm-border-strong);
+    box-shadow: var(--shadow-card);
 }
 
 .slot-admin-card h3 {
     margin: 0 0 0.8rem;
+    color: var(--farm-text);
+    font-size: 1.12rem;
+}
+
+.slot-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 0.75rem;
+}
+
+.slot-card-header h3 {
+    margin: 0;
+}
+
+.slot-card-header .slot-pill {
+    margin: 0;
+    flex-shrink: 0;
 }
 
 .slot-admin-row {
     display: flex;
     justify-content: space-between;
-    padding: 0.45rem 0;
-    border-bottom: 1px solid rgba(255, 242, 210, 0.09);
+    gap: 12px;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #e7e0ce;
 }
 
 .slot-admin-row span {
     color: var(--farm-muted);
+    font-weight: 750;
 }
 
 .slot-admin-row strong {
-    color: var(--farm-gold);
+    color: var(--farm-green);
+    font-weight: 900;
 }
 
 .slot-pill {
     display: inline-flex;
-    margin: 0.8rem 0 0;
-    padding: 0.35rem 0.65rem;
+    margin: 0.85rem 0 0;
+    padding: 0.38rem 0.7rem;
     border-radius: 999px;
     font-weight: 900;
-    font-size: 0.8rem;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
 }
 
 .slot-pill.open {
-    background: rgba(49, 95, 43, 0.28);
-    color: #9ee28f;
+    background: var(--farm-green-soft);
+    color: var(--farm-green);
+    border: 1px solid rgba(79, 123, 53, 0.25);
 }
 
 .slot-pill.full {
-    background: rgba(180, 20, 34, 0.28);
-    color: #ffb1b1;
+    background: var(--farm-red-soft);
+    color: var(--farm-red);
+    border: 1px solid rgba(157, 16, 37, 0.22);
 }
+
+/* =========================
+   Reservation Filters
+========================= */
 
 .reservation-filters {
     display: flex;
-    gap: 0.75rem;
+    gap: 10px;
     flex-wrap: wrap;
+    justify-content: flex-end;
 }
+
+.reservation-filters input {
+    min-width: min(320px, 100%);
+}
+
+.reservation-filters select {
+    min-width: 180px;
+}
+
+/* =========================
+   Reservation Table
+========================= */
 
 .reservation-table-wrap {
     overflow-x: auto;
+    border-radius: 14px;
+    border: 1px solid #e7e0ce;
+    background: var(--farm-card);
 }
 
 .reservation-table {
@@ -259,19 +424,33 @@
 .reservation-table td {
     text-align: left;
     padding: 0.9rem;
-    border-bottom: 1px solid rgba(255, 242, 210, 0.12);
+    border-bottom: 1px solid #e7e0ce;
     vertical-align: top;
 }
 
 .reservation-table th {
-    color: var(--farm-gold);
+    background: var(--farm-bg-soft);
+    color: var(--farm-green);
     text-transform: uppercase;
-    letter-spacing: 0.08em;
-    font-size: 0.78rem;
+    letter-spacing: 0.07em;
+    font-size: 0.76rem;
+    white-space: nowrap;
+}
+
+.reservation-table tbody tr {
+    transition: background 0.16s ease;
+}
+
+.reservation-table tbody tr:hover {
+    background: #faf7ec;
 }
 
 .reservation-table td span {
     display: block;
+}
+
+.reservation-table td strong {
+    color: var(--farm-text);
 }
 
 .muted {
@@ -282,38 +461,55 @@
 
 .note-preview {
     color: var(--farm-muted);
+    line-height: 1.35;
 }
+
+/* =========================
+   Reservation Status Pills
+========================= */
 
 .status-pill {
     display: inline-flex;
-    padding: 0.35rem 0.65rem;
+    align-items: center;
+    justify-content: center;
+    padding: 0.38rem 0.7rem;
     border-radius: 999px;
     font-weight: 900;
-    font-size: 0.78rem;
+    font-size: 0.76rem;
     white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
 }
 
 .status-confirmed {
-    background: rgba(213, 154, 53, 0.22);
-    color: #ffd98a;
+    background: var(--farm-gold-soft);
+    color: var(--farm-gold-dark);
+    border: 1px solid rgba(198, 166, 61, 0.28);
 }
 
 .status-checked_in {
-    background: rgba(49, 95, 43, 0.35);
-    color: #9ee28f;
+    background: var(--farm-green-soft);
+    color: var(--farm-green);
+    border: 1px solid rgba(79, 123, 53, 0.28);
 }
 
 .status-completed {
-    background: rgba(80, 150, 210, 0.25);
-    color: #b9e1ff;
+    background: var(--farm-blue-soft);
+    color: var(--farm-blue);
+    border: 1px solid rgba(37, 101, 143, 0.22);
 }
 
 .status-cancelled,
 .status-no_show,
 .status-released {
-    background: rgba(180, 20, 34, 0.25);
-    color: #ffb1b1;
+    background: var(--farm-red-soft);
+    color: var(--farm-red);
+    border: 1px solid rgba(157, 16, 37, 0.22);
 }
+
+/* =========================
+   Action Buttons
+========================= */
 
 .action-menu {
     display: flex;
@@ -322,33 +518,52 @@
 }
 
 .action-btn {
-    border: none;
-    border-radius: 999px;
-    padding: 0.45rem 0.7rem;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    min-height: 30px;
+    padding: 0 0.7rem;
     font-weight: 900;
     cursor: pointer;
-    font-size: 0.75rem;
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    transition:
+        transform 0.14s ease,
+        box-shadow 0.14s ease,
+        filter 0.14s ease;
+}
+
+.action-btn:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.03);
 }
 
 .action-btn.good {
     background: var(--farm-green);
     color: #fff;
+    border-color: var(--farm-green);
 }
 
 .action-btn.warning {
-    background: var(--farm-gold);
-    color: #241006;
+    background: var(--farm-gold-soft);
+    color: var(--farm-gold-dark);
+    border-color: rgba(198, 166, 61, 0.38);
 }
 
 .action-btn.danger {
     background: var(--farm-red);
     color: #fff;
+    border-color: var(--farm-red);
 }
 
 .action-btn.neutral {
-    background: rgba(255, 242, 210, 0.16);
-    color: var(--farm-cream);
+    background: var(--farm-card-soft);
+    color: var(--farm-green);
+    border-color: #9bad8b;
 }
+
+/* =========================
+   Empty Panels
+========================= */
 
 .empty-panel {
     text-align: center;
@@ -357,11 +572,16 @@
 .empty-panel h2,
 .empty-panel h3 {
     margin-top: 0;
+    color: var(--farm-text);
 }
 
 .empty-panel p {
     color: var(--farm-muted);
 }
+
+/* =========================
+   Toast
+========================= */
 
 .admin-toast {
     position: fixed;
@@ -370,14 +590,16 @@
     z-index: 10000;
     max-width: 360px;
     padding: 1rem 1.1rem;
-    border-radius: 16px;
-    background: rgba(49, 95, 43, 0.96);
+    border-radius: 14px;
+    background: var(--farm-green);
     color: #fff;
     font-weight: 900;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.38);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.26);
     transform: translateY(140%);
     opacity: 0;
-    transition: transform 0.25s ease, opacity 0.25s ease;
+    transition:
+        transform 0.25s ease,
+        opacity 0.25s ease;
 }
 
 .admin-toast.show {
@@ -386,8 +608,12 @@
 }
 
 .admin-toast.error {
-    background: rgba(180, 20, 34, 0.96);
+    background: var(--farm-red);
 }
+
+/* =========================
+   Responsive
+========================= */
 
 @media (max-width: 1100px) {
     .admin-metrics-grid {
@@ -398,23 +624,102 @@
         flex-direction: column;
         align-items: stretch;
     }
+
+    .admin-header-actions {
+        justify-content: flex-start;
+    }
 }
 
-@media (max-width: 700px) {
+@media (max-width: 760px) {
     .treespace-upick-page {
-        padding-inline: 0.8rem;
+        padding: 14px 12px 5rem;
+    }
+
+    .upick-admin-header,
+    .event-picker-card,
+    .time-slot-admin-card,
+    .reservation-admin-card,
+    .empty-panel {
+        border-radius: 14px;
+    }
+
+    .upick-admin-header {
+        padding: 18px;
+    }
+
+    .upick-admin-header h1 {
+        font-size: clamp(2rem, 10vw, 3rem);
+    }
+
+    .admin-header-actions {
+        flex-direction: column;
+    }
+
+    .admin-btn {
+        width: 100%;
+    }
+
+    .event-picker-card {
+        padding: 16px;
     }
 
     .admin-metrics-grid {
         grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .metric-card {
+        padding: 14px;
+    }
+
+    .metric-card strong {
+        font-size: 1.7rem;
+    }
+
+    .section-title-row {
+        flex-direction: column;
+        align-items: stretch;
     }
 
     .reservation-filters {
         flex-direction: column;
+        justify-content: flex-start;
     }
 
     .reservation-filters input,
     .reservation-filters select {
         width: 100%;
+        min-width: 0;
+    }
+
+    .slot-admin-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .treespace-upick-page {
+        padding-inline: 10px;
+    }
+
+    .admin-metrics-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .time-slot-admin-card,
+    .reservation-admin-card,
+    .empty-panel {
+        padding: 16px;
+    }
+
+    .reservation-table {
+        min-width: 900px;
+    }
+
+    .admin-toast {
+        left: 10px;
+        right: 10px;
+        bottom: 10px;
+        max-width: none;
     }
 }
