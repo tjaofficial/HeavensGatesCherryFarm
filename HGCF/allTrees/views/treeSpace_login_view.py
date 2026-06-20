@@ -13,7 +13,7 @@ def login_view(request):
         goLocation = 'addLocation'
         
     if request.user.is_authenticated:
-        return redirect('dashboard')
+        return redirect('farm_map')
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
@@ -22,7 +22,7 @@ def login_view(request):
         if user is not None:
             login(request, user)
             
-            return redirect('dashboard')
+            return redirect('farm_map')
         else:
             login_error["error"] = True
             login_error["message"] = 'Incorrect username or password'
