@@ -1,34 +1,151 @@
 {% extends "mainLayout.html" %}
-{% block list %}{% load static %}
-    {% block extra_head %}
-        <link href="{% static 'style/irrigation_timer.css' %}" rel="stylesheet">
-    {% endblock %}
-    {% include "components/spacer.html" with headerSpace='small' %}
-    <div class="tileCont main" style="padding-top: 150px;">
-        <div class="form-container">
-            {% include "components/backArrow.html" with destination="irrigation_dash" %}
-            <h2>Set Irrigation Schedule</h2>
-            <form method="post">
-                {% csrf_token %}
-                {{ form.non_field_errors }}
+{% load static %}
 
-                <label for="id_valve">Select Valve</label>
-                {{ form.valve }}
+{% block list %}
 
-                <label for="id_start_time">Start Time</label>
-                {{ form.start_time }}
-                <br>
+{% block extra_head %}
+<link href="{% static 'style/irrigation_v2.css' %}" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+{% endblock %}
 
-                <label for="id_end_time">End Time</label>
-                {{ form.end_time }}<br>
+<div class="irrigation-page">
 
-                <label>Days</label>
-                <div class="checkbox-group">
-                    {{ form.days }}
+    <div class="irrigation-form-wrap">
+
+        <div class="irrigation-topbar">
+            <div>
+                <div class="farm-breadcrumbs">
+                    <a href="{% url 'irrigation_dashboard' %}">Irrigation</a>
+                    <span>›</span>
+                    <span>{% if is_edit %}Edit Schedule{% else %}Add Schedule{% endif %}</span>
                 </div>
 
-                <button type="submit" class="submit-btn">Save Schedule</button>
-            </form>
+                <h1>{{ page_title }}</h1>
+                <p class="irrigation-subtitle">
+                    {{ page_subtitle }}
+                </p>
+            </div>
+
+            <div class="irrigation-actions">
+                <a href="{% url 'irrigation_dashboard' %}" class="outline-btn">
+                    <i data-lucide="arrow-left"></i>
+                    Back to Dashboard
+                </a>
+            </div>
         </div>
+
+
+        <section class="irrigation-form-card">
+
+            <div class="irrigation-form-summary">
+                <div>
+                    <span class="summary-label">Mode</span>
+                    <strong>{% if is_edit %}Edit Run{% else %}Scheduled Run{% endif %}</strong>
+                </div>
+
+                <div>
+                    <span class="summary-label">Target</span>
+                    <strong>Valve Zone</strong>
+                </div>
+
+                <div>
+                    <span class="summary-label">Logging</span>
+                    <strong>Auto Log Enabled</strong>
+                </div>
+            </div>
+
+            <form method="post" class="irrigation-form">
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="form-errors">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+
+                <div class="irrigation-form-grid">
+
+                    <div class="irrigation-field full-width">
+                        <label for="id_valve">
+                            <i data-lucide="droplets"></i>
+                            Select Valve
+                        </label>
+                        {{ form.valve }}
+                    </div>
+
+                    <div class="irrigation-field">
+                        <label for="id_start_time">
+                            <i data-lucide="clock"></i>
+                            Start Time
+                        </label>
+                        {{ form.start_time }}
+                    </div>
+
+                    <div class="irrigation-field">
+                        <label for="id_end_time">
+                            <i data-lucide="timer-off"></i>
+                            End Time
+                        </label>
+                        {{ form.end_time }}
+                    </div>
+
+                    <div class="irrigation-field full-width">
+                        <label>
+                            <i data-lucide="calendar-days"></i>
+                            Days
+                        </label>
+
+                        <div class="weekday-grid">
+                            {% for checkbox in form.days %}
+                                <label class="weekday-option">
+                                    {{ checkbox.tag }}
+                                    <span>{{ checkbox.choice_label }}</span>
+                                </label>
+                            {% endfor %}
+                        </div>
+
+                        {% if form.days.errors %}
+                            <div class="field-errors">
+                                {{ form.days.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                </div>
+
+                <div class="form-help-panel">
+                    <strong>Schedule tip</strong>
+                    <p>
+                        Keep run times short while testing. If a manual override is active,
+                        the schedule should not restart that valve until the override is cleared.
+                    </p>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="primary-btn">
+                        <i data-lucide="save"></i>
+                        {{ submit_label }}
+                    </button>
+
+                    <a href="{% url 'irrigation_dashboard' %}" class="outline-btn">
+                        Cancel
+                    </a>
+                </div>
+
+            </form>
+
+        </section>
+
     </div>
+
+</div>
+
+<script>
+    window.addEventListener("DOMContentLoaded", function() {
+        if (window.lucide) {
+            lucide.createIcons();
+        }
+    });
+</script>
+
 {% endblock %}

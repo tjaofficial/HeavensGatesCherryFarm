@@ -13,6 +13,10 @@
     text-decoration: none;
 }
 
+/* =========================
+   Header Shell
+========================= */
+
 .site-header {
     position: relative;
     z-index: 9000;
@@ -22,7 +26,7 @@
     background-size: cover;
     background-position: center;
     border-bottom: 2px solid #000;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.75);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.75);
     font-weight: bold;
 }
 
@@ -34,7 +38,12 @@
     flex-direction: column;
     align-items: center;
     gap: 0.55rem;
+    position: relative;
 }
+
+/* =========================
+   Logo
+========================= */
 
 .logo {
     text-align: center;
@@ -48,6 +57,10 @@
     margin: 0 auto;
 }
 
+/* =========================
+   Main Nav
+========================= */
+
 .navCont {
     width: 100%;
     display: flex;
@@ -60,6 +73,10 @@
     justify-content: center;
     flex-wrap: wrap;
     gap: 0.65rem;
+}
+
+.main-nav li {
+    position: relative;
 }
 
 .main-nav a {
@@ -81,7 +98,7 @@
     background-size: 100% 100%;
     color: #000;
     text-shadow: 0 0 5px #fff;
-    box-shadow: 5px 5px 8px rgba(0,0,0,0.85);
+    box-shadow: 5px 5px 8px rgba(0, 0, 0, 0.85);
     border-radius: 3px;
     transition: transform 0.18s ease, filter 0.18s ease;
 }
@@ -91,6 +108,10 @@
     filter: brightness(1.08);
     color: #000;
 }
+
+/* =========================
+   YouTube Button
+========================= */
 
 .youtube-button {
     gap: 0.45rem;
@@ -109,12 +130,69 @@
     text-shadow: none;
 }
 
+/* =========================
+   Cart Button Inside Nav
+========================= */
+
+.nav-cart-button {
+    position: relative;
+    overflow: visible !important;
+    gap: 0.45rem;
+}
+
+.nav-cart-button .cart-icon {
+    font-size: 1rem;
+    line-height: 1;
+    text-shadow: none;
+}
+
+.nav-cart-button .cart-text {
+    line-height: 1;
+}
+
+#header .nav-cart-button .cart-counter {
+    position: absolute !important;
+    top: -9px !important;
+    right: -9px !important;
+    left: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+
+    min-width: 22px;
+    height: 22px;
+    padding: 0 5px;
+    border-radius: 999px;
+
+    background: #c5312c;
+    color: #fff7db;
+    border: 2px solid #f1d7a6;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 12px;
+    font-weight: 900;
+    line-height: 1;
+    text-shadow: none;
+    z-index: 5;
+    pointer-events: none;
+}
+
+/* =========================
+   Menu Button
+========================= */
+
+.header-actions {
+    display: none;
+}
+
 .menu {
     display: none;
-    border: 2px solid rgba(0,0,0,0.8);
+    border: 2px solid rgba(0, 0, 0, 0.8);
     border-radius: 12px;
     background:
-        linear-gradient(rgba(255,255,255,0.16), rgba(0,0,0,0.08)),
+        linear-gradient(rgba(255, 255, 255, 0.16), rgba(0, 0, 0, 0.08)),
         #a3825e;
     color: #120701;
     font-weight: 900;
@@ -124,7 +202,7 @@
     align-items: center;
     justify-content: center;
     gap: 0.65rem;
-    box-shadow: 4px 4px 10px rgba(0,0,0,0.45);
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.45);
 }
 
 .menu-bars {
@@ -185,8 +263,15 @@
         margin: 0;
     }
 
-    .menu {
+    .header-actions {
         grid-area: menu;
+        justify-self: end;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+    }
+
+    .menu {
         display: inline-flex;
     }
 
@@ -205,12 +290,12 @@
 
     .main-nav {
         min-height: 0;
-        /* overflow: hidden; */
         display: flex;
         flex-direction: column;
         align-items: stretch;
         gap: 0.55rem;
         padding: 0;
+        overflow: hidden;
     }
 
     .navCont.is-open .main-nav {
@@ -230,9 +315,22 @@
     }
 
     .wood-button {
-        box-shadow: 3px 3px 7px rgba(0,0,0,0.8);
+        box-shadow: 3px 3px 7px rgba(0, 0, 0, 0.8);
+    }
+
+    .nav-cart-button {
+        justify-content: center;
+    }
+
+    #header .nav-cart-button .cart-counter {
+        top: -7px !important;
+        right: -7px !important;
     }
 }
+
+/* =========================
+   Small Mobile
+========================= */
 
 @media screen and (max-width: 480px) {
     .header-inner {
@@ -254,7 +352,123 @@
     .main-nav a,
     .wood-button {
         min-height: 44px;
-        font-size: 2.92rem;
-        height: 91px;
+        height: auto;
+        font-size: 0.95rem;
+    }
+
+    #header .nav-cart-button .cart-counter {
+        top: -7px !important;
+        right: -7px !important;
+        min-width: 20px;
+        height: 20px;
+        font-size: 11px;
+    }
+}
+
+
+/* =========================
+   Centered Mobile Menu Panel
+========================= */
+
+@media screen and (max-width: 1037px) {
+    #header .header-inner {
+        grid-template-columns: 1fr auto;
+        grid-template-areas:
+            "logo menu"
+            "nav nav";
+        align-items: center;
+    }
+
+    #header .logo {
+        grid-area: logo;
+        justify-self: start;
+    }
+
+    #header .header-actions {
+        grid-area: menu;
+        justify-self: end;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+    }
+
+    #header .navCont {
+        grid-area: nav;
+        justify-self: center !important;
+        margin: 0 auto !important;
+        display: grid;
+        grid-template-rows: 0fr;
+        overflow: hidden;
+        transition: grid-template-rows 0.25s ease;
+    }
+
+    #header .navCont.is-open {
+        grid-template-rows: 1fr;
+        padding: 0.75rem;
+        margin-top: 0.35rem !important;
+        border-radius: 18px;
+        background: rgba(20, 7, 0, 0.38);
+        border: 1px solid rgba(255, 235, 195, 0.18);
+        box-shadow: 0 12px 26px rgba(0, 0, 0, 0.38);
+        backdrop-filter: blur(2px);
+        justify-content: center;
+    }
+
+    #header .main-nav {
+        width: 100% !important;
+        min-height: 0;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        justify-content: center !important;
+        gap: 0.55rem;
+        padding: 0 !important;
+        margin: 0 auto !important;
+        overflow: hidden;
+    }
+
+    #header .main-nav li {
+        width: 100% !important;
+    }
+
+    #header .main-nav a,
+    #header .wood-button {
+        width: 100% !important;
+        min-width: 0 !important;
+        min-height: 46px;
+        height: auto;
+        justify-content: center;
+        font-size: 0.98rem;
+    }
+
+    #header .nav-cart-button {
+        position: relative;
+        overflow: visible !important;
+    }
+
+    #header .nav-cart-button .cart-counter {
+        position: absolute !important;
+        top: -7px !important;
+        right: 1px !important;
+        left: auto !important;
+        bottom: auto !important;
+        transform: none !important;
+        z-index: 5;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    #header .navCont {
+        width: min(92vw, 330px) !important;
+    }
+
+    #header .navCont.is-open {
+        padding: 0.65rem;
+    }
+
+    #header .main-nav a,
+    #header .wood-button {
+        min-height: 44px;
+        font-size: 0.95rem;
     }
 }

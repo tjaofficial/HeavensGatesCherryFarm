@@ -26,6 +26,8 @@ urlpatterns = [
     path('irrigation/add-valve/', views.add_valve, name="add_valve"),
     path('irrigation/emergency-shutoff/', views.emergency_shutoff, name='emergency_shutoff'),
     path('irrigation/schedules/', views.get_schedule_overview, name='schedule_overview'),
+    path('irrigation/schedule/<int:schedule_id>/edit/', views.irrigation_schedule_edit, name='irrigation_schedule_edit'),
+    path('irrigation/schedule/<int:schedule_id>/delete/', views.irrigation_schedule_delete, name='irrigation_schedule_delete'),
 
     # ---- Tree / Farm Map -----------
 

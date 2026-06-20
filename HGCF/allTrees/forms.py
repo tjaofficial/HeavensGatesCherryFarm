@@ -248,18 +248,61 @@ ProductVariantFormSet = inlineformset_factory(
 )
 
 class valve_schedule_form(forms.ModelForm):
+    DAY_CHOICES = [
+        ('sun', 'Sunday'),
+        ('mon', 'Monday'),
+        ('tue', 'Tuesday'),
+        ('wed', 'Wednesday'),
+        ('thu', 'Thursday'),
+        ('fri', 'Friday'),
+        ('sat', 'Saturday'),
+    ]
+
     days = forms.MultipleChoiceField(
-        choices=DAYS_OF_WEEK,
+        choices=DAY_CHOICES,
         widget=forms.CheckboxSelectMultiple,
-        label="Days to Run"
+        required=True,
+        label="Days"
+    )
+
+    start_time = forms.TimeField(
+        label="Start Time",
+        widget=forms.TimeInput(
+            format='%H:%M',
+            attrs={
+                'type': 'time',
+                'class': 'clean-time-input'
+            }
+        ),
+        input_formats=['%H:%M', '%H:%M:%S']
+    )
+
+    end_time = forms.TimeField(
+        label="End Time",
+        widget=forms.TimeInput(
+            format='%H:%M',
+            attrs={
+                'type': 'time',
+                'class': 'clean-time-input'
+            }
+        ),
+        input_formats=['%H:%M', '%H:%M:%S']
     )
 
     class Meta:
         model = valve_schedule
-        fields = ['valve', 'start_time', 'end_time', 'days']
-        widgets = {
-            'start_time': forms.TimeInput(attrs={'type': 'time', 'style': 'width: 130px;'}),
-            'end_time': forms.TimeInput(attrs={'type': 'time', 'style': 'width: 130px;'}),
+        fields = [
+            'valve',
+            'start_time',
+            'end_time',
+            'days',
+        ]
+
+        labels = {
+            'valve': 'Select Valve',
+            'start_time': 'Start Time',
+            'end_time': 'End Time',
+            'days': 'Days',
         }
 
 class ValveRegistrationForm(forms.ModelForm):

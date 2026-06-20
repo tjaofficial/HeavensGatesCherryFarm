@@ -14,21 +14,6 @@
             </a>
         </div>
 
-        <button 
-            id="menu" 
-            class="menu" 
-            type="button" 
-            aria-label="Open navigation menu"
-            aria-expanded="false"
-        >
-            <span class="menu-text">Menu</span>
-            <span class="menu-bars">
-                <span></span>
-                <span></span>
-                <span></span>
-            </span>
-        </button>
-
         <nav id="mainNav" class="navCont" aria-label="Main navigation">
             <ul class="main-nav">
                 <li class="wood-button-gap">
@@ -42,10 +27,6 @@
                 <li class="wood-button-gap">
                     <a class="wood-button" href="{% url 'announcements' %}">Announcements</a>
                 </li>
-
-                {% comment %} <li class="wood-button-gap">
-                    <a class="wood-button" href="#">What's Fresh</a>
-                </li> {% endcomment %}
 
                 <li class="wood-button-gap">
                     <a class="wood-button youtube-button" href="https://www.youtube.com/channel/UCEq7svzVL36E3hsai-jmF_g" target="_blank" rel="noopener">
@@ -65,8 +46,32 @@
                 <li class="wood-button-gap">
                     <a class="wood-button" href="{% url 'login' %}">TreeSpace</a>
                 </li>
+                <li class="wood-button-gap">
+                    <a href="{% url 'cart' %}" class="wood-button nav-cart-button" aria-label="View cart">
+                        <span class="cart-icon">🛒</span>
+                        <span class="cart-text">Cart</span>
+                        <span id="cartCounter" class="cart-counter">{{ global_cart_count|default:0 }}</span>
+                    </a>
+                </li>
             </ul>
         </nav>
+
+        <div class="header-actions">
+            <button 
+                id="menu" 
+                class="menu" 
+                type="button" 
+                aria-label="Open navigation menu"
+                aria-expanded="false"
+            >
+                <span class="menu-text">Menu</span>
+                <span class="menu-bars">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </span>
+            </button>
+        </div>
 
     </div>
 </header>

@@ -1,4 +1,5 @@
-<a href="{% url 'cart' %}" class="floating-cart-button" aria-label="View cart">
+<a href="{% url 'cart' %}" class="wood-button header-cart-button" aria-label="View cart">
     <span class="cart-icon">🛒</span>
-    <span id="cartCounter" class="cart-counter">{{ global_cart_count }}</span>
+    <span class="cart-text">Cart</span>
+    <span id="cartCounter" class="cart-counter">{{ global_cart_count|default:0 }}</span>
 </a>

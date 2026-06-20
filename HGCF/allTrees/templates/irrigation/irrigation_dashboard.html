@@ -1,234 +1,516 @@
 {% extends "mainLayout.html" %}
 {% load static %}
+
 {% block extra_head %}
-	<link href="{% static 'style/irrigation_dashboard.css' %}" rel="stylesheet">
-	<link href="{% static 'style/manual_valve_control.css' %}" rel="stylesheet">
+<link href="{% static 'style/irrigation_v2.css' %}" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
 {% endblock %}
+
 {% block list %}
-	<div class="card" style="padding: 35px; min-width: 496px; margin: 27px; margin-top: 110px;">
-		<button class="emergency-btn" title="Emergency Shutoff" onclick="shutOffAll()">
-			<span style="font-size: 20px;font-weight: bold;display: none;">E-STOP ALL VALVES</span>
-		</button>
-		<header>
-			<h2 style="margin-bottom: 15px;">Irrigation Control Dashboard</h2>
-		</header>
-		<section class="dashboard">
-			<div class="irrigation-dash-card schedule-card">
-				<h2>Today's Schedule</h2>
-				<section id="schedule-list">
-					No scheduled runs yet.
-				</section>
-				<section>
-					<a href="{% url 'irrigation_timer' %}">+ Add Schedule</a>
-				</section>
-			</div>
 
-			<div id="valve-container" class="irrigation-dash-card valve-manual">
-				<h2>Manual Valve Control</h2>
-				<div id="indicators">
-					<!-- Populated via JS -->
-				</div>
-				<a href="{% url 'add_valve' %}">add valve</a>
-			</div>
-			<script>
-				document.addEventListener("DOMContentLoaded", function () {
-					const REFRESH_INTERVAL = 5000; // milliseconds
+<div class="irrigation-page">
 
-					// Fetch and render valves on load and after toggle
-					function refreshValves() {
-						fetchValveStatuses(updateOnly = true);
-					}
+    <div class="irrigation-topbar">
+        <div>
+            <div class="farm-breadcrumbs">
+                <a href="{% url 'farm_map' %}">TreeSpace</a>
+                <span>›</span>
+                <span>Irrigation</span>
+            </div>
 
-					fetchValveStatuses();
-					const intervalId = setInterval(refreshValves, REFRESH_INTERVAL);
+            <h1>Irrigation Control Dashboard</h1>
+            <p class="irrigation-subtitle">
+                Monitor valves, schedules, pressure, and manual controls.
+            </p>
+        </div>
 
-					function fetchValveStatuses(updateOnly = false) {
-						fetch("/irrigation/dashboard/valve-statuses/")
-						.then(resp => resp.json())
-						.then(data => {
-							if (data.status === "success") {
-								renderValves(data.valves, updateOnly);
-							} else {
-								console.error("Error fetching valves:", data.message);
-							}
-						})
-						.catch(console.error);
-					}
+        <div class="irrigation-actions">
+            <a href="{% url 'irrigation_timer' %}" class="primary-btn">
+                <i data-lucide="calendar-plus"></i>
+                Add Schedule
+            </a>
 
-					function renderValves(valves, updateOnly) {
-						const container = document.getElementById("indicators");
-						if (!updateOnly) container.innerHTML = "";
+            <a href="{% url 'add_valve' %}" class="outline-btn">
+                <i data-lucide="plus"></i>
+                Add Valve
+            </a>
 
-						Object.entries(valves).forEach(([deviceId, valve]) => {
-							const isOn = valve.status === true || valve.status === "on";
-							const lightColor = isOn ? "green" : "red";
-							const buttonText = isOn ? "Turn Off" : "Turn On";
-							const lightClass = isOn ? "light on" : "light off";
-
-							if (updateOnly) {
-								const wrapper = container.querySelector(`[data-device-id="${deviceId}"]`);
-								if (wrapper) {
-									wrapper.querySelector(".light").style.backgroundColor = lightColor;
-									wrapper.querySelector(".light").className = lightClass;
-									wrapper.querySelector(".valve-toggle-btn").innerText = buttonText;
-									return;
-								}
-							}
-
-							// initial render
-							const indicator = document.createElement("div");
-							indicator.className = "valve-indicator";
-							indicator.setAttribute("data-device-id", deviceId);
-							indicator.innerHTML = `
-								<span class="${lightClass}" style="background-color: ${lightColor};"></span>
-								<span class="valve-label">${valve.area_name} (${valve.name})</span>
-								<button class="valve-toggle-btn">${buttonText}</button>
-							`;
-							container.appendChild(indicator);
-
-							indicator.querySelector(".valve-toggle-btn").addEventListener("click", onToggleClick);
-						});
-					}
-
-					function onToggleClick(evt) {
-						const btn = evt.currentTarget;
-						const deviceId = btn.parentElement.getAttribute("data-device-id");
-						const turnOn = btn.innerText === "Turn On";
-						console.log(turnOn)
-						btn.disabled = true;
-						btn.innerText = turnOn ? "Turning On..." : "Turning Off...";
-
-						fetch("/irrigation/dashboard/toggle-valve/", {
-							method: "POST",
-							headers: {
-								"Content-Type": "application/json",
-								"X-CSRFToken": getCookie("csrftoken")
-							},
-							body: JSON.stringify({ device_id: deviceId, turn_on: turnOn })
-						})
-							.then(resp => resp.json())
-							.then(res => {
-								if (res.status !== "success") {
-									alert("Error: " + res.message);
-								}
-							})
-							.catch(console.error)
-							.finally(() => {
-								btn.disabled = false;
-								fetchValveStatuses(updateOnly = true);
-							});
-					}
-
-					function getCookie(name) {
-						let value = null;
-						const ca = document.cookie.split(';');
-						for (let c of ca) {
-							c = c.trim();
-							if (c.startsWith(name + '=')) {
-								value = decodeURIComponent(c.slice(name.length + 1));
-								break;
-							}
-						}
-						return value;
-					}
-				});
-			</script>
+            <button type="button" class="danger-btn" id="emergencyShutoffBtn">
+                <i data-lucide="octagon-alert"></i>
+                E-Stop
+            </button>
+        </div>
+    </div>
 
 
+    <section class="irrigation-summary-grid">
 
-			<div class="irrigation-dash-card">
-				<h2>Valve Zone Status</h2>
-				<table class="zone-table">
-					<thead>
-						<tr>
-							<th>Area</th>
-							<th>Row</th>
-							<th>Front/Back</th>
-							<th>Status</th>
-						</tr>
-					</thead>
-					<tbody id="zone-status-table">
-						<!-- JS Populated -->
-					</tbody>
-				</table>
-			</div>
-			<div class="irrigation-dash-card">
-				<h2>Pressure Sensor</h2>
-				<p><strong>Current Pressure:</strong> <span id="pressure-readout">0 psi</span></p>
-			</div>
-		</section>
+        <div class="irrigation-summary-card">
+            <span class="irrigation-summary-icon water">
+                <i data-lucide="droplets"></i>
+            </span>
 
-		<script>
-			const zones = [
-				{ area: 'Area 1', row: 'Row 1', side: 'Front', active: true },
-				{ area: 'Area 1', row: 'Row 1', side: 'Back', active: false },
-				{ area: 'Area 2', row: 'Row 3', side: 'Front', active: false },
-				{ area: 'Area 2', row: 'Row 4', side: 'Back', active: true },
-			];
-			function fetchValveStatuses(updateOnly = false) {
-				fetch("/irrigation/dashboard/valve-statuses/")
-				.then(resp => resp.json())
-				.then(data => {
-					if (data.status === "success") {
-						renderValves(data.valves, updateOnly);
-					} else {
-						console.error("Error fetching valves:", data.message);
-					}
-				})
-				.catch(console.error);
-			}
-			function fetchSchedule() {
-				fetch('/irrigation/schedules/')
-					.then(res => res.json())
-					.then(data => {
-						const list = document.getElementById("schedule-list");
-						list.innerHTML = "";
-						data.schedules.forEach(s => {
-							const li = document.createElement("li");
-							li.innerHTML = `<strong>${s.valve}:</strong> ${s.start} – ${s.end} (${s.days.toUpperCase()})`;
-							list.appendChild(li);
-						});
-					});
-			}
-			fetchSchedule();
+            <div>
+                <span class="summary-label">Valves Online</span>
+                <strong id="valvesOnlineCount">—</strong>
+            </div>
+        </div>
 
-			function renderZoneStatus() {
-			const tbody = document.getElementById('zone-status-table');
-			tbody.innerHTML = '';
-			zones.forEach((zone) => {
-				const tr = document.createElement('tr');
-				tr.innerHTML = `
-				<td>${zone.area}</td>
-				<td>${zone.row}</td>
-				<td>${zone.side}</td>
-				<td>
-					<span class="light ${zone.active ? 'green' : 'red'}"></span>
-				</td>
-				`;
-				tbody.appendChild(tr);
-			});
-			}
+        <div class="irrigation-summary-card">
+            <span class="irrigation-summary-icon">
+                <i data-lucide="calendar-clock"></i>
+            </span>
 
-			renderZoneStatus();
+            <div>
+                <span class="summary-label">Today’s Runs</span>
+                <strong id="todayRunsCount">—</strong>
+            </div>
+        </div>
 
-			document.querySelector('.emergency-btn').addEventListener('mouseover', function() {
-				document.querySelector('.emergency-btn span').style.display = 'block';
-			});
-			document.querySelector('.emergency-btn').addEventListener('mouseout', function() {
-				document.querySelector('.emergency-btn span').style.display = 'none';
-			});
-			function shutOffAll() {
-				if (confirm("Are you sure you want to shut off all valves?")) {
-					fetch('/irrigation/emergency-shutoff/')
-					.then(() => fetchValveStatuses());
+        <div class="irrigation-summary-card">
+            <span class="irrigation-summary-icon gold">
+                <i data-lucide="hand"></i>
+            </span>
+
+            <div>
+                <span class="summary-label">Manual Mode</span>
+                <strong id="manualModeStatus">Ready</strong>
+            </div>
+        </div>
+
+        <div class="irrigation-summary-card">
+            <span class="irrigation-summary-icon danger">
+                <i data-lucide="gauge"></i>
+            </span>
+
+            <div>
+                <span class="summary-label">Pressure</span>
+                <strong id="pressureSummary">0 psi</strong>
+            </div>
+        </div>
+
+    </section>
+
+
+    <section class="irrigation-dashboard-grid">
+
+        <div class="irrigation-card large">
+            <div class="irrigation-card-header">
+                <div>
+                    <h2>
+                        <i data-lucide="calendar-days"></i>
+                        Today's Schedule
+                    </h2>
+                    <p>Scheduled valve runs for today.</p>
+                </div>
+
+                <a href="{% url 'irrigation_timer' %}" class="outline-btn">
+                    <i data-lucide="plus"></i>
+                    Add
+                </a>
+            </div>
+
+            <div id="schedule-list" class="schedule-list">
+                <div class="empty-state">Loading schedule...</div>
+            </div>
+        </div>
+
+
+        <div class="irrigation-card large">
+            <div class="irrigation-card-header">
+                <div>
+                    <h2>
+                        <i data-lucide="toggle-left"></i>
+                        Manual Valve Control
+                    </h2>
+                    <p>Turn zones on or off manually.</p>
+                </div>
+
+                <a href="{% url 'add_valve' %}" class="outline-btn">
+                    <i data-lucide="plus"></i>
+                    Add
+                </a>
+            </div>
+
+            <div id="indicators" class="valve-list">
+                <div class="empty-state">Loading valves...</div>
+            </div>
+        </div>
+
+
+        <div class="irrigation-card">
+            <div class="irrigation-card-header">
+                <div>
+                    <h2>
+                        <i data-lucide="rows-3"></i>
+                        Valve Zone Status
+                    </h2>
+                    <p>Current configured zones.</p>
+                </div>
+            </div>
+
+            <table class="zone-table">
+                <thead>
+                    <tr>
+                        <th>Area</th>
+                        <th>Row</th>
+                        <th>Side</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody id="zone-status-table"></tbody>
+            </table>
+        </div>
+
+
+        <div class="irrigation-card">
+            <div class="irrigation-card-header">
+                <div>
+                    <h2>
+                        <i data-lucide="gauge"></i>
+                        Pressure Sensor
+                    </h2>
+                    <p>Live pressure reading.</p>
+                </div>
+            </div>
+
+            <div class="pressure-panel">
+                <span class="irrigation-summary-icon water">
+                    <i data-lucide="activity"></i>
+                </span>
+
+                <div>
+                    <div class="pressure-value" id="pressure-readout">0 psi</div>
+                    <div class="pressure-note">Sensor simulation until live sensor is connected.</div>
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+</div>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    if (window.lucide) {
+        lucide.createIcons();
+    }
+
+    const REFRESH_INTERVAL = 5000;
+
+    const zones = [
+        { area: 'Area 1', row: 'Row 1', side: 'Front', active: true },
+        { area: 'Area 1', row: 'Row 1', side: 'Back', active: false },
+        { area: 'Area 2', row: 'Row 3', side: 'Front', active: false },
+        { area: 'Area 2', row: 'Row 4', side: 'Back', active: true },
+    ];
+
+    fetchValveStatuses();
+    fetchSchedule();
+    renderZoneStatus();
+
+    setInterval(fetchValveStatuses, REFRESH_INTERVAL);
+    setInterval(updatePressureSimulation, 3000);
+
+    const emergencyBtn = document.getElementById("emergencyShutoffBtn");
+
+    if (emergencyBtn) {
+        emergencyBtn.addEventListener("click", shutOffAll);
+    }
+
+    function fetchValveStatuses() {
+        fetch("/irrigation/dashboard/valve-statuses/")
+            .then(resp => resp.json())
+            .then(data => {
+                if (data.status === "success") {
+                    renderValves(data.valves);
+                } else {
+                    console.error("Error fetching valves:", data.message);
+                    document.getElementById("indicators").innerHTML = `
+                        <div class="empty-state">Could not load valves.</div>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error(error);
+                document.getElementById("indicators").innerHTML = `
+                    <div class="empty-state">Could not load valves.</div>
+                `;
+            });
+    }
+
+    function renderValves(valves) {
+        const container = document.getElementById("indicators");
+        container.innerHTML = "";
+
+        const entries = Object.entries(valves || {});
+        let onlineCount = 0;
+
+        if (entries.length === 0) {
+            container.innerHTML = `<div class="empty-state">No valves registered yet.</div>`;
+            document.getElementById("valvesOnlineCount").textContent = "0";
+            return;
+        }
+
+        entries.forEach(([deviceId, valve]) => {
+            const isOn = valve.status === true || valve.status === "on";
+            const buttonText = isOn ? "Turn Off" : "Turn On";
+            const lightClass = isOn ? "valve-light on" : "valve-light off";
+
+            if (isOn) {
+                onlineCount += 1;
+            }
+
+            const indicator = document.createElement("div");
+            indicator.className = "valve-indicator";
+            indicator.setAttribute("data-device-id", deviceId);
+
+            indicator.innerHTML = `
+                <span class="${lightClass}"></span>
+
+                <div class="valve-label">
+                    <strong>${valve.area_name || "Unknown Area"}</strong>
+                    <span>${valve.name || "Valve"} · ${deviceId}</span>
+                </div>
+
+                <button class="valve-toggle-btn ${isOn ? "turn-off" : ""}">
+                    ${buttonText}
+                </button>
+            `;
+
+            container.appendChild(indicator);
+
+            indicator.querySelector(".valve-toggle-btn").addEventListener("click", onToggleClick);
+        });
+
+        document.getElementById("valvesOnlineCount").textContent = `${onlineCount} / ${entries.length}`;
+    }
+
+    function onToggleClick(evt) {
+        const btn = evt.currentTarget;
+        const wrapper = btn.closest(".valve-indicator");
+        const deviceId = wrapper.getAttribute("data-device-id");
+        const turnOn = btn.innerText.trim() === "Turn On";
+
+        btn.disabled = true;
+        btn.innerText = turnOn ? "Turning On..." : "Turning Off...";
+
+        fetch("/irrigation/dashboard/toggle-valve/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": getCookie("csrftoken")
+            },
+            body: JSON.stringify({ device_id: deviceId, turn_on: turnOn })
+        })
+            .then(resp => resp.json())
+            .then(res => {
+				if (res.status === "warning") {
+					showIrrigationAlert(res.message, "warning");
+					return;
 				}
-			}
 
-			// Simulate pressure sensor
-			setInterval(() => {
-			const pressure = (Math.random() * 30 + 10).toFixed(2);
-			document.getElementById('pressure-readout').textContent = `${pressure} psi`;
-			}, 3000);
-		</script>
-	</div>
+				if (res.status !== "success") {
+					showIrrigationAlert(res.message || "Something went wrong.", "error");
+					return;
+				}
+
+				if (res.message) {
+					showIrrigationAlert(res.message, "success");
+				}
+			})
+            .catch(error => {
+                console.error(error);
+                alert("Could not toggle valve.");
+            })
+            .finally(() => {
+                btn.disabled = false;
+                fetchValveStatuses();
+            });
+    }
+
+    function fetchSchedule() {
+		fetch('/irrigation/schedules/')
+			.then(res => res.json())
+			.then(data => {
+				const list = document.getElementById("schedule-list");
+				const schedules = data.schedules || [];
+
+				list.innerHTML = "";
+				document.getElementById("todayRunsCount").textContent = schedules.length;
+
+				if (schedules.length === 0) {
+					list.innerHTML = `<div class="empty-state">No scheduled runs today.</div>`;
+					return;
+				}
+
+				schedules.forEach(s => {
+					const item = document.createElement("div");
+					item.className = "schedule-item with-actions";
+
+					item.innerHTML = `
+						<span class="schedule-icon">
+							<i data-lucide="clock"></i>
+						</span>
+
+						<div class="schedule-main">
+							<strong>${s.valve}</strong>
+							<span>${s.start} – ${s.end} · ${String(s.days).toUpperCase()}</span>
+						</div>
+
+						<div class="schedule-actions">
+							<a href="${s.edit_url}" class="mini-action-btn">
+								<i data-lucide="pencil"></i>
+								Edit
+							</a>
+
+							<button 
+								type="button" 
+								class="mini-danger-btn"
+								data-delete-schedule-url="${s.delete_url}"
+								data-schedule-name="${s.valve}"
+							>
+								<i data-lucide="trash-2"></i>
+								Delete
+							</button>
+						</div>
+					`;
+
+					list.appendChild(item);
+				});
+
+				if (window.lucide) {
+					lucide.createIcons();
+				}
+			})
+			.catch(error => {
+				console.error(error);
+				document.getElementById("schedule-list").innerHTML = `
+					<div class="empty-state">Could not load schedule.</div>
+				`;
+			});
+	}
+
+    function renderZoneStatus() {
+        const tbody = document.getElementById('zone-status-table');
+        tbody.innerHTML = '';
+
+        zones.forEach((zone) => {
+            const tr = document.createElement('tr');
+
+            tr.innerHTML = `
+                <td>${zone.area}</td>
+                <td>${zone.row}</td>
+                <td>${zone.side}</td>
+                <td>
+                    <span class="valve-light ${zone.active ? 'on' : 'off'}"></span>
+                </td>
+            `;
+
+            tbody.appendChild(tr);
+        });
+    }
+
+    function updatePressureSimulation() {
+        const pressure = (Math.random() * 30 + 10).toFixed(2);
+
+        document.getElementById('pressure-readout').textContent = `${pressure} psi`;
+        document.getElementById('pressureSummary').textContent = `${pressure} psi`;
+    }
+
+    function shutOffAll() {
+        if (!confirm("Are you sure you want to shut off all valves?")) {
+            return;
+        }
+
+        fetch('/irrigation/emergency-shutoff/', {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": getCookie("csrftoken")
+            }
+        })
+            .then(() => fetchValveStatuses())
+            .catch(error => {
+                console.error(error);
+                alert("Could not run emergency shutoff.");
+            });
+    }
+
+    function getCookie(name) {
+        let value = null;
+        const cookies = document.cookie.split(';');
+
+        for (let cookie of cookies) {
+            cookie = cookie.trim();
+
+            if (cookie.startsWith(name + '=')) {
+                value = decodeURIComponent(cookie.slice(name.length + 1));
+                break;
+            }
+        }
+
+        return value;
+    }
+
+	document.addEventListener("click", function(event) {
+		const deleteButton = event.target.closest("[data-delete-schedule-url]");
+
+		if (!deleteButton) {
+			return;
+		}
+
+		const deleteUrl = deleteButton.dataset.deleteScheduleUrl;
+		const scheduleName = deleteButton.dataset.scheduleName || "this schedule";
+
+		if (!confirm(`Delete irrigation schedule for ${scheduleName}?`)) {
+			return;
+		}
+
+		deleteButton.disabled = true;
+		deleteButton.innerText = "Deleting...";
+
+		fetch(deleteUrl, {
+			method: "POST",
+			headers: {
+				"X-CSRFToken": getCookie("csrftoken")
+			}
+		})
+			.then(resp => resp.json())
+			.then(data => {
+				if (data.status !== "success") {
+					alert(data.message || "Could not delete schedule.");
+					return;
+				}
+
+				fetchSchedule();
+			})
+			.catch(error => {
+				console.error(error);
+				alert("Could not delete schedule.");
+			});
+	});
+
+	function showIrrigationAlert(message, type = "info") {
+		let alertBox = document.getElementById("irrigationAlertBox");
+
+		if (!alertBox) {
+			alertBox = document.createElement("div");
+			alertBox.id = "irrigationAlertBox";
+			alertBox.className = "irrigation-alert-box";
+			document.querySelector(".irrigation-page").prepend(alertBox);
+		}
+
+		alertBox.className = `irrigation-alert-box ${type}`;
+		alertBox.innerText = message;
+		alertBox.style.display = "block";
+
+		setTimeout(() => {
+			alertBox.style.display = "none";
+		}, 12000);
+	}
+});
+</script>
+
 {% endblock %}

@@ -66,11 +66,12 @@
         {% block extra_head %}{% endblock %}
     </head>
     <body>
-        <header>
-            {% include "components/header.html" %}
-        </header>
-        {% include "components/cart_button.html" %}
-        {% if sideBar %}{% include "components/sideBar.html" %}{% endif %}
+        {% include "components/header.html" %}
+
+        {% if sideBar %}
+            {% include "components/sideBar.html" %}
+        {% endif %}
+
         <main class="{% if sideBar %}with-sidebar{% endif %}">
             {% block list %}{% endblock %}
         </main>
