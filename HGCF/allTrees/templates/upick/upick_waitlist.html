@@ -1,0 +1,245 @@
+{% extends "mainLayout.html" %}
+{% load static %}
+
+{% block list %}
+<link href="{% static 'style/treespace_upick.css' %}" rel="stylesheet" />
+<script defer src="{% static 'script/treespace_upick.js' %}"></script>
+
+<div class="treespace-upick-page">
+    {% if messages %}
+        <div class="admin-message-stack">
+            {% for message in messages %}
+                <div class="admin-message admin-message-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    <section class="upick-admin-header">
+        <div>
+            <p class="admin-kicker">TreeSpace</p>
+            <h1>U-Pick Waiting List</h1>
+            <p>View guests waiting for U-Pick openings and convert them into reservations.</p>
+        </div>
+
+        <div class="admin-header-actions">
+            <a href="{% url 'treespace_upick_dashboard' %}" class="admin-btn secondary">U-Pick Dashboard</a>
+            <a href="{% url 'upick_landing' %}" class="admin-btn secondary">Public Page</a>
+            <a href="{% url 'treespace_upick_setup' %}" class="admin-btn secondary">U-Pick Setup</a>
+        </div>
+    </section>
+
+    <section class="event-picker-card">
+        <form method="GET" class="event-picker-form">
+            <label for="statusFilter">Filter Waiting List</label>
+
+            <select name="status" id="statusFilter" onchange="this.form.submit()">
+                <option value="waiting" {% if status_filter == "waiting" %}selected{% endif %}>Waiting</option>
+                <option value="converted" {% if status_filter == "converted" %}selected{% endif %}>Converted</option>
+                <option value="removed" {% if status_filter == "removed" %}selected{% endif %}>Removed</option>
+                <option value="" {% if not status_filter %}selected{% endif %}>All</option>
+            </select>
+        </form>
+    </section>
+
+    <section class="reservation-admin-card">
+        <div class="section-title-row">
+            <div>
+                <p>Waiting List</p>
+                <h2>Guest Requests</h2>
+            </div>
+        </div>
+
+        <div class="reservation-table-wrap">
+            {% if waitlist_entries %}
+                <table class="reservation-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Guest</th>
+                            <th>Event</th>
+                            <th>Preference</th>
+                            <th>Contact</th>
+                            <th>People</th>
+                            <th>Quarts</th>
+                            <th>Status</th>
+                            <th>Joined</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for entry in waitlist_entries %}
+                            <tr>
+                                <td>
+                                    <strong>{{ forloop.counter }}</strong>
+                                </td>
+
+                                <td>
+                                    <strong>{{ entry.full_name }}</strong>
+
+                                    {% if entry.notes %}
+                                        <span class="muted">{{ entry.notes|truncatechars:70 }}</span>
+                                    {% else %}
+                                        <span class="muted">No note</span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if entry.event %}
+                                        <span>{{ entry.event.date|date:"M j, Y" }}</span>
+                                        <span class="muted">{{ entry.event.title }}</span>
+                                    {% else %}
+                                        <span>General Waitlist</span>
+                                        <span class="muted">No event selected</span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if entry.preferred_type == "day" %}
+                                        <span>Prefers {{ entry.preferred_date|date:"M j, Y" }}</span>
+                                    {% else %}
+                                        <span>Any available opening</span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    <span>{{ entry.email }}</span>
+                                    <span class="muted">{{ entry.phone }}</span>
+                                </td>
+
+                                <td>
+                                    <strong>{{ entry.people_count }}</strong>
+                                </td>
+
+                                <td>
+                                    {% if entry.estimated_quarts %}
+                                        <strong>{{ entry.estimated_quarts }}</strong>
+                                    {% else %}
+                                        <span class="muted">—</span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    <span class="status-pill status-{{ entry.status }}">
+                                        {{ entry.get_status_display }}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <span>{{ entry.created_at|date:"M j, Y" }}</span>
+                                    <span class="muted">{{ entry.created_at|date:"g:i A" }}</span>
+                                </td>
+
+                                <td>
+                                    <div class="action-menu">
+                                        {% if entry.status == "waiting" %}
+                                            <button
+                                                type="button"
+                                                class="action-btn good"
+                                                data-entry-name="{{ entry.full_name|escapejs }}"
+                                                data-convert-url="{% url 'treespace_upick_convert_waitlist_entry' entry.id %}"
+                                                onclick="openWaitlistConvertModal(this)"
+                                            >
+                                                Add Reservation
+                                            </button>
+
+                                            <button
+                                                type="button"
+                                                class="action-btn danger"
+                                                onclick="openWaitlistRemoveModal('{{ entry.id }}', '{{ entry.full_name|escapejs }}')"
+                                            >
+                                                Remove
+                                            </button>
+                                        {% elif entry.status == "converted" %}
+                                            {% if entry.converted_reservation %}
+                                                <span class="muted">
+                                                    Reservation #{{ entry.converted_reservation.id }}
+                                                </span>
+                                            {% else %}
+                                                <span class="muted">Converted</span>
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="muted">Removed</span>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="empty-panel">
+                    <h3>No waitlist entries found.</h3>
+                    <p>Guests will appear here after joining the waiting list from the public U-Pick page.</p>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <div id="waitlistConvertModal" class="admin-modal" style="display:none;">
+        <div class="admin-modal-card">
+            <h2>Add Reservation</h2>
+            <p id="waitlistConvertName"></p>
+
+            <form id="waitlistConvertForm" method="POST" action="">
+                {% csrf_token %}
+
+                <div class="field-group">
+                    <label>Select Time Slot</label>
+
+                    <select name="time_slot_id" required>
+                        <option value="">Choose an available time</option>
+
+                        {% for slot in available_time_slots %}
+                            <option value="{{ slot.id }}">
+                                {{ slot.event.date|date:"M j, Y" }} —
+                                {{ slot.get_slot_label }} —
+                                {{ slot.spots_remaining }} spots left
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                {% if not available_time_slots %}
+                    <p class="muted">
+                        No available time slots right now. Create or open a U-Pick time slot first.
+                    </p>
+                {% endif %}
+
+                <div class="action-menu">
+                    <button type="submit" class="action-btn good">
+                        Create Reservation
+                    </button>
+
+                    <button type="button" class="action-btn neutral" onclick="closeWaitlistModals()">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="waitlistRemoveModal" class="admin-modal" style="display:none;">
+        <div class="admin-modal-card">
+            <h2>Remove From Waitlist</h2>
+            <p id="waitlistRemoveName"></p>
+
+            <form id="waitlistRemoveForm" method="POST">
+                {% csrf_token %}
+
+                <div class="field-group">
+                    <label>Reason</label>
+                    <textarea name="removed_reason" rows="3" placeholder="Customer cancelled, could not reach, no longer available, etc."></textarea>
+                </div>
+
+                <div class="action-menu">
+                    <button type="submit" class="action-btn danger">Remove</button>
+                    <button type="button" class="action-btn neutral" onclick="closeWaitlistModals()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

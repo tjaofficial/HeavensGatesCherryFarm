@@ -1,0 +1,118 @@
+{% extends "mainLayout.html" %}
+{% load static %}
+
+{% block list %}
+<link href="{% static 'style/treespace_upick.css' %}" rel="stylesheet" />
+
+<div class="treespace-upick-page">
+
+    <section class="upick-admin-header">
+        <div>
+            <p class="admin-kicker">TreeSpace</p>
+            <h1>Email Updates</h1>
+            <p>Send farm updates to subscribers, reservation guests, and waiting list guests.</p>
+        </div>
+
+        <div class="admin-header-actions">
+            <a href="{% url 'treespace_upick_dashboard' %}" class="admin-btn secondary">U-Pick Dashboard</a>
+            <a href="{% url 'treespace_upick_waitlist' %}" class="admin-btn secondary">Waiting List</a>
+            <a href="{% url 'upick_landing' %}" class="admin-btn secondary">Public Page</a>
+        </div>
+    </section>
+
+    {% if messages %}
+        <div class="admin-message-stack">
+            {% for message in messages %}
+                <div class="admin-message admin-message-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <section class="reservation-admin-card">
+        <div class="section-title-row">
+            <div>
+                <p>Farm Email</p>
+                <h2>Create Email Update</h2>
+            </div>
+        </div>
+
+        <form method="POST" class="email-update-form">
+            {% csrf_token %}
+
+            <div class="field-group">
+                <label for="subject">Subject</label>
+                <input
+                    type="text"
+                    id="subject"
+                    name="subject"
+                    value="{{ subject|default:'' }}"
+                    placeholder="Example: U-Pick spots are available again!"
+                    required
+                >
+            </div>
+
+            <div class="field-group">
+                <label for="message">Message</label>
+                <textarea
+                    id="message"
+                    name="message"
+                    rows="10"
+                    placeholder="Write your update here..."
+                    required
+                >{{ message|default:'' }}</textarea>
+            </div>
+
+            <div class="email-audience-card">
+                <h3>Send To</h3>
+
+                <label class="email-check-row">
+                    <input
+                        type="checkbox"
+                        name="include_subscribers"
+                        {% if include_subscribers %}checked{% endif %}
+                    >
+                    <span>Email subscribers</span>
+                </label>
+
+                <label class="email-check-row">
+                    <input
+                        type="checkbox"
+                        name="include_reservations"
+                        {% if include_reservations %}checked{% endif %}
+                    >
+                    <span>U-Pick reservation emails</span>
+                </label>
+
+                <label class="email-check-row">
+                    <input
+                        type="checkbox"
+                        name="include_waitlist"
+                        {% if include_waitlist %}checked{% endif %}
+                    >
+                    <span>Waiting list emails</span>
+                </label>
+            </div>
+
+            {% if preview_count != None %}
+                <div class="empty-panel">
+                    <h3>{{ preview_count }} recipient(s)</h3>
+                    <p>This count removes duplicate email addresses.</p>
+                </div>
+            {% endif %}
+
+            <div class="action-menu">
+                <button type="submit" name="action" value="preview" class="action-btn neutral">
+                    Preview Recipient Count
+                </button>
+
+                <button type="submit" name="action" value="send" class="action-btn good">
+                    Send Email
+                </button>
+            </div>
+        </form>
+    </section>
+
+</div>
+{% endblock %}

@@ -60,6 +60,12 @@
                         {{ form.party_size.errors }}
                     </div>
 
+                    <div class="field-group">
+                        <label>Estimated Quarts</label>
+                        {{ form.estimated_quarts }}
+                        {{ form.estimated_quarts.errors }}
+                    </div>
+
                     <div class="field-group wide">
                         <label>Note</label>
                         {{ form.customer_note }}
@@ -97,6 +103,10 @@
             <div class="summary-row">
                 <span>Spots Left</span>
                 <strong>{{ time_slot.spots_remaining }}</strong>
+            </div>
+
+            <div class="summary-note">
+                Estimated quarts help us plan field flow and crop availability. Your final amount is still based on what you pick.
             </div>
 
             <div class="summary-note">

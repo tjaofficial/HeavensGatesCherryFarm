@@ -17,6 +17,7 @@ urlpatterns = [
     path("announcements/", views.announcements_view, name="announcements"),
     path("announcements/<slug:slug>/", views.announcement_detail_view, name="announcement_detail"),
     path("treespace/announcements/", views.treespace_announcement_setup_view, name="treespace_announcement_setup"),
+    path("treespace/email-update/", views.treespace_email_update_view, name="treespace_email_update"),
 
     # ---- Irrigation ----------
     path('irrigation/dashboard', views.irrigation_dashboard, name='irrigation_dashboard'),
@@ -84,6 +85,11 @@ urlpatterns = [
     path("treespace/upick/", views.treespace_upick_dashboard_view, name="treespace_upick_dashboard"),
     path("treespace/upick/reservation/status/", views.treespace_upick_update_reservation_status, name="treespace_upick_update_reservation_status"),
     path("treespace/upick/setup/", views.treespace_upick_setup_view, name="treespace_upick_setup"),
+    path("upick/<int:event_id>/waitlist/", views.upick_join_waitlist, name="upick_join_waitlist"),
+    path("treespace/upick/waitlist/<int:entry_id>/convert/", views.treespace_upick_convert_waitlist_entry,name="treespace_upick_convert_waitlist_entry"),
+    path("treespace/upick/waitlist/<int:entry_id>/remove/", views.treespace_upick_remove_waitlist_entry, name="treespace_upick_remove_waitlist_entry"),
+    path("upick/waitlist/",views.upick_general_waitlist_view,name="upick_general_waitlist"),
+    path("treespace/upick/waitlist/",views.treespace_upick_waitlist_view,name="treespace_upick_waitlist"),
 
     # ---- POS ----------
     path("pos/", views.pos_terminal_page, name="pos_terminal_page"),

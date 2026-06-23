@@ -123,3 +123,48 @@ function setupReservationFilters() {
 document.addEventListener("DOMContentLoaded", function () {
     setupReservationFilters();
 });
+
+function openWaitlistConvertModal(button) {
+    const modal = document.getElementById("waitlistConvertModal");
+    const form = document.getElementById("waitlistConvertForm");
+    const nameDisplay = document.getElementById("waitlistConvertName");
+
+    if (!modal || !form || !nameDisplay) {
+        console.error("Waitlist convert modal elements missing.");
+        return;
+    }
+
+    const entryName = button.dataset.entryName;
+    const convertUrl = button.dataset.convertUrl;
+
+    if (!convertUrl) {
+        console.error("Missing convert URL on waitlist button.");
+        return;
+    }
+
+    nameDisplay.textContent = `Customer: ${entryName}`;
+    form.action = convertUrl;
+
+    modal.style.display = "flex";
+}
+
+function openWaitlistRemoveModal(entryId, entryName) {
+    const modal = document.getElementById("waitlistRemoveModal");
+    const form = document.getElementById("waitlistRemoveForm");
+    const nameDisplay = document.getElementById("waitlistRemoveName");
+
+    if (!modal || !form || !nameDisplay) return;
+
+    nameDisplay.textContent = `Customer: ${entryName}`;
+    form.action = `/treespace/upick/waitlist/${entryId}/remove/`;
+
+    modal.style.display = "flex";
+}
+
+function closeWaitlistModals() {
+    const convertModal = document.getElementById("waitlistConvertModal");
+    const removeModal = document.getElementById("waitlistRemoveModal");
+
+    if (convertModal) convertModal.style.display = "none";
+    if (removeModal) removeModal.style.display = "none";
+}

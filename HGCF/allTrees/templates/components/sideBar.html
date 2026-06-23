@@ -60,9 +60,19 @@
                 <span>U-Pick</span>
             </a>
 
+            <a href="{% url 'treespace_upick_waitlist' %}" class="sidebar-link">
+                <i data-lucide="clipboard-list"></i>
+                U-Pick Waiting List
+            </a>
+
             <a href="{% url 'treespace_announcement_setup' %}" class="sidebar-link">
                 <i data-lucide="megaphone"></i>
                 <span>News</span>
+            </a>
+
+            <a href="{% url 'treespace_email_update' %}" class="sidebar-link">
+                <i data-lucide="send"></i>
+                <span>Email Updates</span>
             </a>
         </div>
 

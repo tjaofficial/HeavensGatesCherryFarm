@@ -5,10 +5,8 @@ from django.db.models import Prefetch #type: ignore
 from django.contrib import messages #type: ignore
 from django.views.decorators.http import require_http_methods #type: ignore
 from django.contrib.auth.decorators import login_required
-
-
-from ..models import UPickEvent, UPickTimeSlot, UPickReservation
-from ..forms import UPickReservationForm
+from ..models import UPickEvent, UPickTimeSlot, UPickReservation, UPickWaitlistEntry
+from ..forms import UPickReservationForm, UPickWaitlistForm
 from ..utils import send_upick_reservation_confirmation
 
 DEFAULT_UPICK_RULES_TEXT = """Please check in when you arrive before entering the picking area.
@@ -99,12 +97,24 @@ def upick_day_view(request, event_id):
         is_active=True
     ).order_by("start_time")
 
+    available_slots = [
+        slot for slot in time_slots
+        if slot.spots_remaining() > 0
+    ]
+
+    waitlist_form = UPickWaitlistForm(initial={
+        "preferred_type": UPickWaitlistEntry.PREFERENCE_ANY,
+    })
+
     return render(request, "upick/upick_day.html", {
         "smallHeader": smallHeader,
         "noFooter": noFooter,
         "sideBar": sideBar,
         "event": event,
         "time_slots": time_slots,
+        "available_slots": available_slots,
+        "has_available_slots": len(available_slots) > 0,
+        "waitlist_form": waitlist_form,
     })
 
 @require_http_methods(["GET", "POST"])
@@ -295,4 +305,114 @@ def treespace_upick_setup_view(request):
         "sideBar": sideBar,
         "events": events,
         "default_rules_text": DEFAULT_UPICK_RULES_TEXT,
+    })
+
+@require_http_methods(["POST"])
+def upick_join_waitlist(request, event_id):
+    event = get_object_or_404(
+        UPickEvent,
+        id=event_id,
+        is_active=True,
+        is_public=True
+    )
+
+    form = UPickWaitlistForm(request.POST)
+
+    if form.is_valid():
+        waitlist_entry = form.save(commit=False)
+        waitlist_entry.event = event
+        waitlist_entry.status = UPickWaitlistEntry.STATUS_WAITING
+
+        if waitlist_entry.preferred_type == UPickWaitlistEntry.PREFERENCE_ANY:
+            waitlist_entry.preferred_date = None
+
+        waitlist_entry.save()
+
+        messages.success(
+            request,
+            "You’ve been added to the waiting list. If a spot opens up, we’ll contact you."
+        )
+
+        return redirect("upick_day", event_id=event.id)
+
+    messages.error(request, "Please check the waitlist form and try again.")
+    return redirect("upick_day", event_id=event.id)
+
+@require_http_methods(["GET", "POST"])
+def upick_general_waitlist_view(request):
+    noFooter = False
+    smallHeader = False
+    sideBar = False
+
+    if request.method == "POST":
+        form = UPickWaitlistForm(request.POST)
+
+        if form.is_valid():
+            waitlist_entry = form.save(commit=False)
+            waitlist_entry.event = None
+            waitlist_entry.status = UPickWaitlistEntry.STATUS_WAITING
+
+            if waitlist_entry.preferred_type == UPickWaitlistEntry.PREFERENCE_ANY:
+                waitlist_entry.preferred_date = None
+
+            waitlist_entry.save()
+
+            messages.success(
+                request,
+                "You’ve been added to the waiting list. We’ll contact you when U-Pick openings become available."
+            )
+
+            return redirect("upick_landing")
+    else:
+        form = UPickWaitlistForm(initial={
+            "preferred_type": UPickWaitlistEntry.PREFERENCE_ANY,
+        })
+
+    return render(request, "upick/upick_waitlist.html", {
+        "smallHeader": smallHeader,
+        "noFooter": noFooter,
+        "sideBar": sideBar,
+        "form": form,
+    })
+
+@login_required
+def treespace_upick_waitlist_view(request):
+    noFooter = True
+    smallHeader = True
+    sideBar = True
+
+    status_filter = request.GET.get("status", UPickWaitlistEntry.STATUS_WAITING)
+
+    waitlist_entries = UPickWaitlistEntry.objects.select_related(
+        "event",
+        "converted_reservation",
+        "converted_reservation__time_slot",
+        "converted_reservation__time_slot__event",
+    ).all()
+
+    if status_filter:
+        waitlist_entries = waitlist_entries.filter(status=status_filter)
+
+    waitlist_entries = waitlist_entries.order_by(
+        "status",
+        "created_at"
+    )
+
+    available_time_slots = [
+        slot for slot in UPickTimeSlot.objects.select_related("event").filter(
+            event__is_active=True,
+            event__is_public=True,
+            event__date__gte=date.today(),
+            is_active=True,
+        ).order_by("event__date", "start_time")
+        if slot.spots_remaining() > 0
+    ]
+
+    return render(request, "upick/upick_waitlist.html", {
+        "smallHeader": smallHeader,
+        "noFooter": noFooter,
+        "sideBar": sideBar,
+        "waitlist_entries": waitlist_entries,
+        "status_filter": status_filter,
+        "available_time_slots": available_time_slots,
     })

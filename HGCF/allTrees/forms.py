@@ -334,11 +334,19 @@ class UPickReservationForm(forms.ModelForm):
             "email",
             "phone",
             "party_size",
+            "estimated_quarts",
             "customer_note",
             "agreed_to_rules",
         ]
 
         widgets = {
+            "party_size": forms.NumberInput(attrs={
+                "min": 1,
+            }),
+            "estimated_quarts": forms.NumberInput(attrs={
+                "min": 0,
+                "placeholder": "Example: 4",
+            }),
             "customer_note": forms.Textarea(attrs={
                 "rows": 4,
                 "placeholder": "Anything we should know? Optional."
@@ -364,6 +372,14 @@ class UPickReservationForm(forms.ModelForm):
             raise forms.ValidationError("For groups larger than 10, please contact us directly.")
 
         return party_size
+
+    def clean_estimated_quarts(self):
+        estimated_quarts = self.cleaned_data.get("estimated_quarts")
+
+        if estimated_quarts is not None and estimated_quarts < 0:
+            raise forms.ValidationError("Estimated quarts cannot be negative.")
+
+        return estimated_quarts
 
     def clean_agreed_to_rules(self):
         agreed = self.cleaned_data.get("agreed_to_rules")
@@ -540,7 +556,43 @@ class FarmAnnouncementForm(forms.ModelForm):
             }),
         }
 
+class UPickWaitlistForm(forms.ModelForm):
+    class Meta:
+        model = UPickWaitlistEntry
+        fields = [
+            "preferred_type",
+            "preferred_date",
+            "first_name",
+            "last_name",
+            "email",
+            "phone",
+            "people_count",
+            "estimated_quarts",
+            "notes",
+        ]
 
+        widgets = {
+            "preferred_type": forms.RadioSelect,
+            "preferred_date": forms.DateInput(attrs={
+                "type": "date",
+            }),
+            "people_count": forms.NumberInput(attrs={
+                "min": 1,
+            }),
+            "estimated_quarts": forms.NumberInput(attrs={
+                "min": 0,
+                "placeholder": "Example: 4",
+            }),
+            "notes": forms.Textarea(attrs={
+                "rows": 3,
+                "placeholder": "Anything we should know?",
+            }),
+        }
 
-    
-
+        labels = {
+            "preferred_type": "Availability Preference",
+            "preferred_date": "Preferred Day",
+            "people_count": "Number of People",
+            "estimated_quarts": "Estimated Quarts",
+            "notes": "Note",
+        }

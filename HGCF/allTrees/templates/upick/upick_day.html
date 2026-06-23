@@ -53,6 +53,120 @@
             {% endfor %}
         </div>
 
+        {% if not has_available_slots %}
+            <section class="waitlist-card upick-waitlist-panel">
+                <div class="section-heading">
+                    <p>Reservations Full</p>
+                    <div class="waitlist-submit-row">
+                        <button type="submit" class="upick-btn primary">
+                            Join Waiting List
+                        </button>
+                    </div>
+                </div>
+
+                <p>
+                    This U-Pick day is currently full. Join the waiting list and we’ll contact you
+                    if a spot opens up.
+                </p>
+
+                <form method="POST" action="{% url 'upick_join_waitlist' event.id %}" class="upick-form">
+                    {% csrf_token %}
+
+                    <div class="form-grid two">
+                        <div class="field-group wide radio-field">
+                            <label>Availability Preference</label>
+
+                            <div class="radio-options">
+                                {% for radio in waitlist_form.preferred_type %}
+                                    <label class="radio-option">
+                                        {{ radio.tag }}
+                                        <span>{{ radio.choice_label }}</span>
+                                    </label>
+                                {% endfor %}
+                            </div>
+
+                            {{ waitlist_form.preferred_type.errors }}
+                        </div>
+
+                        <div class="field-group" id="preferredDateField">
+                            <label>Preferred Day</label>
+                            {{ waitlist_form.preferred_date }}
+                            {{ waitlist_form.preferred_date.errors }}
+                        </div>
+
+                        <div class="field-group">
+                            <label>First Name</label>
+                            {{ waitlist_form.first_name }}
+                            {{ waitlist_form.first_name.errors }}
+                        </div>
+
+                        <div class="field-group">
+                            <label>Last Name</label>
+                            {{ waitlist_form.last_name }}
+                            {{ waitlist_form.last_name.errors }}
+                        </div>
+
+                        <div class="field-group">
+                            <label>Email</label>
+                            {{ waitlist_form.email }}
+                            {{ waitlist_form.email.errors }}
+                        </div>
+
+                        <div class="field-group">
+                            <label>Phone</label>
+                            {{ waitlist_form.phone }}
+                            {{ waitlist_form.phone.errors }}
+                        </div>
+
+                        <div class="field-group">
+                            <label>Number of People</label>
+                            {{ waitlist_form.people_count }}
+                            {{ waitlist_form.people_count.errors }}
+                        </div>
+
+                        <div class="field-group">
+                            <label>Estimated Quarts</label>
+                            {{ waitlist_form.estimated_quarts }}
+                            {{ waitlist_form.estimated_quarts.errors }}
+                        </div>
+
+                        <div class="field-group wide">
+                            <label>Note</label>
+                            {{ waitlist_form.notes }}
+                            {{ waitlist_form.notes.errors }}
+                        </div>
+                    </div>
+
+                    <button type="submit" class="upick-btn primary full">
+                        Join Waiting List
+                    </button>
+                </form>
+            </section>
+
+            <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const preferredDateField = document.getElementById("preferredDateField");
+                const radios = document.querySelectorAll("input[name='preferred_type']");
+
+                function togglePreferredDate() {
+                    const selected = document.querySelector("input[name='preferred_type']:checked");
+
+                    if (!selected || selected.value === "any") {
+                        preferredDateField.style.display = "none";
+                    } else {
+                        preferredDateField.style.display = "block";
+                    }
+                }
+
+                radios.forEach(function (radio) {
+                    radio.addEventListener("change", togglePreferredDate);
+                });
+
+                togglePreferredDate();
+            });
+            </script>
+        {% endif %}
+
         <div class="rules-box">
             <h2>U-Pick Rules</h2>
             <p>{{ event.rules_text }}</p>

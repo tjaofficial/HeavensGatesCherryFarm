@@ -879,3 +879,139 @@
     color: #e9ff7a;
     font-weight: 800;
 }
+
+.radio-field {
+    align-self: start;
+}
+
+.radio-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    margin-top: 0.35rem;
+}
+
+.radio-option {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    font-weight: 700;
+    color: #fff2d2;
+    cursor: pointer;
+}
+
+.radio-option input[type="radio"] {
+    width: auto;
+    min-width: auto;
+    height: auto;
+    margin: 0;
+    accent-color: #dba37d;
+}
+
+.upick-waitlist-panel {
+    margin-top: 3rem;
+    padding: 2rem;
+    border-radius: 22px;
+    background: rgba(35, 18, 10, 0.58);
+    border: 1px solid rgba(255, 226, 171, 0.18);
+    box-shadow: 0 22px 60px rgba(0, 0, 0, 0.18);
+    max-width: 980px;
+}
+
+.upick-waitlist-panel .section-heading {
+    margin-bottom: 1.25rem;
+}
+
+.upick-waitlist-panel > p {
+    max-width: 720px;
+    margin-bottom: 1.5rem;
+    color: rgba(255, 242, 210, 0.9);
+    line-height: 1.6;
+}
+
+.upick-waitlist-panel .form-grid.two {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(240px, 1fr));
+    gap: 1.25rem 2rem;
+    align-items: start;
+}
+
+.upick-waitlist-panel .field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.upick-waitlist-panel .field-group label {
+    font-weight: 800;
+    color: #fff2d2;
+}
+
+.upick-waitlist-panel .field-group input,
+.upick-waitlist-panel .field-group textarea,
+.upick-waitlist-panel .field-group select {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+}
+
+.upick-waitlist-panel .field-group.wide {
+    grid-column: 1 / -1;
+}
+
+.upick-waitlist-panel .radio-field {
+    padding: 1rem 1.1rem;
+    border-radius: 16px;
+    background: rgba(255, 242, 210, 0.07);
+    border: 1px solid rgba(255, 226, 171, 0.13);
+}
+
+.upick-waitlist-panel .radio-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 0.65rem;
+}
+
+.upick-waitlist-panel .radio-option {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    width: fit-content;
+    font-weight: 800;
+    color: #fff2d2;
+    cursor: pointer;
+}
+
+.upick-waitlist-panel .radio-option input[type="radio"] {
+    appearance: auto;
+    width: 16px;
+    height: 16px;
+    min-width: 16px;
+    margin: 0;
+    accent-color: #dba37d;
+}
+
+.upick-waitlist-panel #preferredDateField {
+    max-width: 420px;
+}
+
+.waitlist-submit-row {
+    margin-top: 1.75rem;
+    display: flex;
+    justify-content: flex-start;
+}
+
+.waitlist-submit-row .upick-btn {
+    min-width: 220px;
+}
+
+@media (max-width: 760px) {
+    .upick-waitlist-panel {
+        padding: 1.35rem;
+    }
+
+    .upick-waitlist-panel .form-grid.two {
+        grid-template-columns: 1fr;
+    }
+}

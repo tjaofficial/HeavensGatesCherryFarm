@@ -723,3 +723,178 @@
         max-width: none;
     }
 }
+
+.admin-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+
+    display: none;
+    align-items: center;
+    justify-content: center;
+
+    padding: 1.5rem;
+    background: rgba(22, 28, 18, 0.58);
+    backdrop-filter: blur(6px);
+}
+
+.admin-modal-card {
+    width: min(560px, 100%);
+    background: #fffdf5;
+    border: 1px solid rgba(92, 70, 36, 0.22);
+    border-radius: 18px;
+    box-shadow: 0 24px 70px rgba(28, 35, 24, 0.28);
+    padding: 1.5rem;
+    color: #1f2a1b;
+}
+
+.admin-modal-card h2 {
+    margin: 0 0 0.5rem;
+    font-size: 1.65rem;
+    font-weight: 800;
+    color: #1f2a1b;
+}
+
+.admin-modal-card p {
+    margin: 0 0 1.25rem;
+    color: rgba(31, 42, 27, 0.72);
+}
+
+.admin-modal-card .field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-bottom: 1rem;
+}
+
+.admin-modal-card label {
+    font-size: 0.8rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #28491f;
+}
+
+.admin-modal-card select,
+.admin-modal-card textarea,
+.admin-modal-card input {
+    width: 100%;
+    border: 1px solid rgba(92, 70, 36, 0.28);
+    border-radius: 12px;
+    background: #fffaf0;
+    color: #1f2a1b;
+    padding: 0.75rem 0.85rem;
+    font-size: 0.95rem;
+    outline: none;
+}
+
+.admin-modal-card select:focus,
+.admin-modal-card textarea:focus,
+.admin-modal-card input:focus {
+    border-color: #28491f;
+    box-shadow: 0 0 0 3px rgba(40, 73, 31, 0.12);
+}
+
+.admin-modal-card .action-menu {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    margin-top: 1rem;
+}
+
+.admin-message-stack {
+    display: grid;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.admin-message {
+    padding: 0.9rem 1rem;
+    border-radius: 14px;
+    border: 1px solid rgba(63, 79, 48, 0.18);
+    background: #fffdf5;
+    color: #1f2a1b;
+    font-weight: 700;
+}
+
+.admin-message-error {
+    border-color: rgba(160, 16, 38, 0.28);
+    background: rgba(160, 16, 38, 0.08);
+    color: #760811;
+}
+
+.admin-message-success {
+    border-color: rgba(36, 91, 34, 0.25);
+    background: rgba(36, 91, 34, 0.08);
+    color: #245b22;
+}
+
+.email-update-form {
+    display: grid;
+    gap: 1.25rem;
+}
+
+.email-update-form .field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.email-update-form label {
+    font-weight: 800;
+    color: #1f2a1b;
+}
+
+.email-update-form input[type="text"],
+.email-update-form textarea {
+    width: 100%;
+    border: 1px solid rgba(92, 70, 36, 0.25);
+    border-radius: 14px;
+    background: #fffdf5;
+    color: #1f2a1b;
+    padding: 0.85rem 1rem;
+    font-size: 1rem;
+    outline: none;
+}
+
+.email-update-form textarea {
+    resize: vertical;
+    min-height: 220px;
+}
+
+.email-update-form input[type="text"]:focus,
+.email-update-form textarea:focus {
+    border-color: #28491f;
+    box-shadow: 0 0 0 3px rgba(40, 73, 31, 0.12);
+}
+
+.email-audience-card {
+    border: 1px solid rgba(92, 70, 36, 0.18);
+    border-radius: 16px;
+    background: rgba(255, 253, 245, 0.72);
+    padding: 1rem;
+}
+
+.email-audience-card h3 {
+    margin: 0 0 0.85rem;
+    color: #1f2a1b;
+}
+
+.email-check-row {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    margin-bottom: 0.65rem;
+    cursor: pointer;
+}
+
+.email-check-row input {
+    width: 18px;
+    height: 18px;
+    accent-color: #28491f;
+}
+
+.email-check-row span {
+    font-weight: 800;
+    color: #1f2a1b;
+}

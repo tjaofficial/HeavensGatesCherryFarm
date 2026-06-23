@@ -1159,7 +1159,7 @@ class UPickReservation(models.Model):
         null=True,
         blank=True
     )
-
+    
     time_slot = models.ForeignKey(
         UPickTimeSlot,
         on_delete=models.CASCADE,
@@ -1172,6 +1172,11 @@ class UPickReservation(models.Model):
     phone = models.CharField(max_length=30)
 
     party_size = models.PositiveIntegerField(default=1)
+
+    estimated_quarts = models.PositiveIntegerField(
+        blank=True,
+        null=True
+    )
 
     status = models.CharField(
         max_length=30,
@@ -1555,3 +1560,86 @@ class FarmAnnouncement(models.Model):
 
     def __str__(self):
         return self.title
+    
+class UPickWaitlistEntry(models.Model):
+    PREFERENCE_ANY = "any"
+    PREFERENCE_DAY = "day"
+
+    PREFERENCE_CHOICES = [
+        (PREFERENCE_ANY, "Any available day/time"),
+        (PREFERENCE_DAY, "Preferred day"),
+    ]
+
+    STATUS_WAITING = "waiting"
+    STATUS_CONVERTED = "converted"
+    STATUS_REMOVED = "removed"
+
+    STATUS_CHOICES = [
+        (STATUS_WAITING, "Waiting"),
+        (STATUS_CONVERTED, "Converted to Reservation"),
+        (STATUS_REMOVED, "Removed"),
+    ]
+
+    event = models.ForeignKey(
+        UPickEvent,
+        on_delete=models.CASCADE,
+        related_name="waitlist_entries",
+        null=True,
+        blank=True
+    )
+
+    preferred_type = models.CharField(
+        max_length=20,
+        choices=PREFERENCE_CHOICES,
+        default=PREFERENCE_ANY
+    )
+
+    preferred_date = models.DateField(
+        null=True,
+        blank=True,
+        help_text="Only used if customer selected preferred day."
+    )
+
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+    email = models.EmailField()
+    phone = models.CharField(max_length=30)
+
+    people_count = models.PositiveIntegerField(default=1)
+
+    estimated_quarts = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        help_text="Estimated number of quarts the customer would like."
+    )
+
+    notes = models.TextField(blank=True)
+
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default=STATUS_WAITING
+    )
+
+    converted_reservation = models.ForeignKey(
+        UPickReservation,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="source_waitlist_entries"
+    )
+
+    removed_reason = models.TextField(blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    converted_at = models.DateTimeField(null=True, blank=True)
+    removed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["created_at"]
+
+    def __str__(self):
+        return f"{self.first_name} {self.last_name} - {self.event}"
+
+    def full_name(self):
+        return f"{self.first_name} {self.last_name}".strip()

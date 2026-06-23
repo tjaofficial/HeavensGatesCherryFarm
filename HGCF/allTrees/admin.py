@@ -414,3 +414,86 @@ class FarmAnnouncementAdmin(admin.ModelAdmin):
         "-publish_date",
     )
 
+@admin.register(UPickWaitlistEntry)
+class UPickWaitlistEntryAdmin(admin.ModelAdmin):
+    list_display = (
+        "full_name",
+        "event",
+        "preferred_type",
+        "preferred_date",
+        "people_count",
+        "estimated_quarts",
+        "status",
+        "email",
+        "phone",
+        "created_at",
+    )
+
+    list_filter = (
+        "status",
+        "preferred_type",
+        "event",
+        "preferred_date",
+        "created_at",
+    )
+
+    search_fields = (
+        "first_name",
+        "last_name",
+        "email",
+        "phone",
+        "notes",
+    )
+
+    readonly_fields = (
+        "created_at",
+        "converted_at",
+        "removed_at",
+        "converted_reservation",
+    )
+
+    ordering = (
+        "status",
+        "created_at",
+    )
+
+    fieldsets = (
+        ("Customer Info", {
+            "fields": (
+                "first_name",
+                "last_name",
+                "email",
+                "phone",
+            )
+        }),
+        ("Waitlist Request", {
+            "fields": (
+                "event",
+                "preferred_type",
+                "preferred_date",
+                "people_count",
+                "estimated_quarts",
+                "notes",
+            )
+        }),
+        ("Status", {
+            "fields": (
+                "status",
+                "converted_reservation",
+                "removed_reason",
+            )
+        }),
+        ("Timestamps", {
+            "fields": (
+                "created_at",
+                "converted_at",
+                "removed_at",
+            )
+        }),
+    )
+
+
+
+
+
+    
