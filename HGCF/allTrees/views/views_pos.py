@@ -96,7 +96,7 @@ def _build_cart_totals(items):
 
     for item in items:
         product_id = item.get("product_id")
-        quantity = Decimal(str(item.get("quantity", 1)))
+        quantity = Decimal(str(item.get("quantity") or "1"))
         custom_price = item.get("custom_price")
         weight_amount = item.get("weight_amount")
 
@@ -114,10 +114,13 @@ def _build_cart_totals(items):
         else:
             unit_price = _money(product.get_active_price())
 
-        if product.unit_type == "weight":
-            if weight_amount in [None, ""]:
-                raise ValueError(f"{product.product_name} requires a weight amount.")
-            quantity = Decimal(str(weight_amount))
+        is_weight_item = product.unit_type in ["weight", "lb", "oz"]
+
+        if is_weight_item:
+            if weight_amount not in [None, ""]:
+                quantity = Decimal(str(weight_amount).strip())
+            else:
+                quantity = Decimal(str(item.get("quantity") or "1"))
 
         line_subtotal = _money(unit_price * quantity)
         subtotal += line_subtotal
@@ -129,8 +132,8 @@ def _build_cart_totals(items):
             "quantity": quantity,
             "unit_price": unit_price,
             "line_subtotal": line_subtotal,
-            "sold_by_weight": product.unit_type == "weight",
-            "weight_amount": quantity if product.unit_type == "weight" else None,
+            "sold_by_weight": is_weight_item,
+            "weight_amount": quantity if is_weight_item else None,
         })
 
     tax_amount = _money(subtotal * TAX_RATE)
