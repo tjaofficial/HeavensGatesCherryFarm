@@ -303,6 +303,76 @@ function isWeightProduct(product) {
     return ["weight", "lb", "oz"].includes(product.unit_type);
 }
 
+function safeNumber(value) {
+    const num = Number(value);
+
+    if (Number.isNaN(num)) {
+        return 0;
+    }
+
+    return num;
+}
+
+function lbsOzToLbs(lbs, oz) {
+    const pounds = safeNumber(lbs);
+    const ounces = safeNumber(oz);
+
+    return pounds + (ounces / 16);
+}
+
+function roundWeight(value) {
+    return Math.round(value * 100) / 100;
+}
+
+function ensureWeightRows(item) {
+    if (!item.weight_rows || !Array.isArray(item.weight_rows) || !item.weight_rows.length) {
+        item.weight_rows = [
+            {
+                gross_lbs: "",
+                gross_oz: "",
+                container_lbs: "",
+                container_oz: "",
+            }
+        ];
+    }
+
+    return item.weight_rows;
+}
+
+function calculateWeightRowsTotal(item) {
+    const rows = ensureWeightRows(item);
+
+    let total = 0;
+
+    rows.forEach(row => {
+        const grossWeight = lbsOzToLbs(row.gross_lbs, row.gross_oz);
+        const containerWeight = lbsOzToLbs(row.container_lbs, row.container_oz);
+        const netWeight = Math.max(0, grossWeight - containerWeight);
+
+        total += netWeight;
+    });
+
+    return roundWeight(total);
+}
+
+function updateWeightFromRows(index) {
+    const item = state.cart[index];
+    if (!item) return;
+
+    const totalWeight = calculateWeightRowsTotal(item);
+
+    item.weight_amount = totalWeight;
+    item.quantity = totalWeight;
+
+    const finalInput = document.querySelector(`.weightInput[data-index="${index}"]`);
+
+    if (finalInput) {
+        finalInput.value = totalWeight || "";
+    }
+
+    calculateTotals();
+}
+
 function getUnitLabel(product) {
     const labels = {
         each: "Each",
@@ -396,6 +466,14 @@ function addProductToCart(productId) {
             quantity: 1,
             weight_amount: 1,
             custom_price: "",
+            weight_rows: [
+                {
+                    gross_lbs: "",
+                    gross_oz: "",
+                    container_lbs: "",
+                    container_oz: "",
+                }
+            ],
         });
     } else {
         state.cart.push({
@@ -437,15 +515,118 @@ function renderCart() {
                     ${
                         isWeight
                         ? `
-                        <div>
-                            <label>Weight Amount</label>
-                            <input type="number" step="0.01" min="0.01" class="weightInput" data-index="${index}" value="${item.weight_amount ?? 1}">
+                        <div class="weightCalculatorBox">
+                            <label>Weight Calculator</label>
+
+                            ${ensureWeightRows(item).map((row, rowIndex) => `
+                                <div class="weightRow">
+                                    <div class="weightRowHeader">
+                                        <strong>Container ${rowIndex + 1}</strong>
+
+                                        ${
+                                            ensureWeightRows(item).length > 1
+                                            ? `<button type="button" class="removeWeightRowBtn" data-index="${index}" data-row-index="${rowIndex}">Remove</button>`
+                                            : ""
+                                        }
+                                    </div>
+
+                                    <div class="weightGrid">
+                                        <div>
+                                            <label>Strawberries + Container</label>
+                                            <div class="lbsOzRow">
+                                                <input
+                                                    type="number"
+                                                    step="0.01"
+                                                    min="0"
+                                                    class="weightCalcInput"
+                                                    data-index="${index}"
+                                                    data-row-index="${rowIndex}"
+                                                    data-field="gross_lbs"
+                                                    value="${row.gross_lbs ?? ""}"
+                                                    placeholder="0"
+                                                >
+                                                <span>lbs</span>
+
+                                                <input
+                                                    type="number"
+                                                    step="0.01"
+                                                    min="0"
+                                                    class="weightCalcInput"
+                                                    data-index="${index}"
+                                                    data-row-index="${rowIndex}"
+                                                    data-field="gross_oz"
+                                                    value="${row.gross_oz ?? ""}"
+                                                    placeholder="0"
+                                                >
+                                                <span>oz</span>
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <label>Container Weight</label>
+                                            <div class="lbsOzRow">
+                                                <input
+                                                    type="number"
+                                                    step="0.01"
+                                                    min="0"
+                                                    class="weightCalcInput"
+                                                    data-index="${index}"
+                                                    data-row-index="${rowIndex}"
+                                                    data-field="container_lbs"
+                                                    value="${row.container_lbs ?? ""}"
+                                                    placeholder="0"
+                                                >
+                                                <span>lbs</span>
+
+                                                <input
+                                                    type="number"
+                                                    step="0.01"
+                                                    min="0"
+                                                    class="weightCalcInput"
+                                                    data-index="${index}"
+                                                    data-row-index="${rowIndex}"
+                                                    data-field="container_oz"
+                                                    value="${row.container_oz ?? ""}"
+                                                    placeholder="0"
+                                                >
+                                                <span>oz</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join("")}
+
+                            <button type="button" class="addWeightRowBtn" data-index="${index}">
+                                + Add Another Container
+                            </button>
+
+                            <div class="manualWeightBox">
+                                <label>Final Sale Weight / Quantity</label>
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    min="0.01"
+                                    class="weightInput"
+                                    data-index="${index}"
+                                    value="${item.weight_amount ?? item.quantity ?? 1}"
+                                >
+                                <small>
+                                    This fills automatically from the calculator, but you can also type the final weight manually.
+                                </small>
+                            </div>
                         </div>
                         `
                         : `
                         <div>
                             <label>Quantity</label>
-                            <input type="number" step="1" min="1" class="qtyInput" data-index="${index}" value="${item.quantity ?? 1}">
+                            <input
+                                type="number"
+                                step="1"
+                                min="1"
+                                class="qtyInput"
+                                data-index="${index}"
+                                value="${item.quantity ?? 1}"
+                            >
                         </div>
                         `
                     }
@@ -455,7 +636,14 @@ function renderCart() {
                         ? `
                         <div>
                             <label>Custom Price (optional)</label>
-                            <input type="number" step="0.01" min="0" class="customPriceInput" data-index="${index}" value="${item.custom_price ?? ""}">
+                            <input
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                class="customPriceInput"
+                                data-index="${index}"
+                                value="${item.custom_price ?? ""}"
+                            >
                         </div>
                         `
                         : ""
@@ -479,6 +667,65 @@ function renderCart() {
             const index = Number(input.dataset.index);
             state.cart[index].quantity = Math.max(1, Number(input.value || 1));
             calculateTotals();
+        });
+    });
+
+    document.querySelectorAll(".weightCalcInput").forEach(input => {
+        input.addEventListener("input", () => {
+            const index = Number(input.dataset.index);
+            const rowIndex = Number(input.dataset.rowIndex);
+            const field = input.dataset.field;
+
+            const item = state.cart[index];
+            if (!item) return;
+
+            const rows = ensureWeightRows(item);
+
+            if (!rows[rowIndex]) return;
+
+            rows[rowIndex][field] = input.value;
+
+            updateWeightFromRows(index);
+        });
+    });
+
+    document.querySelectorAll(".addWeightRowBtn").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const index = Number(btn.dataset.index);
+
+            const item = state.cart[index];
+            if (!item) return;
+
+            const rows = ensureWeightRows(item);
+
+            rows.push({
+                gross_lbs: "",
+                gross_oz: "",
+                container_lbs: "",
+                container_oz: "",
+            });
+
+            renderCart();
+            calculateTotals();
+        });
+    });
+
+    document.querySelectorAll(".removeWeightRowBtn").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const index = Number(btn.dataset.index);
+            const rowIndex = Number(btn.dataset.rowIndex);
+
+            const item = state.cart[index];
+            if (!item) return;
+
+            const rows = ensureWeightRows(item);
+
+            if (rows.length > 1) {
+                rows.splice(rowIndex, 1);
+            }
+
+            renderCart();
+            updateWeightFromRows(index);
         });
     });
 
