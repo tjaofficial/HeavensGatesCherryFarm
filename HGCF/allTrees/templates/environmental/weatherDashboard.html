@@ -1,18 +1,284 @@
-{% extends "mainLayout.html" %}{% load static %}{% block list %}
+{% extends "mainLayout.html" %}
+{% load static %}
+
+{% block list %}
 <link href="{% static 'style/pageSetup.css' %}" rel="stylesheet" />
 <link href="{% static 'style/backArrow.css' %}" rel="stylesheet" />
+<link href="{% static 'style/weather.css' %}" rel="stylesheet" />
+
 {% include "components/spacer.html" with headerSpace='small' %}
-<div class='mainCont' style="display: flex; justify-content: center;">
-    {% include "components/backArrow.html" with destination="dashboard" %}
-    <div style="background: white; border-radius: 24px; padding: 25px; width: 20rem;">
-        <h2>Local Weather</h2>
-        <br>
-        <div>City: {{ weather.city|title }}</div><br>
-        <div>Temperature: {{ weather.temperature }}</div><br>
-        <div>Weather Description: {{weather.description|title }}</div><br>
-        <div>Wind Speed: {{ weather.wind_speed }}mph</div><br>
-        <div>Wind Direction: {{ weather.wind_direction }}</div><br>
-        <div>Humidity: {{ weather.humidity }}%</div><br>
+
+<div class="treespace-weather-page">
+    <div class="treespace-weather-shell">
+        <div class="weather-topbar">
+            <div>
+                <div class="weather-breadcrumb">
+                    TreeSpace <span>›</span> Weather
+                </div>
+
+                <h1>Weather Dashboard</h1>
+
+                <p>
+                    Monitor Hale forecast, farm conditions, picking outlook, frost risk, rain, wind, and irrigation guidance.
+                </p>
+            </div>
+
+            <div class="weather-actions">
+                {% include "components/backArrow.html" with destination="dashboard" %}
+            </div>
+        </div>
+
+        {% if farm_weather.success and farm_weather.days %}
+            {% with today=farm_weather.days.0 %}
+                <div class="weather-stat-grid">
+                    <div class="weather-stat-card">
+                        <div class="stat-icon stat-icon-blue">
+                            <i data-lucide="thermometer"></i>
+                        </div>
+                        <div>
+                            <span>Today’s High / Low</span>
+                            <strong>{{ today.max_temp }}° / {{ today.min_temp }}°</strong>
+                        </div>
+                    </div>
+
+                    <div class="weather-stat-card">
+                        <div class="stat-icon stat-icon-green">
+                            <i data-lucide="cloud-rain"></i>
+                        </div>
+                        <div>
+                            <span>Rain Chance</span>
+                            <strong>{{ today.rain_probability }}%</strong>
+                        </div>
+                    </div>
+
+                    <div class="weather-stat-card">
+                        <div class="stat-icon stat-icon-yellow">
+                            <i data-lucide="wind"></i>
+                        </div>
+                        <div>
+                            <span>Wind / Gusts</span>
+                            <strong>{{ today.wind_speed }} / {{ today.wind_gusts }} mph</strong>
+                        </div>
+                    </div>
+
+                    <div class="weather-stat-card">
+                        <div class="stat-icon stat-icon-red">
+                            <i data-lucide="sun"></i>
+                        </div>
+                        <div>
+                            <span>UV Index</span>
+                            <strong>{{ today.uv_index }}</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="weather-main-grid">
+                    <section class="weather-panel weather-today-panel">
+                        <div class="panel-header">
+                            <div>
+                                <h2>
+                                    <i data-lucide="sprout"></i>
+                                    Today’s Farm Read
+                                </h2>
+                                <p>{{ today.day_name }} · {{ today.display_date }} · {{ today.description }}</p>
+                            </div>
+                        </div>
+
+                        <div class="today-condition today-condition-{{ today.picking_condition.level }}">
+                            <span>Picking Conditions</span>
+                            <strong>{{ today.picking_condition.label }}</strong>
+                            <p>{{ today.picking_condition.message }}</p>
+                        </div>
+
+                        <div class="today-alert-grid">
+                            <div class="today-alert today-alert-{{ today.frost_risk.level }}">
+                                <span>Frost Risk</span>
+                                <strong>{{ today.frost_risk.label }}</strong>
+                                <p>{{ today.frost_risk.message }}</p>
+                            </div>
+
+                            <div class="today-alert today-alert-{{ today.irrigation_note.level }}">
+                                <span>Irrigation</span>
+                                <strong>{{ today.irrigation_note.label }}</strong>
+                                <p>{{ today.irrigation_note.message }}</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="weather-panel">
+                        <div class="panel-header">
+                            <div>
+                                <h2>
+                                    <i data-lucide="gauge"></i>
+                                    Farm Metrics
+                                </h2>
+                                <p>Current day forecast details.</p>
+                            </div>
+                        </div>
+
+                        <div class="metric-list">
+                            <div>
+                                <span>Expected Rainfall</span>
+                                <strong>{{ today.rain_sum }} in</strong>
+                            </div>
+
+                            <div>
+                                <span>Evapotranspiration</span>
+                                <strong>{{ today.evapotranspiration }} in</strong>
+                            </div>
+
+                            <div>
+                                <span>Wind Speed</span>
+                                <strong>{{ today.wind_speed }} mph</strong>
+                            </div>
+
+                            <div>
+                                <span>Wind Gusts</span>
+                                <strong>{{ today.wind_gusts }} mph</strong>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            {% endwith %}
+        {% endif %}
+
+        {% if farm_weather.success %}
+            <section class="weather-panel">
+                <div class="panel-header">
+                    <div>
+                        <h2>
+                            <i data-lucide="calendar-days"></i>
+                            7-Day Farm Conditions
+                        </h2>
+                        <p>
+                            Source: {{ farm_weather.source }} · Updated {{ farm_weather.updated_at }}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="farm-forecast-grid">
+                    {% for day in farm_weather.days %}
+                        <article class="farm-day-card">
+                            <div class="farm-day-top">
+                                <div>
+                                    <h3>{{ day.day_name }}</h3>
+                                    <span>{{ day.display_date }}</span>
+                                </div>
+
+                                <div class="farm-day-temp">
+                                    {{ day.max_temp }}°
+                                    <small>{{ day.min_temp }}°</small>
+                                </div>
+                            </div>
+
+                            <div class="weather-pill">
+                                {{ day.description }}
+                            </div>
+
+                            <div class="condition-box condition-box-{{ day.picking_condition.level }}">
+                                <strong>{{ day.picking_condition.label }}</strong>
+                                <p>{{ day.picking_condition.message }}</p>
+                            </div>
+
+                            <div class="mini-metric-grid">
+                                <div>
+                                    <span>Rain</span>
+                                    <strong>{{ day.rain_probability }}%</strong>
+                                </div>
+
+                                <div>
+                                    <span>Amount</span>
+                                    <strong>{{ day.rain_sum }} in</strong>
+                                </div>
+
+                                <div>
+                                    <span>Wind</span>
+                                    <strong>{{ day.wind_speed }} mph</strong>
+                                </div>
+
+                                <div>
+                                    <span>Gusts</span>
+                                    <strong>{{ day.wind_gusts }} mph</strong>
+                                </div>
+
+                                <div>
+                                    <span>UV</span>
+                                    <strong>{{ day.uv_index }}</strong>
+                                </div>
+
+                                <div>
+                                    <span>ET₀</span>
+                                    <strong>{{ day.evapotranspiration }}</strong>
+                                </div>
+                            </div>
+
+                            <div class="small-alert small-alert-{{ day.frost_risk.level }}">
+                                <strong>{{ day.frost_risk.label }}</strong>
+                                <p>{{ day.frost_risk.message }}</p>
+                            </div>
+
+                            <div class="small-alert small-alert-{{ day.irrigation_note.level }}">
+                                <strong>{{ day.irrigation_note.label }}</strong>
+                                <p>{{ day.irrigation_note.message }}</p>
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+            </section>
+        {% else %}
+            <div class="weather-error">
+                <strong>Farm weather failed to load.</strong>
+                <p>{{ farm_weather.message }}</p>
+            </div>
+        {% endif %}
+
+        {% if weather.success %}
+            <section class="weather-panel">
+                <div class="panel-header">
+                    <div>
+                        <h2>
+                            <i data-lucide="cloud-sun"></i>
+                            Detailed NWS Forecast
+                        </h2>
+                        <p>
+                            Source: {{ weather.source }} · Updated {{ weather.updated_at }}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="nws-forecast-list">
+                    {% for period in weather.periods %}
+                        <article class="nws-row">
+                            {% if period.icon %}
+                                <img src="{{ period.icon }}" alt="{{ period.short_forecast }}">
+                            {% endif %}
+
+                            <div class="nws-row-content">
+                                <div class="nws-row-top">
+                                    <div>
+                                        <h3>{{ period.name }}</h3>
+                                        <span>{{ period.short_forecast }}</span>
+                                    </div>
+
+                                    <strong>{{ period.temperature }}°{{ period.temperature_unit }}</strong>
+                                </div>
+
+                                <p>{{ period.detailed_forecast }}</p>
+
+                                <div class="nws-wind">
+                                    Wind: {{ period.wind_speed }} {{ period.wind_direction }}
+                                </div>
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+            </section>
+        {% else %}
+            <div class="weather-error">
+                <strong>Weather failed to load.</strong>
+                <p>{{ weather.message }}</p>
+            </div>
+        {% endif %}
     </div>
 </div>
 

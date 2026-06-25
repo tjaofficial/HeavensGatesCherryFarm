@@ -9,6 +9,8 @@ from django.conf import settings # type: ignore
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils import timezone
+from datetime import datetime
+from django.core.cache import cache
 
 alphabetKey = {'a': '1', 'b': '2', 'c': '3', 'd': '4', 'e': '5', 'f': '6', 'g': '7', 'h': '8', 'i': '9', 'j': '10', 'k': '11', 'l': '12', 'm': '13', 'n': '14', 'o': '15', 'p': '16', 'q': '17', 'r': '18', 's': '19', 't': '20', 'u': '21', 'v': '22', 'w': '23', 'x': '24', 'y': '25', 'z': '26', 'A': '27', 'B': '28', 'C': '29', 'D': '30', 'E': '31', 'F': '32', 'G': '33', 'H': '34', 'I': '35', 'J': '36', 'K': '37', 'L': '38', 'M': '39', 'N': '40', 'O': '41', 'P': '42', 'Q': '43', 'R': '44', 'S': '45', 'T': '46', 'U': '47', 'V': '48', 'W': '49', 'X': '50', 'Y': '51', 'Z': '52'}
 
@@ -252,3 +254,389 @@ def send_pos_receipt_email(sale, recipient_email=None, force=False):
         print(f"POS receipt failed for sale {sale.id}: {exc}")
 
         raise
+
+# Weather
+
+HALE_LAT = 44.377972
+HALE_LON = -83.8047965
+
+NWS_HEADERS = {
+    "User-Agent": "HeavensGatesCherryFarm.com, contact@heavensgatescherryfarm.com",
+    "Accept": "application/geo+json",
+}
+
+
+def get_hale_nws_forecast():
+    """
+    Gets a detailed forecast for Hale, MI using the National Weather Service API.
+    No API key required.
+    """
+
+    try:
+        # Step 1: Convert lat/lon to NWS grid forecast URLs
+        point_url = f"https://api.weather.gov/points/{HALE_LAT},{HALE_LON}"
+        point_response = requests.get(point_url, headers=NWS_HEADERS, timeout=10)
+        point_response.raise_for_status()
+
+        point_data = point_response.json()
+        forecast_url = point_data["properties"]["forecast"]
+        hourly_url = point_data["properties"]["forecastHourly"]
+
+        # Step 2: Get 7-day forecast periods
+        forecast_response = requests.get(forecast_url, headers=NWS_HEADERS, timeout=10)
+        forecast_response.raise_for_status()
+
+        forecast_data = forecast_response.json()
+        periods = forecast_data["properties"]["periods"]
+
+        forecast_periods = []
+
+        for period in periods:
+            forecast_periods.append({
+                "name": period.get("name"),
+                "start_time": period.get("startTime"),
+                "end_time": period.get("endTime"),
+                "is_daytime": period.get("isDaytime"),
+                "temperature": period.get("temperature"),
+                "temperature_unit": period.get("temperatureUnit"),
+                "wind_speed": period.get("windSpeed"),
+                "wind_direction": period.get("windDirection"),
+                "short_forecast": period.get("shortForecast"),
+                "detailed_forecast": period.get("detailedForecast"),
+                "icon": period.get("icon"),
+            })
+
+        return {
+            "success": True,
+            "city": "Hale",
+            "state": "MI",
+            "source": "National Weather Service",
+            "updated_at": datetime.now().strftime("%B %d, %Y at %-I:%M %p"),
+            "periods": forecast_periods,
+            "hourly_url": hourly_url,
+        }
+
+    except requests.RequestException as e:
+        return {
+            "success": False,
+            "message": "Weather data could not be loaded right now.",
+            "error": str(e),
+            "periods": [],
+        }
+    except KeyError as e:
+        return {
+            "success": False,
+            "message": "Weather data came back in an unexpected format.",
+            "error": str(e),
+            "periods": [],
+        }
+
+def get_cached_hale_forecast():
+    cache_key = "hale_nws_forecast"
+    weather = cache.get(cache_key)
+
+    if weather:
+        return weather
+
+    weather = get_hale_nws_forecast()
+    cache.set(cache_key, weather, 60 * 20)  # cache for 20 minutes
+
+    return weather
+
+
+HALE_LAT = 44.377972
+HALE_LON = -83.8047965
+
+
+WEATHER_CODE_MAP = {
+    0: "Clear sky",
+    1: "Mainly clear",
+    2: "Partly cloudy",
+    3: "Overcast",
+    45: "Fog",
+    48: "Depositing rime fog",
+    51: "Light drizzle",
+    53: "Moderate drizzle",
+    55: "Dense drizzle",
+    56: "Light freezing drizzle",
+    57: "Dense freezing drizzle",
+    61: "Slight rain",
+    63: "Moderate rain",
+    65: "Heavy rain",
+    66: "Light freezing rain",
+    67: "Heavy freezing rain",
+    71: "Slight snow",
+    73: "Moderate snow",
+    75: "Heavy snow",
+    77: "Snow grains",
+    80: "Slight rain showers",
+    81: "Moderate rain showers",
+    82: "Violent rain showers",
+    85: "Slight snow showers",
+    86: "Heavy snow showers",
+    95: "Thunderstorm",
+    96: "Thunderstorm with hail",
+    99: "Heavy thunderstorm with hail",
+}
+
+
+def get_weather_description(code):
+    return WEATHER_CODE_MAP.get(code, "Unknown")
+
+
+def get_frost_risk(low_temp, rain_sum, wind_speed):
+    """
+    Simple farm-focused frost risk.
+    This is not a scientific frost model, but it is useful as a warning layer.
+    """
+
+    if low_temp is None:
+        return {
+            "level": "unknown",
+            "label": "Unknown",
+            "message": "Not enough data to calculate frost risk.",
+        }
+
+    if low_temp <= 32:
+        return {
+            "level": "high",
+            "label": "High Frost Risk",
+            "message": "Low temperature is at or below freezing. Protect sensitive crops if needed.",
+        }
+
+    if low_temp <= 36 and rain_sum < 0.05 and wind_speed <= 8:
+        return {
+            "level": "medium",
+            "label": "Possible Frost Risk",
+            "message": "Cold, calm, and dry conditions could allow frost in low spots.",
+        }
+
+    if low_temp <= 38:
+        return {
+            "level": "low",
+            "label": "Low Frost Risk",
+            "message": "Chilly overnight, but frost risk does not look major right now.",
+        }
+
+    return {
+        "level": "none",
+        "label": "No Frost Risk",
+        "message": "Temperatures look safely above frost range.",
+    }
+
+
+def get_picking_condition(max_temp, rain_probability, rain_sum, wind_gusts, weather_code):
+    """
+    Creates a customer-friendly picking condition.
+    """
+
+    description = get_weather_description(weather_code)
+
+    if rain_probability >= 70 or rain_sum >= 0.25:
+        return {
+            "level": "poor",
+            "label": "Poor Picking Conditions",
+            "message": "Rain is likely. Picking may be muddy or interrupted.",
+        }
+
+    if wind_gusts >= 30:
+        return {
+            "level": "caution",
+            "label": "Windy Conditions",
+            "message": "Strong gusts possible. Keep an eye on farm updates before coming out.",
+        }
+
+    if max_temp >= 88:
+        return {
+            "level": "caution",
+            "label": "Hot Picking Conditions",
+            "message": "It may be hot in the field. Bring water and come earlier if possible.",
+        }
+
+    if rain_probability >= 40:
+        return {
+            "level": "fair",
+            "label": "Fair Picking Conditions",
+            "message": "Some rain is possible, but the day may still be workable.",
+        }
+
+    if weather_code in [0, 1, 2, 3]:
+        return {
+            "level": "good",
+            "label": "Good Picking Conditions",
+            "message": f"{description}. Looks like a solid day for picking.",
+        }
+
+    return {
+        "level": "fair",
+        "label": "Fair Picking Conditions",
+        "message": f"{description}. Check closer to arrival time.",
+    }
+
+
+def get_irrigation_note(rain_sum, evapotranspiration, max_temp):
+    """
+    Very simple irrigation suggestion.
+    Later we can connect this to your actual valve schedule.
+    """
+
+    if rain_sum >= 0.5:
+        return {
+            "level": "skip",
+            "label": "Likely Skip Irrigation",
+            "message": "Rainfall may be enough to reduce or skip watering.",
+        }
+
+    if rain_sum >= 0.2:
+        return {
+            "level": "watch",
+            "label": "Watch Soil Moisture",
+            "message": "Some rain expected. Check soil before running irrigation.",
+        }
+
+    if evapotranspiration is not None and evapotranspiration >= 0.18:
+        return {
+            "level": "water",
+            "label": "Irrigation Likely Needed",
+            "message": "Drying conditions look higher. Soil may need water.",
+        }
+
+    if max_temp >= 86 and rain_sum < 0.1:
+        return {
+            "level": "water",
+            "label": "Hot and Dry",
+            "message": "Heat with little rain may dry beds faster.",
+        }
+
+    return {
+        "level": "normal",
+        "label": "Normal",
+        "message": "No major irrigation warning from forecast data.",
+    }
+
+
+def get_hale_farm_weather():
+    cache_key = "hale_open_meteo_farm_weather"
+    cached_weather = cache.get(cache_key)
+
+    if cached_weather:
+        return cached_weather
+
+    url = "https://api.open-meteo.com/v1/forecast"
+
+    params = {
+        "latitude": HALE_LAT,
+        "longitude": HALE_LON,
+        "timezone": "America/Detroit",
+        "temperature_unit": "fahrenheit",
+        "wind_speed_unit": "mph",
+        "precipitation_unit": "inch",
+        "forecast_days": 7,
+        "daily": ",".join([
+            "weather_code",
+            "temperature_2m_max",
+            "temperature_2m_min",
+            "precipitation_sum",
+            "precipitation_probability_max",
+            "wind_speed_10m_max",
+            "wind_gusts_10m_max",
+            "uv_index_max",
+            "sunrise",
+            "sunset",
+            "et0_fao_evapotranspiration",
+        ]),
+    }
+
+    try:
+        response = requests.get(url, params=params, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+
+        daily = data.get("daily", {})
+        days = []
+
+        dates = daily.get("time", [])
+
+        for index, raw_date in enumerate(dates):
+            weather_code = daily.get("weather_code", [None])[index]
+            max_temp = daily.get("temperature_2m_max", [None])[index]
+            min_temp = daily.get("temperature_2m_min", [None])[index]
+            rain_sum = daily.get("precipitation_sum", [0])[index] or 0
+            rain_probability = daily.get("precipitation_probability_max", [0])[index] or 0
+            wind_speed = daily.get("wind_speed_10m_max", [0])[index] or 0
+            wind_gusts = daily.get("wind_gusts_10m_max", [0])[index] or 0
+            uv_index = daily.get("uv_index_max", [None])[index]
+            sunrise = daily.get("sunrise", [None])[index]
+            sunset = daily.get("sunset", [None])[index]
+            evapotranspiration = daily.get("et0_fao_evapotranspiration", [None])[index]
+
+            date_obj = datetime.strptime(raw_date, "%Y-%m-%d")
+
+            frost_risk = get_frost_risk(
+                low_temp=min_temp,
+                rain_sum=rain_sum,
+                wind_speed=wind_speed,
+            )
+
+            picking_condition = get_picking_condition(
+                max_temp=max_temp,
+                rain_probability=rain_probability,
+                rain_sum=rain_sum,
+                wind_gusts=wind_gusts,
+                weather_code=weather_code,
+            )
+
+            irrigation_note = get_irrigation_note(
+                rain_sum=rain_sum,
+                evapotranspiration=evapotranspiration,
+                max_temp=max_temp,
+            )
+
+            days.append({
+                "date": raw_date,
+                "day_name": date_obj.strftime("%A"),
+                "display_date": date_obj.strftime("%b %-d"),
+                "weather_code": weather_code,
+                "description": get_weather_description(weather_code),
+                "max_temp": round(max_temp) if max_temp is not None else None,
+                "min_temp": round(min_temp) if min_temp is not None else None,
+                "rain_sum": round(rain_sum, 2),
+                "rain_probability": round(rain_probability),
+                "wind_speed": round(wind_speed),
+                "wind_gusts": round(wind_gusts),
+                "uv_index": round(uv_index, 1) if uv_index is not None else None,
+                "sunrise": sunrise,
+                "sunset": sunset,
+                "evapotranspiration": round(evapotranspiration, 2) if evapotranspiration is not None else None,
+                "frost_risk": frost_risk,
+                "picking_condition": picking_condition,
+                "irrigation_note": irrigation_note,
+            })
+
+        farm_weather = {
+            "success": True,
+            "source": "Open-Meteo",
+            "city": "Hale",
+            "state": "MI",
+            "updated_at": datetime.now().strftime("%B %d, %Y at %-I:%M %p"),
+            "days": days,
+        }
+
+        cache.set(cache_key, farm_weather, 60 * 30)
+        return farm_weather
+
+    except requests.RequestException as e:
+        return {
+            "success": False,
+            "message": "Farm weather data could not be loaded right now.",
+            "error": str(e),
+            "days": [],
+        }
+
+    except Exception as e:
+        return {
+            "success": False,
+            "message": "Something went wrong while processing farm weather data.",
+            "error": str(e),
+            "days": [],
+        }
