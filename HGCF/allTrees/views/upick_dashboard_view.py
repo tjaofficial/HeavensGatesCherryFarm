@@ -14,6 +14,7 @@ from ..utils import send_upick_reservation_confirmation
 from django.contrib import messages
 from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
+from django.template.loader import render_to_string
 
 
 
@@ -183,6 +184,93 @@ def treespace_upick_update_reservation_status(request):
         "newStatus": reservation.status,
         "newStatusDisplay": reservation.get_status_display(),
     })
+
+def send_upick_strawberries_depleted_email(reservation):
+    subject = "U-Pick Strawberry Season Update"
+
+    first_name = reservation.first_name or "there"
+
+    store_url = getattr(
+        settings,
+        "STORE_URL",
+        "https://www.heavensgatescherryfarm.com/store"
+    )
+
+    website_url = getattr(
+        settings,
+        "SITE_URL",
+        "https://www.heavensgatescherryfarm.com/"
+    )
+
+    plain_message = f"""Hi {first_name},
+
+We are so sorry, but our U-Pick strawberries have now been picked out, and we have reached the end of our U-Pick strawberry season.
+
+We truly appreciate everyone who came out, joined the waiting list, made reservations, shared our posts, and supported Heaven’s Gates Cherry Farm. This season has meant a lot to us, and we are thankful for all the patience and support.
+
+Starting this Monday, we will be selling pre-picked strawberry quarts for same-day pickup during business hours.
+
+The number of quarts available will be listed in our online store. More strawberries will be picked every couple of days and added to stock as they become available, so please check back daily to see how many quarts are left.
+
+Store: {store_url}
+
+Thank you again for understanding and for supporting our farm.
+
+Heaven’s Gates Cherry Farm
+"""
+
+    html_message = render_to_string(
+        "emails/upick_strawberry_season_update.html",
+        {
+            "first_name": first_name,
+            "store_url": store_url,
+            "website_url": website_url,
+        }
+    )
+
+    email = EmailMultiAlternatives(
+        subject=subject,
+        body=plain_message,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=[reservation.email],
+    )
+
+    email.attach_alternative(html_message, "text/html")
+    email.send(fail_silently=False)
+
+@login_required
+@require_http_methods(["POST"])
+def treespace_send_strawberries_depleted_email(request, reservation_id):
+    reservation = get_object_or_404(
+        UPickReservation.objects.select_related("time_slot", "time_slot__event"),
+        id=reservation_id
+    )
+
+    selected_event_id = reservation.time_slot.event.id
+
+    if not reservation.email:
+        messages.error(
+            request,
+            f"{reservation.full_name()} does not have an email address attached."
+        )
+        return redirect(f"{reverse('treespace_upick_dashboard')}?event={selected_event_id}")
+
+    try:
+        send_upick_strawberries_depleted_email(reservation)
+
+        messages.success(
+            request,
+            f"Strawberry depletion email sent to {reservation.full_name()}."
+        )
+
+    except Exception as e:
+        messages.error(
+            request,
+            f"Email could not be sent to {reservation.full_name()}: {str(e)}"
+        )
+
+    return redirect(f"{reverse('treespace_upick_dashboard')}?event={selected_event_id}")
+
 
 @login_required
 @require_http_methods(["POST"])

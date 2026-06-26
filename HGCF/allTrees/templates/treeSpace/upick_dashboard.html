@@ -259,6 +259,18 @@
                                                     Reconfirm
                                                 </button>
                                             {% endif %}
+
+                                            <form
+                                                method="POST"
+                                                action="{% url 'treespace_send_strawberries_depleted_email' reservation.id %}"
+                                                onsubmit="return confirm('Send strawberry depleted email to {{ reservation.full_name|escapejs }}?');"
+                                                style="display:inline;"
+                                            >
+                                                {% csrf_token %}
+                                                <button type="submit" class="action-btn warning">
+                                                    Strawberries Depleted Email
+                                                </button>
+                                            </form>
                                         </div>
                                     </td>
                                 </tr>

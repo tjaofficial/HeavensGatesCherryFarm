@@ -90,6 +90,7 @@ urlpatterns = [
     path("treespace/upick/waitlist/<int:entry_id>/remove/", views.treespace_upick_remove_waitlist_entry, name="treespace_upick_remove_waitlist_entry"),
     path("upick/waitlist/",views.upick_general_waitlist_view,name="upick_general_waitlist"),
     path("treespace/upick/waitlist/",views.treespace_upick_waitlist_view,name="treespace_upick_waitlist"),
+    path("treespace/upick/reservation/<int:reservation_id>/strawberries-depleted-email/", views.treespace_send_strawberries_depleted_email, name="treespace_send_strawberries_depleted_email"),
 
     # ---- POS ----------
     path("pos/", views.pos_terminal_page, name="pos_terminal_page"),
