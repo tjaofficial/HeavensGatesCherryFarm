@@ -76,6 +76,9 @@ urlpatterns = [
     path("checkout/create-session/", views.create_checkout_session_view, name="create_checkout_session"),
     path("checkout/success/", views.checkout_success_view, name="checkout_success"),
     path("stripe/webhook/", views.stripe_webhook_view, name="stripe_webhook"),
+    path("treespace/store/orders/", views.treespace_store_orders_view, name="treespace_store_orders"),
+    path("treespace/store/orders/<int:order_id>/update/", views.update_store_order_stage_view, name="update_store_order_stage"),
+    path("treespace/store/orders/<int:order_id>/", views.treespace_store_order_detail_view, name="treespace_store_order_detail"),
 
     # UPICK
     path("upick/", views.upick_landing_view, name="upick_landing"),

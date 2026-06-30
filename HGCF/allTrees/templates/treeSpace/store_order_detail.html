@@ -1,0 +1,298 @@
+{% extends "mainLayout.html" %}
+{% load static %}
+
+{% block list %}
+<link href="{% static 'style/pageSetup.css' %}" rel="stylesheet" />
+<link href="{% static 'style/storeOrders.css' %}" rel="stylesheet" />
+
+{% include "components/spacer.html" with headerSpace='small' %}
+
+<div class="ts-orders-page">
+    <div class="ts-orders-wrap">
+
+        <div class="ts-breadcrumb">
+            <a href="{% url 'dashboard' %}">TreeSpace</a>
+            <span>›</span>
+            <a href="{% url 'treespace_store_orders' %}">Store Orders</a>
+            <span>›</span>
+            <span>Order #{{ order.id }}</span>
+        </div>
+
+        <div class="ts-page-header">
+            <div>
+                <h1>Order #{{ order.id }}</h1>
+                <p>Update fulfillment, send customer notifications, and review order details.</p>
+            </div>
+
+            <a href="{% url 'treespace_store_orders' %}" class="ts-outline-btn">
+                Back to Orders
+            </a>
+        </div>
+
+        {% if messages %}
+            <div class="ts-messages">
+                {% for message in messages %}
+                    <div class="ts-message {{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="ts-detail-grid">
+            <section class="ts-panel">
+                <div class="ts-panel-header">
+                    <h2>Order Summary</h2>
+                    <span class="ts-pill stage-{{ order.order_stage }}">
+                        {{ order.get_order_stage_display }}
+                    </span>
+                </div>
+
+                <div class="ts-info-grid">
+                    <div>
+                        <span>Payment</span>
+                        <strong>{{ order.get_status_display }}</strong>
+                    </div>
+
+                    <div>
+                        <span>Fulfillment</span>
+                        <strong>{{ order.get_fulfillment_type_display }}</strong>
+                    </div>
+
+                    <div>
+                        <span>Total</span>
+                        <strong>${{ order.total }}</strong>
+                    </div>
+
+                    <div>
+                        <span>Created</span>
+                        <strong>{{ order.created_at|date:"M j, Y g:i A" }}</strong>
+                    </div>
+
+                    <div>
+                        <span>Paid</span>
+                        <strong>
+                            {% if order.paid_at %}
+                                {{ order.paid_at|date:"M j, Y g:i A" }}
+                            {% else %}
+                                Not paid yet
+                            {% endif %}
+                        </strong>
+                    </div>
+
+                    <div>
+                        <span>Last Stage Update</span>
+                        <strong>
+                            {% if order.stage_updated_at %}
+                                {{ order.stage_updated_at|date:"M j, Y g:i A" }}
+                            {% else %}
+                                No updates yet
+                            {% endif %}
+                        </strong>
+                    </div>
+                </div>
+            </section>
+
+            <section class="ts-panel">
+                <div class="ts-panel-header">
+                    <h2>Customer</h2>
+                </div>
+
+                <div class="ts-customer-box">
+                    <p><strong>{{ order.customer_name|default:"No customer name" }}</strong></p>
+                    <p>{{ order.customer_email|default:"No email" }}</p>
+                    <p>{{ order.customer_phone|default:"No phone" }}</p>
+                </div>
+            </section>
+        </div>
+
+        <section class="ts-panel">
+            <div class="ts-panel-header">
+                <h2>Items</h2>
+            </div>
+
+            <div class="ts-detail-items">
+                {% for item in order.items.all %}
+                    <div class="ts-detail-item-row">
+                        <div>
+                            <strong>
+                                {{ item.product_name }}
+                                {% if item.variant_name %}
+                                    - {{ item.variant_name }}
+                                {% endif %}
+                            </strong>
+
+                            {% if item.sku %}
+                                <span>SKU: {{ item.sku }}</span>
+                            {% endif %}
+                        </div>
+
+                        <div>Qty: {{ item.quantity }}</div>
+                        <div>${{ item.unit_price }}</div>
+                        <div><strong>${{ item.line_total }}</strong></div>
+                    </div>
+                {% empty %}
+                    <p class="ts-muted">No items found for this order.</p>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="ts-panel">
+            <div class="ts-panel-header">
+                <h2>Update Order</h2>
+                <p>Email is sent only when the stage changes and the notify box is checked.</p>
+            </div>
+
+            <form
+                method="POST"
+                action="{% url 'update_store_order_stage' order.id %}"
+                class="ts-detail-form"
+            >
+                {% csrf_token %}
+
+                <div class="ts-form-grid">
+                    <label>
+                        Order Stage
+                        <select name="order_stage">
+                            {% for value, label in stage_choices %}
+                                <option value="{{ value }}" {% if order.order_stage == value %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </label>
+
+                    <label>
+                        Shipping Carrier
+                        <input
+                            type="text"
+                            name="shipping_carrier"
+                            value="{{ order.shipping_carrier|default:'' }}"
+                            placeholder="USPS, UPS, FedEx"
+                        >
+                    </label>
+
+                    <label>
+                        Tracking Number
+                        <input
+                            type="text"
+                            name="tracking_number"
+                            value="{{ order.tracking_number|default:'' }}"
+                            placeholder="Tracking number"
+                        >
+                    </label>
+                </div>
+
+                <label>
+                    Customer Update Note
+                    <textarea
+                        name="fulfillment_note"
+                        rows="4"
+                        placeholder="This note can be included in the customer email."
+                    >{{ order.fulfillment_note|default:'' }}</textarea>
+                </label>
+
+                <label>
+                    Internal Note
+                    <textarea
+                        name="internal_note"
+                        rows="4"
+                        placeholder="Private note for farm staff only."
+                    >{{ order.internal_note|default:'' }}</textarea>
+                </label>
+
+                <div class="ts-form-actions">
+                    <label class="ts-check">
+                        <input type="checkbox" name="notify_customer" checked>
+                        Email customer if stage changed
+                    </label>
+
+                    <button type="submit" class="ts-primary-btn">
+                        Update Order
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <div class="ts-detail-grid">
+            <section class="ts-panel">
+                <div class="ts-panel-header">
+                    <h2>Billing Address</h2>
+                </div>
+
+                <p class="ts-address">
+                    {{ order.billing_name|default:"" }}<br>
+                    {{ order.billing_line1|default:"" }}<br>
+                    {% if order.billing_line2 %}
+                        {{ order.billing_line2 }}<br>
+                    {% endif %}
+                    {{ order.billing_city|default:"" }}
+                    {{ order.billing_state|default:"" }}
+                    {{ order.billing_postal_code|default:"" }}<br>
+                    {{ order.billing_country|default:"" }}
+                </p>
+            </section>
+
+            <section class="ts-panel">
+                <div class="ts-panel-header">
+                    <h2>Shipping Address</h2>
+                </div>
+
+                <p class="ts-address">
+                    {{ order.shipping_name|default:"" }}<br>
+                    {{ order.shipping_line1|default:"" }}<br>
+                    {% if order.shipping_line2 %}
+                        {{ order.shipping_line2 }}<br>
+                    {% endif %}
+                    {{ order.shipping_city|default:"" }}
+                    {{ order.shipping_state|default:"" }}
+                    {{ order.shipping_postal_code|default:"" }}<br>
+                    {{ order.shipping_country|default:"" }}
+                </p>
+            </section>
+        </div>
+
+        <section class="ts-panel">
+            <div class="ts-panel-header">
+                <h2>Stage History</h2>
+            </div>
+
+            <div class="ts-history-list">
+                {% for log in order.stage_logs.all %}
+                    <div class="ts-history-row">
+                        <div>
+                            <strong>
+                                {{ log.previous_stage|default:"None" }}
+                                →
+                                {{ log.new_stage }}
+                            </strong>
+
+                            {% if log.note %}
+                                <p>{{ log.note }}</p>
+                            {% endif %}
+                        </div>
+
+                        <div>
+                            <span>{{ log.created_at|date:"M j, Y g:i A" }}</span>
+                            {% if log.changed_by %}
+                                <span>By {{ log.changed_by }}</span>
+                            {% endif %}
+                            <span>
+                                Customer notified:
+                                {% if log.customer_notified %}
+                                    Yes
+                                {% else %}
+                                    No
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p class="ts-muted">No stage updates yet.</p>
+                {% endfor %}
+            </div>
+        </section>
+
+    </div>
+</div>
+{% endblock %}

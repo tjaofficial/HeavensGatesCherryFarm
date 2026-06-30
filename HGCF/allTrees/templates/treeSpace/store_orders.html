@@ -1,0 +1,219 @@
+{% extends "mainLayout.html" %}
+{% load static %}
+
+{% block list %}
+<link href="{% static 'style/pageSetup.css' %}" rel="stylesheet" />
+<link href="{% static 'style/storeOrders.css' %}" rel="stylesheet" />
+
+{% include "components/spacer.html" with headerSpace='small' %}
+
+<div class="ts-orders-page">
+    <div class="ts-orders-wrap">
+
+        <div class="ts-breadcrumb">
+            <a href="{% url 'dashboard' %}">TreeSpace</a>
+            <span>›</span>
+            <span>Store Orders</span>
+        </div>
+
+        <div class="ts-page-header">
+            <div>
+                <h1>Store Orders</h1>
+                <p>Review online orders, filter by status, and open order details to update fulfillment.</p>
+            </div>
+
+            <a href="{% url 'store' %}" class="ts-outline-btn">
+                View Store
+            </a>
+        </div>
+
+        <div class="ts-stats-grid">
+            <div class="ts-stat-card">
+                <span>Total Orders</span>
+                <strong>{{ order_counts.total }}</strong>
+            </div>
+
+            <div class="ts-stat-card">
+                <span>Pending Payment</span>
+                <strong>{{ order_counts.pending }}</strong>
+            </div>
+
+            <div class="ts-stat-card">
+                <span>Paid</span>
+                <strong>{{ order_counts.paid }}</strong>
+            </div>
+
+            <div class="ts-stat-card">
+                <span>Preparing</span>
+                <strong>{{ order_counts.preparing }}</strong>
+            </div>
+
+            <div class="ts-stat-card">
+                <span>Ready Pickup</span>
+                <strong>{{ order_counts.ready_for_pickup }}</strong>
+            </div>
+
+            <div class="ts-stat-card">
+                <span>Shipped</span>
+                <strong>{{ order_counts.shipped }}</strong>
+            </div>
+        </div>
+
+        {% if messages %}
+            <div class="ts-messages">
+                {% for message in messages %}
+                    <div class="ts-message {{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <form method="GET" class="ts-filter-card">
+            <div class="ts-filter-grid">
+                <label>
+                    Search
+                    <input
+                        type="text"
+                        name="q"
+                        value="{{ search_query }}"
+                        placeholder="Order #, name, email, phone, Stripe ID"
+                    >
+                </label>
+
+                <label>
+                    Payment Status
+                    <select name="status">
+                        <option value="">All Payment Statuses</option>
+                        {% for value, label in status_choices %}
+                            <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </label>
+
+                <label>
+                    Order Stage
+                    <select name="stage">
+                        <option value="">All Order Stages</option>
+                        {% for value, label in stage_choices %}
+                            <option value="{{ value }}" {% if stage_filter == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </label>
+
+                <label>
+                    Fulfillment
+                    <select name="fulfillment">
+                        <option value="">All Fulfillment Types</option>
+                        {% for value, label in fulfillment_choices %}
+                            <option value="{{ value }}" {% if fulfillment_filter == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </label>
+            </div>
+
+            <div class="ts-filter-actions">
+                <button type="submit" class="ts-primary-btn">Filter</button>
+                <a href="{% url 'treespace_store_orders' %}" class="ts-outline-btn">Clear</a>
+            </div>
+        </form>
+
+        <div class="ts-table-card">
+            <div class="ts-table-header">
+                <h2>Orders</h2>
+                <p>{{ orders|length }} showing</p>
+            </div>
+
+            <div class="ts-table-scroll">
+                <table class="ts-orders-table">
+                    <thead>
+                        <tr>
+                            <th>Order</th>
+                            <th>Customer</th>
+                            <th>Payment</th>
+                            <th>Stage</th>
+                            <th>Fulfillment</th>
+                            <th>Items</th>
+                            <th>Total</th>
+                            <th>Created</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for order in orders %}
+                            <tr>
+                                <td>
+                                    <strong>#{{ order.id }}</strong>
+                                </td>
+
+                                <td>
+                                    <strong>{{ order.customer_name|default:"No customer name" }}</strong>
+                                    {% if order.customer_email %}
+                                        <span>{{ order.customer_email }}</span>
+                                    {% endif %}
+                                    {% if order.customer_phone %}
+                                        <span>{{ order.customer_phone }}</span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    <span class="ts-pill payment-{{ order.status }}">
+                                        {{ order.get_status_display }}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <span class="ts-pill stage-{{ order.order_stage }}">
+                                        {{ order.get_order_stage_display }}
+                                    </span>
+                                </td>
+
+                                <td>{{ order.get_fulfillment_type_display }}</td>
+
+                                <td>
+                                    {% for item in order.items.all %}
+                                        <span class="ts-item-line">
+                                            {{ item.quantity }} × {{ item.product_name }}
+                                        </span>
+                                    {% empty %}
+                                        <span class="ts-muted">No items</span>
+                                    {% endfor %}
+                                </td>
+
+                                <td>
+                                    <strong>${{ order.total }}</strong>
+                                </td>
+
+                                <td>
+                                    {{ order.created_at|date:"M j, Y" }}
+                                    <span>{{ order.created_at|date:"g:i A" }}</span>
+                                </td>
+
+                                <td class="ts-table-action">
+                                    <a href="{% url 'treespace_store_order_detail' order.id %}" class="ts-small-btn">
+                                        Open
+                                    </a>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="9" class="ts-empty-cell">
+                                    No orders match your filters.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

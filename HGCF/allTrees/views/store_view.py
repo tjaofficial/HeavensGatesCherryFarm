@@ -3,6 +3,7 @@ from ..models import mainStore_products, cart_items
 from ..forms import mainStore_products_form, ProductVariantFormSet
 from django.http import JsonResponse #type: ignore
 import json
+from django.contrib.admin.views.decorators import staff_member_required
 import stripe #type: ignore
 from django.conf import settings
 from django.db.models import Q #type: ignore
@@ -11,11 +12,12 @@ from django.contrib.auth.decorators import login_required #type: ignore
 from django.views.decorators.http import require_http_methods, require_POST #type: ignore
 from django.core.exceptions import ObjectDoesNotExist #type: ignore
 from django.views.decorators.csrf import csrf_exempt #type: ignore
-from ..models import mainStore_products, cart_items, mainStore_product_variants, StoreOrder, StoreOrderItem
+from ..models import mainStore_products, cart_items, mainStore_product_variants, StoreOrder, StoreOrderItem, StoreOrderStageLog
 from django.db import transaction
 from django.http import HttpResponse
 from django.utils import timezone
 from django.core.mail import send_mail
+from django.contrib import messages
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -55,6 +57,48 @@ def get_cart_items_for_request(request):
 def get_cart_count(request):
     items = get_cart_items_for_request(request)
     return sum(item.quantity for item in items)
+
+def get_inventory_target_for_cart_item(cart_item):
+    """
+    Returns the object that should be inventory-checked:
+    variant first, otherwise product.
+    """
+    if cart_item.variant and cart_item.variant.track_inventory:
+        return cart_item.variant
+
+    if cart_item.product and cart_item.product.track_inventory:
+        return cart_item.product
+
+    return None
+
+def validate_cart_inventory(cartItems):
+    """
+    Checks cart quantities against current inventory before checkout.
+    Returns (is_valid, message).
+    """
+    for item in cartItems.select_related("product", "variant"):
+        inventory_target = get_inventory_target_for_cart_item(item)
+
+        if not inventory_target:
+            continue
+
+        inventory_total = inventory_target.inventory_total
+
+        if inventory_total is None:
+            continue
+
+        item_name = item.get_item_name()
+
+        if inventory_total <= 0:
+            return False, f"{item_name} is sold out."
+
+        if item.quantity > inventory_total:
+            return False, (
+                f"Only {inventory_total} left for {item_name}. "
+                f"Please update your cart quantity before checking out."
+            )
+
+    return True, ""
 
 @require_http_methods(["GET", "POST"])
 def store_view(request):
@@ -498,6 +542,14 @@ def create_checkout_session_view(request):
             "success": False,
             "message": "Your cart is empty."
         }, status=400)
+    
+    inventory_is_valid, inventory_message = validate_cart_inventory(cartItems)
+
+    if not inventory_is_valid:
+        return JsonResponse({
+            "success": False,
+            "message": inventory_message
+        }, status=400)
 
     line_items = build_cart_line_items(cartItems)
 
@@ -627,7 +679,6 @@ def stripe_obj_get(obj, key, default=None):
 
     return value
 
-
 def split_name(full_name):
     if not full_name:
         return "", ""
@@ -638,7 +689,6 @@ def split_name(full_name):
         return parts[0], ""
 
     return parts[0], " ".join(parts[1:])
-
 
 def save_address_to_order(order, prefix, address_data, name=None):
     if not address_data:
@@ -667,7 +717,6 @@ def save_address_to_order(order, prefix, address_data, name=None):
             update_fields.append(model_field)
 
     return update_fields
-
 
 def handle_checkout_session_completed(session):
     metadata = stripe_obj_get(session, "metadata", {}) or {}
@@ -839,3 +888,284 @@ def send_order_receipt_email(order):
         [order.customer_email],
         fail_silently=False,
     )
+
+def send_order_stage_update_email(order, previous_stage=None, note=None):
+    if not order.customer_email:
+        print(f"Order {order.id} has no customer email. Stage update email not sent.")
+        return False
+
+    stage_label = order.get_order_stage_display()
+
+    customer_name = (
+        order.customer_first_name
+        or order.customer_name
+        or "there"
+    )
+
+    pickup_text = ""
+
+    if order.order_stage == "ready_for_pickup":
+        pickup_text = """
+Your order is ready for pickup during business hours.
+
+Please keep this email available when you arrive.
+"""
+
+    shipping_text = ""
+
+    if order.order_stage == "shipped":
+        shipping_text = "\nShipping Information:\n"
+
+        if order.shipping_carrier:
+            shipping_text += f"Carrier: {order.shipping_carrier}\n"
+
+        if order.tracking_number:
+            shipping_text += f"Tracking Number: {order.tracking_number}\n"
+
+        if not order.shipping_carrier and not order.tracking_number:
+            shipping_text += "Your order has been marked as shipped.\n"
+
+    delivery_text = ""
+
+    if order.order_stage == "out_for_delivery":
+        delivery_text = """
+Your order is currently out for delivery.
+"""
+
+    completed_text = ""
+
+    if order.order_stage == "completed":
+        completed_text = """
+Your order has been completed. Thank you again for supporting Heaven’s Gates Cherry Farm!
+"""
+
+    cancelled_text = ""
+
+    if order.order_stage == "cancelled":
+        cancelled_text = """
+Your order has been cancelled. If you have questions, please contact us.
+"""
+
+    note_text = ""
+
+    if note:
+        note_text = f"""
+Note from Heaven’s Gates Cherry Farm:
+{note}
+"""
+
+    item_lines = []
+
+    for item in order.items.all():
+        item_name = item.product_name
+
+        if item.variant_name:
+            item_name += f" - {item.variant_name}"
+
+        item_lines.append(
+            f"{item_name}\n"
+            f"Qty: {item.quantity}\n"
+        )
+
+    items_text = "\n".join(item_lines)
+
+    subject = f"Heaven’s Gates Cherry Farm Order #{order.id} Update - {stage_label}"
+
+    message = f"""
+Hi {customer_name},
+
+Your Heaven’s Gates Cherry Farm order has been updated.
+
+Order #{order.id}
+Current Status: {stage_label}
+
+Items:
+{items_text}
+
+{pickup_text}
+{shipping_text}
+{delivery_text}
+{completed_text}
+{cancelled_text}
+{note_text}
+
+Thank you for supporting Heaven’s Gates Cherry Farm!
+"""
+
+    send_mail(
+        subject,
+        message,
+        getattr(settings, "DEFAULT_FROM_EMAIL", "webmaster@localhost"),
+        [order.customer_email],
+        fail_silently=False,
+    )
+
+    return True
+
+@staff_member_required
+def treespace_store_orders_view(request):
+    noFooter = True
+    smallHeader = True
+    sideBar = True
+
+    stage_filter = request.GET.get("stage", "").strip()
+    status_filter = request.GET.get("status", "").strip()
+    fulfillment_filter = request.GET.get("fulfillment", "").strip()
+    search_query = request.GET.get("q", "").strip()
+
+    orders = StoreOrder.objects.prefetch_related(
+        "items"
+    ).order_by("-created_at")
+
+    if stage_filter:
+        orders = orders.filter(order_stage=stage_filter)
+
+    if status_filter:
+        orders = orders.filter(status=status_filter)
+
+    if fulfillment_filter:
+        orders = orders.filter(fulfillment_type=fulfillment_filter)
+
+    if search_query:
+        orders = orders.filter(
+            Q(id__icontains=search_query) |
+            Q(customer_name__icontains=search_query) |
+            Q(customer_first_name__icontains=search_query) |
+            Q(customer_last_name__icontains=search_query) |
+            Q(customer_email__icontains=search_query) |
+            Q(customer_phone__icontains=search_query) |
+            Q(stripe_checkout_session_id__icontains=search_query) |
+            Q(stripe_payment_intent_id__icontains=search_query)
+        )
+
+    order_counts = {
+        "total": StoreOrder.objects.count(),
+        "pending": StoreOrder.objects.filter(status="pending").count(),
+        "paid": StoreOrder.objects.filter(status="paid").count(),
+        "preparing": StoreOrder.objects.filter(order_stage="preparing").count(),
+        "ready_for_pickup": StoreOrder.objects.filter(order_stage="ready_for_pickup").count(),
+        "shipped": StoreOrder.objects.filter(order_stage="shipped").count(),
+    }
+
+    return render(request, "treeSpace/store_orders.html", {
+        "smallHeader": smallHeader,
+        "noFooter": noFooter,
+        "sideBar": sideBar,
+        "orders": orders,
+        "order_counts": order_counts,
+        "stage_filter": stage_filter,
+        "status_filter": status_filter,
+        "fulfillment_filter": fulfillment_filter,
+        "search_query": search_query,
+        "stage_choices": StoreOrder.ORDER_STAGE_CHOICES,
+        "status_choices": StoreOrder.STATUS_CHOICES,
+        "fulfillment_choices": StoreOrder.FULFILLMENT_CHOICES,
+    })
+
+@staff_member_required
+@require_POST
+def update_store_order_stage_view(request, order_id):
+    order = get_object_or_404(StoreOrder, id=order_id)
+
+    new_stage = request.POST.get("order_stage", "").strip()
+    fulfillment_note = request.POST.get("fulfillment_note", "").strip()
+    internal_note = request.POST.get("internal_note", "").strip()
+    tracking_number = request.POST.get("tracking_number", "").strip()
+    shipping_carrier = request.POST.get("shipping_carrier", "").strip()
+    notify_customer = request.POST.get("notify_customer") == "on"
+
+    valid_stages = [choice[0] for choice in StoreOrder.ORDER_STAGE_CHOICES]
+
+    if new_stage not in valid_stages:
+        messages.error(request, "Invalid order stage selected.")
+        return redirect("treespace_store_orders")
+
+    previous_stage = order.order_stage
+    stage_changed = previous_stage != new_stage
+
+    order.order_stage = new_stage
+    order.stage_updated_at = timezone.now()
+    order.fulfillment_note = fulfillment_note
+    order.internal_note = internal_note
+    order.tracking_number = tracking_number
+    order.shipping_carrier = shipping_carrier
+
+    update_fields = [
+        "order_stage",
+        "stage_updated_at",
+        "fulfillment_note",
+        "internal_note",
+        "tracking_number",
+        "shipping_carrier",
+    ]
+
+    now = timezone.now()
+
+    if new_stage == "ready_for_pickup" and not order.ready_for_pickup_at:
+        order.ready_for_pickup_at = now
+        update_fields.append("ready_for_pickup_at")
+
+    if new_stage == "shipped" and not order.shipped_at:
+        order.shipped_at = now
+        update_fields.append("shipped_at")
+
+    if new_stage == "completed" and not order.completed_at:
+        order.completed_at = now
+        update_fields.append("completed_at")
+
+    if new_stage == "cancelled" and not order.cancelled_at:
+        order.cancelled_at = now
+        update_fields.append("cancelled_at")
+
+    order.save(update_fields=update_fields)
+
+    customer_notified = False
+
+    if notify_customer and stage_changed:
+        customer_notified = send_order_stage_update_email(
+            order,
+            previous_stage=previous_stage,
+            note=fulfillment_note
+        )
+
+    StoreOrderStageLog.objects.create(
+        order=order,
+        previous_stage=previous_stage,
+        new_stage=new_stage,
+        note=fulfillment_note,
+        changed_by=request.user,
+        customer_notified=customer_notified,
+    )
+
+    if customer_notified:
+        messages.success(request, f"Order #{order.id} updated and customer notified.")
+    elif notify_customer and not stage_changed:
+        messages.success(request, f"Order #{order.id} updated. Customer was not emailed because the stage did not change.")
+    else:
+        messages.success(request, f"Order #{order.id} updated.")
+
+    return redirect("treespace_store_orders")
+
+@staff_member_required
+def treespace_store_order_detail_view(request, order_id):
+    noFooter = True
+    smallHeader = True
+    sideBar = True
+
+    order = get_object_or_404(
+        StoreOrder.objects.prefetch_related(
+            "items",
+            "stage_logs"
+        ),
+        id=order_id
+    )
+
+    return render(request, "treeSpace/store_order_detail.html", {
+        "smallHeader": smallHeader,
+        "noFooter": noFooter,
+        "sideBar": sideBar,
+        "order": order,
+        "stage_choices": StoreOrder.ORDER_STAGE_CHOICES,
+    })
+
+

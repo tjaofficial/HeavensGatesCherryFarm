@@ -1269,6 +1269,16 @@ class StoreOrder(models.Model):
         ("local_delivery", "Local Delivery"),
     )
 
+    ORDER_STAGE_CHOICES = (
+        ("received", "Order Received"),
+        ("preparing", "Preparing Order"),
+        ("ready_for_pickup", "Ready for Pickup"),
+        ("out_for_delivery", "Out for Delivery"),
+        ("shipped", "Shipped"),
+        ("completed", "Completed"),
+        ("cancelled", "Cancelled"),
+    )
+
     user = models.ForeignKey(
         User,
         on_delete=models.SET_NULL,
@@ -1294,6 +1304,33 @@ class StoreOrder(models.Model):
         choices=FULFILLMENT_CHOICES,
         default="pickup"
     )
+
+    order_stage = models.CharField(
+        max_length=30,
+        choices=ORDER_STAGE_CHOICES,
+        default="received"
+    )
+
+    stage_updated_at = models.DateTimeField(null=True, blank=True)
+
+    fulfillment_note = models.TextField(null=True, blank=True)
+
+    tracking_number = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True
+    )
+
+    shipping_carrier = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True
+    )
+
+    ready_for_pickup_at = models.DateTimeField(null=True, blank=True)
+    shipped_at = models.DateTimeField(null=True, blank=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    cancelled_at = models.DateTimeField(null=True, blank=True)
 
     customer_email = models.EmailField(null=True, blank=True)
     customer_name = models.CharField(max_length=180, null=True, blank=True)
@@ -1375,7 +1412,7 @@ class StoreOrder(models.Model):
         self.save(update_fields=["subtotal", "total"])
 
     def __str__(self):
-        return f"Order #{self.id} - {self.status} - ${self.total}"
+        return f"Order #{self.id} - {self.status} - {self.order_stage} - ${self.total}"
 
 class StoreOrderItem(models.Model):
     order = models.ForeignKey(
@@ -1425,6 +1462,46 @@ class StoreOrderItem(models.Model):
 
     def __str__(self):
         return f"{self.product_name} x {self.quantity}"
+
+class StoreOrderStageLog(models.Model):
+    order = models.ForeignKey(
+        'StoreOrder',
+        on_delete=models.CASCADE,
+        related_name="stage_logs"
+    )
+
+    previous_stage = models.CharField(
+        max_length=30,
+        null=True,
+        blank=True
+    )
+
+    new_stage = models.CharField(
+        max_length=30
+    )
+
+    note = models.TextField(
+        null=True,
+        blank=True
+    )
+
+    changed_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+
+    customer_notified = models.BooleanField(default=False)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"Order #{self.order_id}: {self.previous_stage} → {self.new_stage}"
+    
 
 class FarmNewsletterSubscriber(models.Model):
     email = models.EmailField(unique=True)
