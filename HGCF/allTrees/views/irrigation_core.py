@@ -116,6 +116,7 @@ def emergency_shutoff(request):
 @lock
 @require_POST
 def toggle_valve(request):
+    """Manual valve control with a hard maximum of two active valves."""
     try:
         data = json.loads(request.body)
         device_id = data.get("device_id")
@@ -123,103 +124,106 @@ def toggle_valve(request):
 
         valveSelect = valve_registration.objects.get(valveIP=device_id)
 
-        print(device_id, turn_on)
+        if turn_on:
+            # Read the actual Shelly relay states before allowing another area on.
+            status_map = get_valve_statuses()
 
-        try:
-            if turn_on:
-                allValves = valve_registration.objects.all()
+            active_device_ids = {
+                current_device_id
+                for current_device_id, status in status_map.items()
+                if status is True or status == "on"
+            }
 
-                for valve in allValves:
-                    valve_device_id = valve.valveIP
+            # If the selected valve is already on, do not count it against itself.
+            other_active_valves = active_device_ids - {device_id}
 
-                    if valve_device_id == device_id:
-                        publish_valve_command(device_id, True)
-
-                        logMessage = get_irrigation_log_messages(
-                            'manual',
-                            'start',
-                            valveSelect,
-                            request.user
-                        )
-
-                        add_log_to_area_trees(valveSelect, logMessage, 'Irrigation')
-
-                    else:
-                        publish_valve_command(valve_device_id, False)
-
-                        logMessage = get_irrigation_log_messages(
-                            'manual',
-                            'stop',
-                            valve,
-                            request.user
-                        )
-
-                        add_log_to_area_trees(valve, logMessage, 'Irrigation')
-
-                verified, samples = verify_valve_reached_status(
-                    device_id,
-                    expected_on=True,
-                    attempts=4,
-                    delay_seconds=5
-                )
-
-                if verified:
-                    valveSelect.manual_override = True
-                    valveSelect.save(update_fields=['manual_override'])
-
-                    return JsonResponse({
-                        "status": "success",
-                        "message": f"{valveSelect.name} confirmed ON.",
-                        "verification_samples": samples
-                    })
-
-                warning_message = (
-                    f"Warning: {valveSelect.name} was told to turn ON, "
-                    f"but it never confirmed ON after multiple checks. "
-                    f"This may be a relay, power, wiring, or connection issue."
-                )
-
-                print("⚠️", warning_message)
-                print("Verification samples:", samples)
-
-                add_log_to_area_trees(
-                    valveSelect,
-                    warning_message,
-                    'Irrigation'
-                )
-
+            if len(other_active_valves) >= 2:
                 return JsonResponse({
-                    "status": "warning",
-                    "message": warning_message,
-                    "verification_samples": samples
+                    "status": "limit_reached",
+                    "message": (
+                        "Two irrigation areas are already running. "
+                        "Turn one off before starting another area."
+                    )
                 })
 
-            else:
-                publish_valve_command(device_id, False)
+            publish_valve_command(device_id, True)
 
-                logMessage = get_irrigation_log_messages(
-                    'manual',
-                    'stop',
-                    valveSelect,
-                    request.user
-                )
+            logMessage = get_irrigation_log_messages(
+                'manual',
+                'start',
+                valveSelect,
+                request.user
+            )
+            add_log_to_area_trees(valveSelect, logMessage, 'Irrigation')
 
-                add_log_to_area_trees(valveSelect, logMessage, 'Irrigation')
+            verified, samples = verify_valve_reached_status(
+                device_id,
+                expected_on=True,
+                attempts=4,
+                delay_seconds=5
+            )
 
+            if verified:
+                # True means a person has taken control of this valve. A schedule
+                # will not fight the user's choice during its current run window.
                 valveSelect.manual_override = True
                 valveSelect.save(update_fields=['manual_override'])
 
                 return JsonResponse({
                     "status": "success",
-                    "message": f"{valveSelect.name} turned OFF."
+                    "message": f"{valveSelect.name} confirmed ON.",
+                    "verification_samples": samples
                 })
 
-        except Exception as e:
-            return JsonResponse({
-                "status": "error1",
-                "message": str(e)
-            }, status=500)
+            warning_message = (
+                f"Warning: {valveSelect.name} was told to turn ON, "
+                f"but it never confirmed ON after multiple checks. "
+                f"This may be a relay, power, wiring, or connection issue."
+            )
 
+            add_log_to_area_trees(
+                valveSelect,
+                warning_message,
+                'Irrigation'
+            )
+
+            return JsonResponse({
+                "status": "warning",
+                "message": warning_message,
+                "verification_samples": samples
+            })
+
+        # Turning a valve off is always allowed.
+        publish_valve_command(device_id, False)
+
+        logMessage = get_irrigation_log_messages(
+            'manual',
+            'stop',
+            valveSelect,
+            request.user
+        )
+        add_log_to_area_trees(valveSelect, logMessage, 'Irrigation')
+
+        # Keep this as a manual override so an active schedule does not immediately
+        # turn the valve back on. The scheduler clears it when that run window ends.
+        valveSelect.manual_override = True
+        valveSelect.save(update_fields=['manual_override'])
+
+        return JsonResponse({
+            "status": "success",
+            "message": f"{valveSelect.name} turned OFF."
+        })
+
+    except valve_registration.DoesNotExist:
+        return JsonResponse({
+            "status": "error",
+            "message": "Valve not found."
+        }, status=404)
+    except json.JSONDecodeError:
+        return JsonResponse({
+            "status": "error",
+            "message": "Invalid request data."
+        }, status=400)
     except Exception as e:
         return JsonResponse({
             "status": "error",

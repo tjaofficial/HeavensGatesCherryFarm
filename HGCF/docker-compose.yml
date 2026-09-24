@@ -14,6 +14,25 @@ services:
     expose:
       - "8000"
 
+  scheduler:
+    build: .
+    container_name: hgcf_scheduler
+    restart: unless-stopped
+    command: >
+      sh -c "while true; do
+      python manage.py run_valve_schedule;
+      sleep 30;
+      done"
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+      - hgcf_sqlite_data:/app/data
+      - hgcf_staticfiles:/app/staticfiles
+      - hgcf_media:/app/media
+    depends_on:
+      - web
+
   nginx:
     image: nginx:1.25-alpine
     container_name: hgcf_nginx
