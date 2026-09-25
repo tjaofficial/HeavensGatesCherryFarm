@@ -116,7 +116,7 @@ def emergency_shutoff(request):
 @lock
 @require_POST
 def toggle_valve(request):
-    """Manual valve control with a hard maximum of two active valves."""
+    """Manual valve control with a hard maximum of four active valves."""
     try:
         data = json.loads(request.body)
         device_id = data.get("device_id")
@@ -137,11 +137,11 @@ def toggle_valve(request):
             # If the selected valve is already on, do not count it against itself.
             other_active_valves = active_device_ids - {device_id}
 
-            if len(other_active_valves) >= 2:
+            if len(other_active_valves) >= 4:
                 return JsonResponse({
                     "status": "limit_reached",
                     "message": (
-                        "Two irrigation areas are already running. "
+                        "Four irrigation areas are already running. "
                         "Turn one off before starting another area."
                     )
                 })

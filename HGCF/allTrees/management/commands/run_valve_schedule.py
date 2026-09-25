@@ -10,7 +10,7 @@ from ...utils import (
 from ...views.mqtt_pub import get_valve_statuses
 
 
-MAX_ACTIVE_VALVES = 2
+MAX_ACTIVE_VALVES = 4
 
 
 def status_is_on(status):
